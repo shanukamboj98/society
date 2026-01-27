@@ -28,6 +28,7 @@ import ManageHeader from "./componets/event_panel/header/ManageHeader";
 import TotalRegistration from "./componets/event_panel/totalregistration/TotalRegistration";
 import AddEvent from "./componets/event_panel/dashboard_pages/event_create/AddEvent";
 import ManageEvent from "./componets/event_panel/dashboard_pages/event_create/ManageEvent";
+import Registration from "./componets/pages/member_registration/Registration";
 
 
 // import AboutUs from "./componets/pages/AboutUs";
@@ -74,6 +75,7 @@ function App() {
                <Route path="/TotalRegistration" element={<TotalRegistration />} />
                <Route path="/AddEvent" element={<AddEvent />} />
                <Route path="/ManageEvent" element={<ManageEvent />} />
+                 <Route path="/Registration" element={<Registration />} />
           
           </Routes>
         </main>
