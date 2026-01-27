@@ -1,4 +1,4 @@
-// AuthContext.js for your eventmanagement project
+// AuthContext.js for your ngoproject
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
  
 const AuthContext = createContext(null);
@@ -127,9 +127,9 @@ export const AuthProvider = ({ children }) => {
         return null;
       }
  
-      // Updated to your eventmanagement project's API endpoint
+      // Updated to your ngoproject's API endpoint
       const response = await fetch(
-        "https://mahadevaaya.com/eventmanagement/eventmanagement_backend/api/refresh-token/",
+        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/refresh-token/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

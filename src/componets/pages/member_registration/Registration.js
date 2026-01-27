@@ -31,6 +31,46 @@ const Registration = () => {
     // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
+        
+        // Special handling for full_name to only allow alphabets and spaces
+        if (name === 'full_name') {
+            // Remove any numbers from the input
+            const alphabetOnlyValue = value.replace(/[^a-zA-Z\s]/g, '');
+            setFormData({
+                ...formData,
+                [name]: alphabetOnlyValue,
+            });
+
+            // Clear error when user starts typing
+            if (errors[name]) {
+                setErrors({
+                    ...errors,
+                    [name]: null,
+                });
+            }
+            return;
+        }
+        
+        // Special handling for phone to only allow numbers
+        if (name === 'phone') {
+            // Remove any non-digit characters and limit to 10 digits
+            const numbersOnly = value.replace(/\D/g, '').slice(0, 10);
+            setFormData({
+                ...formData,
+                [name]: numbersOnly,
+            });
+
+            // Clear error when user starts typing
+            if (errors[name]) {
+                setErrors({
+                    ...errors,
+                    [name]: null,
+                });
+            }
+            return;
+        }
+        
+        // Normal handling for other fields
         setFormData({
             ...formData,
             [name]: value,
@@ -61,6 +101,14 @@ const Registration = () => {
             };
             reader.readAsDataURL(file);
         }
+        
+        // Clear image error when file is selected
+        if (errors.image) {
+            setErrors({
+                ...errors,
+                image: null,
+            });
+        }
     };
 
     // Validate form
@@ -72,6 +120,8 @@ const Registration = () => {
             newErrors.full_name = 'Full name is required';
         } else if (formData.full_name.trim().length < 2) {
             newErrors.full_name = 'Full name must be at least 2 characters';
+        } else if (!/^[a-zA-Z\s]+$/.test(formData.full_name)) {
+            newErrors.full_name = 'Full name should contain only alphabets';
         }
 
         // Email validation
@@ -85,7 +135,7 @@ const Registration = () => {
         if (!formData.phone.trim()) {
             newErrors.phone = 'Phone number is required';
         } else if (!/^\d{10}$/.test(formData.phone.replace(/\s/g, ''))) {
-            newErrors.phone = 'Phone number must be 10 digits';
+            newErrors.phone = 'Phone number must be exactly 10 digits';
         }
 
         // Password validation
@@ -97,10 +147,10 @@ const Registration = () => {
             newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
         }
 
-        // Image validation - make it optional for now to test API
-        // if (!formData.image) {
-        //   newErrors.image = 'Image is required';
-        // }
+        // Image validation - now required
+        if (!formData.image) {
+            newErrors.image = 'Image is required';
+        }
 
         // Address validation
         if (!formData.address.trim()) {
@@ -586,6 +636,9 @@ const Registration = () => {
                                 <Form.Control.Feedback type="invalid" id="full_name-error">
                                     {errors.full_name}
                                 </Form.Control.Feedback>
+                                <Form.Text id="full_name-help" muted>
+                                    Only alphabets are allowed
+                                </Form.Text>
                             </Form.Group>
                         </Col>
                         <Col sm={6}>
@@ -625,10 +678,14 @@ const Registration = () => {
                                     required
                                     aria-required="true"
                                     aria-describedby="phone-error"
+                                    maxLength="10"
                                 />
                                 <Form.Control.Feedback type="invalid" id="phone-error">
                                     {errors.phone}
                                 </Form.Control.Feedback>
+                                <Form.Text id="phone-help" muted>
+                                    Enter exactly 10 digits
+                                </Form.Text>
                             </Form.Group>
                         </Col>
                         <Col sm={6}>
@@ -668,14 +725,15 @@ const Registration = () => {
                                     onChange={handleFileChange}
                                     accept="image/*"
                                     aria-required="true"
-                                    aria-describedby="image-help"
+                                    aria-describedby="image-help image-error"
                                     isInvalid={!!errors.image}
+                                    required
                                 />
                                 <Form.Text id="image-help" muted>
                                     Upload a recent photo (JPG, PNG format)
                                 </Form.Text>
                                 {errors.image && (
-                                    <div className="text-danger mt-1">{errors.image}</div>
+                                    <div className="text-danger mt-1" id="image-error">{errors.image}</div>
                                 )}
                                 {imagePreview && (
                                     <div className="mt-2">

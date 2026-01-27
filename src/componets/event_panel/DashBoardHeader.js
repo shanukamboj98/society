@@ -18,7 +18,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-// import { useAuth } from "../context/AuthContext";
+ import { useAuth } from "../context/AuthContext";
 
 // 1. Accept searchTerm and setSearchTerm as props
 function DashBoardHeader({ toggleSidebar, searchTerm, setSearchTerm }) {
@@ -64,11 +64,11 @@ function DashBoardHeader({ toggleSidebar, searchTerm, setSearchTerm }) {
     setUnreadCount((prev) => prev - 1);
   };
   // Get user photo URL
-//   const { logout } = useAuth();
+  const { logout } = useAuth();
  
 const handleLogout = () => {
-    // logout();
-    // navigate("/Login", { replace: true });
+     logout();
+     navigate("/Login", { replace: true });
   };
   return (
     <header className="dashboard-header">

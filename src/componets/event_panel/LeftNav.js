@@ -30,16 +30,23 @@ import {
   FaPlusSquare,
   FaTasks
 } from "react-icons/fa";
-
+import {  useNavigate } from "react-router-dom"; // Add useNavigate import
+import { useAuth } from "../context/AuthContext"; // Import useAuth
 // import BRLogo from "../../assets/images/brainrock_logo.png";
 
 
 
 
 const LeftNav = ({ sidebarOpen, setSidebarOpen, isMobile, isTablet }) => {
-    // const { logout } = useContext(AuthContext);
-    // const { user } = useContext(AuthContext);
-// const emp_id = user?.unique_id;  // This is the correct value
+   const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    
+ // Add logout handler function
+    const handleLogout = () => {
+        logout();
+        navigate("/Login", { replace: true });
+    };
 
     const [userRole, setUserRole] = useState(null);
   const [openSubmenu, setOpenSubmenu] = useState(null);
@@ -97,6 +104,26 @@ const menuItems = [
      {
           label: "Manage header",
           path: "/ManageHeader",
+          icon: <FaImage />,
+        },
+   
+   
+  ],
+},
+
+
+   {
+  icon: <FaInfoCircle />,   // About Us main
+  label: "Associative Wings",
+  submenu: [
+    {
+      label: "Add Wings",
+      path: "/AddWings",
+      icon: <FaUserCircle />, // profile
+    },
+     {
+          label: "Manage Wings",
+          path: "/ManageWings",
           icon: <FaImage />,
         },
    
@@ -196,7 +223,7 @@ const menuItems = [
         <div className="sidebar-footer">
           <Nav.Link
             className="nav-item logout-btn"
-        //    onClick={logout}
+           onClick={handleLogout}
           >
             <span className="nav-icon">
               <FaSignOutAlt />
@@ -264,6 +291,17 @@ const menuItems = [
           )}
         </div>
       ))}
+
+       {/* Add logout button to mobile menu as well */}
+                        <Nav.Link
+                            className="nav-item logout-btn"
+                            onClick={handleLogout}
+                        >
+                            <span className="nav-icon">
+                                <FaSignOutAlt />
+                            </span>
+                            <span className="nav-text">Logout</span>
+                        </Nav.Link>
     </Nav>
   </Offcanvas.Body>
 </Offcanvas>

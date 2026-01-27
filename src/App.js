@@ -20,7 +20,7 @@ import AboutUs from "./componets/pages/AboutUs";
 
 
 import DashBoardHeader from "./componets/event_panel/DashBoardHeader";
-import Dashboard from "./componets/event_panel/DashBoard";
+import DashBoard from "./componets/event_panel/DashBoard";
 import Login from "./componets/login/Login";
 import UserDashBoard from "./componets/user_dashboard/UserDashBoard";
 import AddHeader from "./componets/event_panel/header/AddHeader";
@@ -29,16 +29,13 @@ import TotalRegistration from "./componets/event_panel/totalregistration/TotalRe
 import AddEvent from "./componets/event_panel/dashboard_pages/event_create/AddEvent";
 import ManageEvent from "./componets/event_panel/dashboard_pages/event_create/ManageEvent";
 import Registration from "./componets/pages/member_registration/Registration";
+import AddWings from "./componets/event_panel/dashboard_pages/associative_wings/AddWings";
+import ManageWings from "./componets/event_panel/dashboard_pages/associative_wings/ManageWings";
 
 
-// import AboutUs from "./componets/pages/AboutUs";
-// import Faculty from "./componets/pages/about_us/Faculty";
-// import RegistrationModal from "./componets/pages/RegistrationModal";
 
 
-// import NavBar from "./componets/topnav/NavBar";
-// import Footer from "./componets/footer/Footer";
-// import Dashboard from "./componets/dash_board/Dashboard";
+
 
 function App() {
 
@@ -50,11 +47,18 @@ function App() {
     "/ManageHeader",
     "/TotalRegistration",
     "/AddEvent",
-    "/ManageEvent"
+    "/ManageEvent",
+    "/UserDashBoard",
+    "/AddWings",
+    "/ManageWings",
   ]);
 
+  // const hiddenFooter1= new Set([ 
+   
+  // ]);
+
   const shouldHideNavbar = hiddenPaths.has(location.pathname);
-  
+  //  const shouldHideFooter1 = hiddenFooter1.has(location.pathname);
   return (
     
       <div className="app-container">
@@ -66,7 +70,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/AboutUs" element={<AboutUs />} />
             <Route path="/DashBoardHeader" element={<DashBoardHeader />} />
-            <Route path="/DashBoard" element={<Dashboard />} />
+            <Route path="/DashBoard" element={<DashBoard />} />
 
               <Route path="/Login" element={<Login />} />
               <Route path="/UserDashBoard" element={<UserDashBoard />} />
@@ -75,11 +79,13 @@ function App() {
                <Route path="/TotalRegistration" element={<TotalRegistration />} />
                <Route path="/AddEvent" element={<AddEvent />} />
                <Route path="/ManageEvent" element={<ManageEvent />} />
-                 <Route path="/Registration" element={<Registration />} />
+                <Route path="/Registration" element={<Registration />} />
+                <Route path="/AddWings" element={<AddWings/>} />
+                 <Route path="/ManageWings" element={<ManageWings/>} />
           
           </Routes>
         </main>
-           {!shouldHideNavbar && <Footer />}
+           {/* {!shouldHideFooter1 && <Footer />} */}
       
       </div>
  

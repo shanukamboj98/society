@@ -21,7 +21,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        "https://mahadevaaya.com/eventmanagement/eventmanagement_backend/api/login/",
+        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/login/",
         {
           method: "POST",
           headers: {
