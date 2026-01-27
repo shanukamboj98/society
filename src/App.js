@@ -1,24 +1,86 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "@fontsource/poppins";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import "../src/componets/custom/style.css";
+import {
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+
+
+
+
+import Home from "./componets/pages/Home";
+import Footer from "./componets/footer/Footer";
+import NavBar from "./componets/navbar/NavBar";
+import AboutUs from "./componets/pages/AboutUs"; 
+
+
+import DashBoardHeader from "./componets/event_panel/DashBoardHeader";
+import Dashboard from "./componets/event_panel/DashBoard";
+import Login from "./componets/login/Login";
+import UserDashBoard from "./componets/user_dashboard/UserDashBoard";
+import AddHeader from "./componets/event_panel/header/AddHeader";
+import ManageHeader from "./componets/event_panel/header/ManageHeader";
+import TotalRegistration from "./componets/event_panel/totalregistration/TotalRegistration";
+import AddEvent from "./componets/event_panel/dashboard_pages/event_create/AddEvent";
+import ManageEvent from "./componets/event_panel/dashboard_pages/event_create/ManageEvent";
+
+
+// import AboutUs from "./componets/pages/AboutUs";
+// import Faculty from "./componets/pages/about_us/Faculty";
+// import RegistrationModal from "./componets/pages/RegistrationModal";
+
+
+// import NavBar from "./componets/topnav/NavBar";
+// import Footer from "./componets/footer/Footer";
+// import Dashboard from "./componets/dash_board/Dashboard";
 
 function App() {
+
+  const location = useLocation();
+
+  const hiddenPaths = new Set([
+    "/DashBoard",
+    "/AddHeader", 
+    "/ManageHeader",
+    "/TotalRegistration",
+    "/AddEvent",
+    "/ManageEvent"
+  ]);
+
+  const shouldHideNavbar = hiddenPaths.has(location.pathname);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    
+      <div className="app-container">
+        {!shouldHideNavbar && <NavBar />}
+        
+        <main className="main-content">
+          <Routes>
+            {/* Public Route */}
+            <Route path="/" element={<Home />} />
+            <Route path="/AboutUs" element={<AboutUs />} />
+            <Route path="/DashBoardHeader" element={<DashBoardHeader />} />
+            <Route path="/DashBoard" element={<Dashboard />} />
+
+              <Route path="/Login" element={<Login />} />
+              <Route path="/UserDashBoard" element={<UserDashBoard />} />
+              <Route path="/AddHeader" element={<AddHeader />} />
+              <Route path="/ManageHeader" element={<ManageHeader />} />
+               <Route path="/TotalRegistration" element={<TotalRegistration />} />
+               <Route path="/AddEvent" element={<AddEvent />} />
+               <Route path="/ManageEvent" element={<ManageEvent />} />
+          
+          </Routes>
+        </main>
+           {!shouldHideNavbar && <Footer />}
+      
+      </div>
+ 
   );
 }
 
