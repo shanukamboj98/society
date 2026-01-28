@@ -25,8 +25,6 @@ import Login from "./componets/login/Login";
 import UserDashBoard from "./componets/user_dashboard/UserDashBoard";
 import AddHeader from "./componets/event_panel/header/AddHeader";
 import ManageHeader from "./componets/event_panel/header/ManageHeader";
-import AddEvent from "./componets/event_panel/dashboard_pages/event_create/AddEvent";
-import ManageEvent from "./componets/event_panel/dashboard_pages/event_create/ManageEvent";
 import Registration from "./componets/pages/member_registration/Registration";
 import AddWings from "./componets/event_panel/dashboard_pages/associative_wings/AddWings";
 import ManageWings from "./componets/event_panel/dashboard_pages/associative_wings/ManageWings";
@@ -47,8 +45,6 @@ function App() {
     "/DashBoard",
     "/AddHeader", 
     "/ManageHeader",
-    "/AddEvent",
-    "/ManageEvent",
     "/UserDashBoard",
     "/AddWings",
     "/ManageWings",
@@ -78,8 +74,6 @@ function App() {
               <Route path="/UserDashBoard" element={<UserDashBoard />} />
               <Route path="/AddHeader" element={<AddHeader />} />
               <Route path="/ManageHeader" element={<ManageHeader />} />
-               <Route path="/AddEvent" element={<AddEvent />} />
-               <Route path="/ManageEvent" element={<ManageEvent />} />
                <Route path="/Registration" element={<Registration />} />
                <Route path="/MembersList" element={<MembersList />} />
                 <Route path="/AddWings" element={<AddWings/>} />
