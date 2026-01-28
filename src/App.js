@@ -32,6 +32,7 @@ import AddWings from "./componets/event_panel/dashboard_pages/associative_wings/
 import ManageWings from "./componets/event_panel/dashboard_pages/associative_wings/ManageWings";
 import MembersList from "./componets/pages/member_registration/MembersList";
 import ManageRegistration from "./componets/event_panel/dashboard_pages/manage_registration/ManageRegistration";
+import DonationSociety from "./componets/pages/donation/DonationSociety";
 
 
 
@@ -79,11 +80,12 @@ function App() {
               <Route path="/ManageHeader" element={<ManageHeader />} />
                <Route path="/AddEvent" element={<AddEvent />} />
                <Route path="/ManageEvent" element={<ManageEvent />} />
-                <Route path="/Registration" element={<Registration />} />
-                 <Route path="/MembersList" element={<MembersList />} />
+               <Route path="/Registration" element={<Registration />} />
+               <Route path="/MembersList" element={<MembersList />} />
                 <Route path="/AddWings" element={<AddWings/>} />
-                 <Route path="/ManageWings" element={<ManageWings/>} />
-                   <Route path="/ManageRegistration" element={<ManageRegistration/>} />
+                <Route path="/ManageWings" element={<ManageWings/>} />
+                <Route path="/ManageRegistration" element={<ManageRegistration/>} />
+                <Route path="/DonationSociety" element={<DonationSociety/>} />
           
           </Routes>
         </main>

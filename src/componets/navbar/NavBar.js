@@ -103,7 +103,7 @@ function NavBar() {
                   </ul>
                 </li>
 
-                <li><Link to="students-life.html">Donations</Link></li>
+                <li><Link to="/DonationSociety">Donations</Link></li>
                 <li><Link to="events.html">Gallery</Link></li>
              
 
