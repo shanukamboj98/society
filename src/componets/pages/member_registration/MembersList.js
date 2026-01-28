@@ -18,7 +18,9 @@ const MembersList = () => {
                 const data = await response.json();
 
                 if (data.success) {
-                    setMembers(data.data);
+                    // Filter to only include members with "accepted" status
+                    const acceptedMembers = data.data.filter(member => member.status === 'accepted');
+                    setMembers(acceptedMembers);
                 } else {
                     setError('Failed to fetch members data');
                 }
@@ -101,7 +103,7 @@ const MembersList = () => {
                     onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
                     <Card.Header className="bg-secondary text-white text-center">
-                        <h5 className="mb-0">{member.member_id}</h5>
+                  
                     </Card.Header>
                     <div className="text-center p-3">
                         <Image 
@@ -118,7 +120,7 @@ const MembersList = () => {
                         <Card.Subtitle className="mb-2 text-muted text-center">{member.occupation}</Card.Subtitle>
                         <div className="d-flex justify-content-between align-items-center mt-3">
                             <Badge bg="info">{member.designation || 'N/A'}</Badge>
-                            <small className="text-muted">ID: {member.id}</small>
+                          
                         </div>
                     </Card.Body>
                     <Card.Footer className="text-muted">
@@ -149,7 +151,7 @@ const MembersList = () => {
                 <Card className="shadow">
                     <Card.Header className="bg-secondary text-white d-flex justify-content-between align-items-center">
                         <h4 className="mb-0">Member Details</h4>
-                        <Badge bg="light" text="dark">{selectedMember.member_id}</Badge>
+                      
                     </Card.Header>
                     
                     <Card.Body>
@@ -176,9 +178,7 @@ const MembersList = () => {
                                     <Col sm={6} className="mb-2">
                                         <strong>Email:</strong> {selectedMember.email}
                                     </Col>
-                                    <Col sm={6} className="mb-2">
-                                        <strong>Phone:</strong> {selectedMember.phone}
-                                    </Col>
+                                  
                                     <Col sm={12} className="mb-2">
                                         <strong>Address:</strong> {selectedMember.address}
                                     </Col>
@@ -193,14 +193,8 @@ const MembersList = () => {
                                     ))}
                                 </Row>
                                 
-                                <h5 className="mb-3 fw-bold">About</h5>
-                                <p className="mb-4">{selectedMember.short_description}</p>
+                               
                                 
-                                <div className="text-muted small">
-                                    <p><strong>Member ID:</strong> {selectedMember.member_id}</p>
-                                    <p><strong>Joined on:</strong> {formatDate(selectedMember.created_at)}</p>
-                                    <p><strong>Last Updated:</strong> {formatDate(selectedMember.updated_at)}</p>
-                                </div>
                             </Col>
                         </Row>
                     </Card.Body>

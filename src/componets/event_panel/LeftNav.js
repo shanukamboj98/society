@@ -72,13 +72,19 @@ const menuItems = [
       active: true,
     },
 
+     {
+      icon: <FaTachometerAlt />,
+      label: "Manage Registration",
+      path: "/ManageRegistration",
+      active: true,
+    },
 
    {
   icon: <FaInfoCircle />,   // About Us main
   label: "Event",
   submenu: [
     {
-      label: "Add Evetn",
+      label: "Add Event",
       path: "/AddEvent",
       icon: <FaUserCircle />, // profile
     },

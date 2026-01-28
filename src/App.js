@@ -32,6 +32,7 @@ import Registration from "./componets/pages/member_registration/Registration";
 import AddWings from "./componets/event_panel/dashboard_pages/associative_wings/AddWings";
 import ManageWings from "./componets/event_panel/dashboard_pages/associative_wings/ManageWings";
 import MembersList from "./componets/pages/member_registration/MembersList";
+import ManageRegistration from "./componets/event_panel/dashboard_pages/manage_registration/ManageRegistration";
 
 
 
@@ -52,6 +53,7 @@ function App() {
     "/UserDashBoard",
     "/AddWings",
     "/ManageWings",
+    "/ManageRegistration",
   ]);
 
   // const hiddenFooter1= new Set([ 
@@ -84,6 +86,7 @@ function App() {
                  <Route path="/MembersList" element={<MembersList />} />
                 <Route path="/AddWings" element={<AddWings/>} />
                  <Route path="/ManageWings" element={<ManageWings/>} />
+                   <Route path="/ManageRegistration" element={<ManageRegistration/>} />
           
           </Routes>
         </main>
