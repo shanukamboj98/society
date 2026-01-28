@@ -31,6 +31,8 @@ import ManageWings from "./componets/event_panel/dashboard_pages/associative_win
 import MembersList from "./componets/pages/member_registration/MembersList";
 import ManageRegistration from "./componets/event_panel/dashboard_pages/manage_registration/ManageRegistration";
 import DonationSociety from "./componets/pages/donation/DonationSociety";
+import AddActivity from "./componets/event_panel/dashboard_pages/activity_items/AddActivity";
+import ManageActivity from "./componets/event_panel/dashboard_pages/activity_items/ManageActivity";
 
 
 
@@ -49,6 +51,8 @@ function App() {
     "/AddWings",
     "/ManageWings",
     "/ManageRegistration",
+    "/AddActivity",
+    "/ManageActivity",
   ]);
 
   // const hiddenFooter1= new Set([ 
@@ -80,6 +84,8 @@ function App() {
                 <Route path="/ManageWings" element={<ManageWings/>} />
                 <Route path="/ManageRegistration" element={<ManageRegistration/>} />
                 <Route path="/DonationSociety" element={<DonationSociety/>} />
+                 <Route path="/AddActivity" element={<AddActivity/>} />
+                    <Route path="/ManageActivity" element={<ManageActivity/>} />
           
           </Routes>
         </main>

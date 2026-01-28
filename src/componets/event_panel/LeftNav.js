@@ -76,16 +76,16 @@ const menuItems = [
 
    {
   icon: <FaInfoCircle />,   // About Us main
-  label: "Event",
+  label: "Activity",
   submenu: [
     {
-      label: "Add Event",
-      path: "/AddEvent",
+      label: "Add Activity",
+      path: "/AddActivity",
       icon: <FaUserCircle />, // profile
     },
      {
-          label: "Manage Event",
-          path: "/ManageEvent",
+          label: "Manage Activity",
+          path: "/ManageActivity",
           icon: <FaImage />,
         },
    
