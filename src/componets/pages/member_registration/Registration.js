@@ -601,262 +601,264 @@ const Registration = () => {
         <Container className="py-4">
             <h1 className="text-center mb-4">Registration Form</h1>
 
-            {submitted ? (
-                <Alert variant="success" className="text-center">
-                    <Alert.Heading>Registration Successful!</Alert.Heading>
-                    <p>
-                        Thank you for registering. 
-                    </p>
-                   
-                </Alert>
-            ) : (
-                <Form onSubmit={handleSubmit} noValidate>
-                    {apiError && (
-                        <Alert variant="danger" dismissible onClose={() => setApiError(null)}>
-                            {apiError}
-                        </Alert>
-                    )}
+            <div className="container border rounded-3 shadow-lg p-4 bg-white">
+                {submitted ? (
+                    <Alert variant="success" className="text-center">
+                        <Alert.Heading>Registration Successful!</Alert.Heading>
+                        <p>
+                            Thank you for registering. 
+                        </p>
+                       
+                    </Alert>
+                ) : (
+                    <Form onSubmit={handleSubmit} noValidate>
+                        {apiError && (
+                            <Alert variant="danger" dismissible onClose={() => setApiError(null)}>
+                                {apiError}
+                            </Alert>
+                        )}
 
-                    <Row className="mb-3">
-                        <Col sm={6}>
-                            <Form.Group controlId="full_name">
-                                <Form.Label>
-                                    Full Name <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="full_name"
-                                    value={formData.full_name}
-                                    onChange={handleChange}
-                                    isInvalid={!!errors.full_name}
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="full_name-error"
-                                />
-                                <Form.Control.Feedback type="invalid" id="full_name-error">
-                                    {errors.full_name}
-                                </Form.Control.Feedback>
-                                <Form.Text id="full_name-help" muted>
-                                    Only alphabets are allowed
-                                </Form.Text>
-                            </Form.Group>
-                        </Col>
-                        <Col sm={6}>
-                            <Form.Group controlId="email">
-                                <Form.Label>
-                                    Email <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    isInvalid={!!errors.email}
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="email-error"
-                                />
-                                <Form.Control.Feedback type="invalid" id="email-error">
-                                    {errors.email}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                        <Row className="mb-3">
+                            <Col sm={6}>
+                                <Form.Group controlId="full_name">
+                                    <Form.Label>
+                                        Full Name <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="full_name"
+                                        value={formData.full_name}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.full_name}
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="full_name-error"
+                                    />
+                                    <Form.Control.Feedback type="invalid" id="full_name-error">
+                                        {errors.full_name}
+                                    </Form.Control.Feedback>
+                                    <Form.Text id="full_name-help" muted>
+                                        Only alphabets are allowed
+                                    </Form.Text>
+                                </Form.Group>
+                            </Col>
+                            <Col sm={6}>
+                                <Form.Group controlId="email">
+                                    <Form.Label>
+                                        Email <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.email}
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="email-error"
+                                    />
+                                    <Form.Control.Feedback type="invalid" id="email-error">
+                                        {errors.email}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Row className="mb-3">
-                        <Col sm={6}>
-                            <Form.Group controlId="phone">
-                                <Form.Label>
-                                    Phone <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Control
-                                    type="tel"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    isInvalid={!!errors.phone}
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="phone-error"
-                                    maxLength="10"
-                                />
-                                <Form.Control.Feedback type="invalid" id="phone-error">
-                                    {errors.phone}
-                                </Form.Control.Feedback>
-                                <Form.Text id="phone-help" muted>
-                                    Enter exactly 10 digits
-                                </Form.Text>
-                            </Form.Group>
-                        </Col>
-                        <Col sm={6}>
-                            <Form.Group controlId="password">
-                                <Form.Label>
-                                    Password <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Control
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    isInvalid={!!errors.password}
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="password-error"
-                                />
-                                <Form.Control.Feedback type="invalid" id="password-error">
-                                    {errors.password}
-                                </Form.Control.Feedback>
-                                <Form.Text id="password-help" muted>
-                                    Password must be at least 8 characters with uppercase, lowercase, and number.
-                                </Form.Text>
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                        <Row className="mb-3">
+                            <Col sm={6}>
+                                <Form.Group controlId="phone">
+                                    <Form.Label>
+                                        Phone <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.phone}
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="phone-error"
+                                        maxLength="10"
+                                    />
+                                    <Form.Control.Feedback type="invalid" id="phone-error">
+                                        {errors.phone}
+                                    </Form.Control.Feedback>
+                                    <Form.Text id="phone-help" muted>
+                                        Enter exactly 10 digits
+                                    </Form.Text>
+                                </Form.Group>
+                            </Col>
+                            <Col sm={6}>
+                                <Form.Group controlId="password">
+                                    <Form.Label>
+                                        Password <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="password"
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.password}
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="password-error"
+                                    />
+                                    <Form.Control.Feedback type="invalid" id="password-error">
+                                        {errors.password}
+                                    </Form.Control.Feedback>
+                                    <Form.Text id="password-help" muted>
+                                        Password must be at least 8 characters with uppercase, lowercase, and number.
+                                    </Form.Text>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Row className="mb-3">
-                        <Col sm={6}>
-                            <Form.Group controlId="image">
-                                <Form.Label>
-                                    Image <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Control
-                                    type="file"
-                                    name="image"
-                                    onChange={handleFileChange}
-                                    accept="image/*"
-                                    aria-required="true"
-                                    aria-describedby="image-help image-error"
-                                    isInvalid={!!errors.image}
-                                    required
-                                />
-                                <Form.Text id="image-help" muted>
-                                    Upload a recent photo (JPG, PNG format)
-                                </Form.Text>
-                                {errors.image && (
-                                    <div className="text-danger mt-1" id="image-error">{errors.image}</div>
-                                )}
-                                {imagePreview && (
-                                    <div className="mt-2">
-                                        <Image src={imagePreview} alt="Image preview" thumbnail width={100} height={100} />
-                                    </div>
-                                )}
-                            </Form.Group>
-                        </Col>
+                        <Row className="mb-3">
+                            <Col sm={6}>
+                                <Form.Group controlId="image">
+                                    <Form.Label>
+                                        Image <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="file"
+                                        name="image"
+                                        onChange={handleFileChange}
+                                        accept="image/*"
+                                        aria-required="true"
+                                        aria-describedby="image-help image-error"
+                                        isInvalid={!!errors.image}
+                                        required
+                                    />
+                                    <Form.Text id="image-help" muted>
+                                        Upload a recent photo (JPG, PNG format)
+                                    </Form.Text>
+                                    {errors.image && (
+                                        <div className="text-danger mt-1" id="image-error">{errors.image}</div>
+                                    )}
+                                    {imagePreview && (
+                                        <div className="mt-2">
+                                            <Image src={imagePreview} alt="Image preview" thumbnail width={100} height={100} />
+                                        </div>
+                                    )}
+                                </Form.Group>
+                            </Col>
 
-                    </Row>
+                        </Row>
 
-                    <Row className="mb-3">
-                        <Col sm={12}>
-                            <Form.Group controlId="address">
-                                <Form.Label>
-                                    Address <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    rows="3"
-                                    isInvalid={!!errors.address}
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="address-error"
-                                />
-                                <Form.Control.Feedback type="invalid" id="address-error">
-                                    {errors.address}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                        <Row className="mb-3">
+                            <Col sm={12}>
+                                <Form.Group controlId="address">
+                                    <Form.Label>
+                                        Address <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        rows="3"
+                                        isInvalid={!!errors.address}
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="address-error"
+                                    />
+                                    <Form.Control.Feedback type="invalid" id="address-error">
+                                        {errors.address}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Row className="mb-3">
-                        <Col sm={12}>
-                            <Form.Group controlId="short_description">
-                                <Form.Label>
-                                    Short Description <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    name="short_description"
-                                    value={formData.short_description}
-                                    onChange={handleChange}
-                                    rows="3"
-                                    isInvalid={!!errors.short_description}
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="short_description-error"
-                                />
-                                <Form.Control.Feedback type="invalid" id="short_description-error">
-                                    {errors.short_description}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                        <Row className="mb-3">
+                            <Col sm={12}>
+                                <Form.Group controlId="short_description">
+                                    <Form.Label>
+                                        Short Description <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        name="short_description"
+                                        value={formData.short_description}
+                                        onChange={handleChange}
+                                        rows="3"
+                                        isInvalid={!!errors.short_description}
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="short_description-error"
+                                    />
+                                    <Form.Control.Feedback type="invalid" id="short_description-error">
+                                        {errors.short_description}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Row className="mb-3">
-                        <Col sm={6}>
-                            <Form.Group controlId="occupation">
-                                <Form.Label>
-                                    Occupation <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Form.Select
-                                    name="occupation"
-                                    value={formData.occupation}
-                                    onChange={handleChange}
-                                    isInvalid={!!errors.occupation}
-                                    required
-                                    aria-required="true"
-                                    aria-describedby="occupation-error"
+                        <Row className="mb-3">
+                            <Col sm={6}>
+                                <Form.Group controlId="occupation">
+                                    <Form.Label>
+                                        Occupation <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Select
+                                        name="occupation"
+                                        value={formData.occupation}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.occupation}
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="occupation-error"
+                                    >
+                                        <option value="">Select Occupation</option>
+                                        <option value="Government">Government</option>
+                                        <option value="Private">Private</option>
+                                        <option value="Self Employed">Self Employed</option>
+                                        <option value="Student">Student</option>
+                                        <option value="Others">Others</option>
+                                    </Form.Select>
+                                    <Form.Control.Feedback type="invalid" id="occupation-error">
+                                        {errors.occupation}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {formData.occupation && (
+                            <div className="border rounded p-3 mb-3 bg-light">
+                                {renderConditionalFields()}
+                            </div>
+                        )}
+
+                        <Row className="mt-4">
+                            <Col sm={12} className="text-center">
+                                <Button
+                                    variant="primary"
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="px-5"
+                                    aria-label="Submit registration form"
                                 >
-                                    <option value="">Select Occupation</option>
-                                    <option value="Government">Government</option>
-                                    <option value="Private">Private</option>
-                                    <option value="Self Employed">Self Employed</option>
-                                    <option value="Student">Student</option>
-                                    <option value="Others">Others</option>
-                                </Form.Select>
-                                <Form.Control.Feedback type="invalid" id="occupation-error">
-                                    {errors.occupation}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    {formData.occupation && (
-                        <div className="border rounded p-3 mb-3 bg-light">
-                            {renderConditionalFields()}
-                        </div>
-                    )}
-
-                    <Row className="mt-4">
-                        <Col sm={12} className="text-center">
-                            <Button
-                                variant="primary"
-                                type="submit"
-                                disabled={isLoading}
-                                className="px-5"
-                                aria-label="Submit registration form"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                        />
-                                        <span className="visually-hidden">Loading...</span>
-                                        <span className="ms-2">Processing...</span>
-                                    </>
-                                ) : (
-                                    'Register'
-                                )}
-                            </Button>
-                        </Col>
-                    </Row>
-                </Form>
-            )}
+                                    {isLoading ? (
+                                        <>
+                                            <Spinner
+                                                as="span"
+                                                animation="border"
+                                                size="sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                            />
+                                            <span className="visually-hidden">Loading...</span>
+                                            <span className="ms-2">Processing...</span>
+                                        </>
+                                    ) : (
+                                        'Register'
+                                    )}
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Form>
+                )}
+            </div>
         </Container>
     );
 };

@@ -6,7 +6,7 @@ import { useAuthFetch } from "../../../context/AuthFetch";
 import { useNavigate } from "react-router-dom";
 import LeftNav from "../../LeftNav";
 import DashBoardHeader from "../../DashBoardHeader";
-import { FaEdit, FaArrowLeft, FaLink } from "react-icons/fa";
+import { FaEdit, FaArrowLeft, FaLink, FaTrash } from "react-icons/fa";
 
 const ManageWings = () => {
   const { auth, refreshAccessToken } = useAuth();
@@ -227,6 +227,108 @@ const ManageWings = () => {
     e.preventDefault();
     setIsEditing(true);
     setShowAlert(false);
+  };
+
+  // Handle delete request
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this wing?")) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setShowAlert(false);
+
+    try {
+      const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/associative-wings/?id=${formData.id}`;
+      console.log("DELETE URL:", url);
+      
+      // Create request body with the ID
+      const payload = { id: formData.id };
+      
+      let response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth?.access}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // If unauthorized, try refreshing token and retry once
+      if (response.status === 401) {
+        const newAccess = await refreshAccessToken();
+        if (!newAccess) throw new Error("Session expired");
+        response = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${newAccess}`,
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      console.log("DELETE Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData = null;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          /* not JSON */
+        }
+        console.error("Server error response:", errorData || errorText);
+        throw new Error(
+          (errorData && errorData.message) ||
+            "Failed to delete wing"
+        );
+      }
+
+      const result = await response.json();
+      console.log("DELETE Success response:", result);
+
+      if (result.success) {
+        setMessage("Wing deleted successfully!");
+        setVariant("success");
+        setShowAlert(true);
+        
+        // Remove the wing from the list
+        setWingsDetails(prevWings => 
+          prevWings.filter(wing => wing.id !== formData.id)
+        );
+        
+        // Go back to the list view
+        setTimeout(() => {
+          backToWingList();
+          setShowAlert(false);
+        }, 2000);
+      } else {
+        throw new Error(
+          result.message || "Failed to delete wing"
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting wing:", error);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+
+      if (
+        error instanceof TypeError &&
+        error.message.includes("Failed to fetch")
+      ) {
+        errorMessage =
+          "Network error: Could not connect to the server. Please check the API endpoint.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setMessage(errorMessage);
+      setVariant("danger");
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle form submission (PUT request)
@@ -544,6 +646,11 @@ const ManageWings = () => {
                       <Button variant="outline-secondary" onClick={backToWingList}>
                         <FaArrowLeft /> Back to Wings List
                       </Button>
+                      {!isEditing && (
+                        <Button variant="danger" onClick={handleDelete} disabled={isSubmitting}>
+                          <FaTrash /> Delete Wing
+                        </Button>
+                      )}
                     </div>
 
                     <Form onSubmit={handleSubmit}>
@@ -641,7 +748,7 @@ const ManageWings = () => {
                       </Form.Group>
 
                       <Form.Group className="mb-3">
-                        <Form.Label>Wing Image</Form.Label>
+                        <Form.Label>Portfolio Image</Form.Label>
                         {isEditing ? (
                           <>
                             <Form.Control

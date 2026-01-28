@@ -31,6 +31,7 @@ import ManageEvent from "./componets/event_panel/dashboard_pages/event_create/Ma
 import Registration from "./componets/pages/member_registration/Registration";
 import AddWings from "./componets/event_panel/dashboard_pages/associative_wings/AddWings";
 import ManageWings from "./componets/event_panel/dashboard_pages/associative_wings/ManageWings";
+import MembersList from "./componets/pages/member_registration/MembersList";
 
 
 
@@ -80,6 +81,7 @@ function App() {
                <Route path="/AddEvent" element={<AddEvent />} />
                <Route path="/ManageEvent" element={<ManageEvent />} />
                 <Route path="/Registration" element={<Registration />} />
+                 <Route path="/MembersList" element={<MembersList />} />
                 <Route path="/AddWings" element={<AddWings/>} />
                  <Route path="/ManageWings" element={<ManageWings/>} />
           

@@ -317,7 +317,7 @@ const AddWings = () => {
                   
                   <Col md={6} className="mb-3">
                     <Form.Group controlId="image">
-                      <Form.Label>Wing Image</Form.Label>
+                      <Form.Label>Portfolio  Image</Form.Label>
                       <Form.Control
                         type="file"
                         name="image"

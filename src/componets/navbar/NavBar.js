@@ -126,7 +126,7 @@ function NavBar() {
                   </Link>
                   <ul>
                     <li><Link to="/Registration">Member Registration</Link></li>
-                    <li><Link to="event-details.html">Members List</Link></li>
+                    <li><Link to="/MembersList">Members List</Link></li>
                
                   </ul>
                 </li>
