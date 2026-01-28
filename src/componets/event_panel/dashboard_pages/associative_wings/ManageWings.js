@@ -597,7 +597,7 @@ const ManageWings = () => {
                                         {wing.organization_name}
                                       </Card.Title>
                                       <Card.Text className="text-muted mb-2">
-                                        <strong>Wing:</strong> {wing.native_wing}
+                                        <strong>Nature Of Work:</strong> {wing.native_wing}
                                       </Card.Text>
                                       <Card.Text className="text-muted mb-2">
                                         <strong>Contact Person:</strong> {wing.contact_person_name}
@@ -668,7 +668,7 @@ const ManageWings = () => {
                       </Form.Group>
 
                       <Form.Group className="mb-3">
-                        <Form.Label>Native Wing</Form.Label>
+                        <Form.Label>Nature Of Work</Form.Label>
                         <Form.Control
                           type="text"
                           placeholder="Enter native wing"

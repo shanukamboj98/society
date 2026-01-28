@@ -92,7 +92,7 @@ const AddWings = () => {
     }
     
     if (!formData.native_wing.trim()) {
-      newErrors.native_wing = "Wing name is required";
+      newErrors.native_wing = "Nature of Work is required";
     }
     
     if (!formData.short_description.trim()) {
@@ -245,7 +245,7 @@ const AddWings = () => {
                   
                   <Col md={6} className="mb-3">
                     <Form.Group controlId="native_wing">
-                      <Form.Label>Wing Name</Form.Label>
+                      <Form.Label>Nature Of Work</Form.Label>
                       <Form.Control
                         type="text"
                         name="native_wing"
