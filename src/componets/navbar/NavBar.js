@@ -112,7 +112,7 @@ function NavBar() {
                     <span>Events</span> <i className={`bi bi-chevron-down toggle-dropdown ${openDropdowns['sponsors'] ? 'rotate-icon' : ''}`}></i>
                   </Link>
                   <ul>
-                    <li><Link to="news-details.html">Activity</Link></li>
+                    <li><Link to="/Activity">Activity</Link></li>
                     <li><Link to="event-details.html">Event Details</Link></li>
                
                   </ul>
@@ -131,7 +131,7 @@ function NavBar() {
                   </ul>
                 </li>
                   
-                   <li><Link to="contact.html">Associated Wings</Link></li>
+                   <li><Link to="/AssociatedWings">Associated Wings</Link></li>
                 <li><Link to="contact.html">Contact</Link></li>
               </ul>
               {/* 7. Add onClick to the mobile toggle button and change icon dynamically */}

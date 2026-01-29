@@ -16,7 +16,7 @@ import {
 import Home from "./componets/pages/Home";
 import Footer from "./componets/footer/Footer";
 import NavBar from "./componets/navbar/NavBar";
-import AboutUs from "./componets/pages/AboutUs"; 
+import AboutUs from "./componets/pages/AboutUs";
 
 
 import DashBoardHeader from "./componets/event_panel/DashBoardHeader";
@@ -33,6 +33,8 @@ import ManageRegistration from "./componets/event_panel/dashboard_pages/manage_r
 import DonationSociety from "./componets/pages/donation/DonationSociety";
 import AddActivity from "./componets/event_panel/dashboard_pages/activity_items/AddActivity";
 import ManageActivity from "./componets/event_panel/dashboard_pages/activity_items/ManageActivity";
+import AssociatedWings from "./componets/pages/associated_wings/AssociatedWings";
+import Activity from "./componets/pages/activity_event/Activity";
 
 
 
@@ -45,7 +47,7 @@ function App() {
 
   const hiddenPaths = new Set([
     "/DashBoard",
-    "/AddHeader", 
+    "/AddHeader",
     "/ManageHeader",
     "/UserDashBoard",
     "/AddWings",
@@ -56,43 +58,45 @@ function App() {
   ]);
 
   // const hiddenFooter1= new Set([ 
-   
+
   // ]);
 
   const shouldHideNavbar = hiddenPaths.has(location.pathname);
   //  const shouldHideFooter1 = hiddenFooter1.has(location.pathname);
   return (
-    
-      <div className="app-container">
-        {!shouldHideNavbar && <NavBar />}
-        
-        <main className="main-content">
-          <Routes>
-            {/* Public Route */}
-            <Route path="/" element={<Home />} />
-            <Route path="/AboutUs" element={<AboutUs />} />
-            <Route path="/DashBoardHeader" element={<DashBoardHeader />} />
-            <Route path="/DashBoard" element={<DashBoard />} />
 
-              <Route path="/Login" element={<Login />} />
-              <Route path="/UserDashBoard" element={<UserDashBoard />} />
-              <Route path="/AddHeader" element={<AddHeader />} />
-              <Route path="/ManageHeader" element={<ManageHeader />} />
-               <Route path="/Registration" element={<Registration />} />
-               <Route path="/MembersList" element={<MembersList />} />
-                <Route path="/AddWings" element={<AddWings/>} />
-                <Route path="/ManageWings" element={<ManageWings/>} />
-                <Route path="/ManageRegistration" element={<ManageRegistration/>} />
-                <Route path="/DonationSociety" element={<DonationSociety/>} />
-                 <Route path="/AddActivity" element={<AddActivity/>} />
-                    <Route path="/ManageActivity" element={<ManageActivity/>} />
-          
-          </Routes>
-        </main>
-           {/* {!shouldHideFooter1 && <Footer />} */}
-      
-      </div>
- 
+    <div className="app-container">
+      {!shouldHideNavbar && <NavBar />}
+
+      <main className="main-content">
+        <Routes>
+          {/* Public Route */}
+          <Route path="/" element={<Home />} />
+          <Route path="/AboutUs" element={<AboutUs />} />
+          <Route path="/DashBoardHeader" element={<DashBoardHeader />} />
+          <Route path="/DashBoard" element={<DashBoard />} />
+
+          <Route path="/Login" element={<Login />} />
+          <Route path="/UserDashBoard" element={<UserDashBoard />} />
+          <Route path="/AddHeader" element={<AddHeader />} />
+          <Route path="/ManageHeader" element={<ManageHeader />} />
+          <Route path="/Registration" element={<Registration />} />
+          <Route path="/MembersList" element={<MembersList />} />
+          <Route path="/AddWings" element={<AddWings />} />
+          <Route path="/ManageWings" element={<ManageWings />} />
+          <Route path="/ManageRegistration" element={<ManageRegistration />} />
+          <Route path="/DonationSociety" element={<DonationSociety />} />
+          <Route path="/AddActivity" element={<AddActivity />} />
+          <Route path="/ManageActivity" element={<ManageActivity />} />
+          <Route path="/AssociatedWings" element={<AssociatedWings />} />
+            <Route path="/Activity" element={<Activity />} />
+
+        </Routes>
+      </main>
+      {/* {!shouldHideFooter1 && <Footer />} */}
+
+    </div>
+
   );
 }
 
