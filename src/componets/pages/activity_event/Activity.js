@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Form, Modal, Badge, Row, Col, Card, Tabs, Tab } from 'react-bootstrap';
 import { FaCalendarAlt, FaMapMarkerAlt, FaTag, FaRupeeSign, FaCashRegister, FaUsers, FaClock } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/css/Activity.css'; // We'll create this CSS file for custom styles
 
 function Activity() {
@@ -18,6 +19,7 @@ function Activity() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [pendingActivityId, setPendingActivityId] = useState(null);
   const [joinedActivities, setJoinedActivities] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -278,20 +280,36 @@ function Activity() {
   };
 
   const handleJoinClick = (activityId) => {
-    setPendingActivityId(activityId);
-    if (userId) {
-      joinActivity(activityId);
-    } else {
-      setShowEmailModal(true);
+    const activity = activities.find(a => a.activity_id === activityId);
+    if (activity) {
+      navigate('/DonateActivity', {
+        state: { 
+          activity_id: activityId, 
+          activity_fee: activity.activity_fee,
+          portal_charges: activity.portal_charges,
+          transaction_charges: activity.transaction_charges,
+          tax_amount: activity.tax_amount,
+          total_amount: activity.total_amount,
+          activityData: activity 
+        }
+      });
     }
   };
 
   const handlePayClick = (activityId) => {
-    setPendingActivityId(activityId);
-    if (userId) {
-      payForActivity(activityId);
-    } else {
-      setShowEmailModal(true);
+    const activity = activities.find(a => a.activity_id === activityId);
+    if (activity) {
+      navigate('/DonateActivity', {
+        state: { 
+          activity_id: activityId, 
+          activity_fee: activity.activity_fee,
+          portal_charges: activity.portal_charges,
+          transaction_charges: activity.transaction_charges,
+          tax_amount: activity.tax_amount,
+          total_amount: activity.total_amount,
+          activityData: activity 
+        }
+      });
     }
   };
 
