@@ -64,6 +64,18 @@ const menuItems = [
       path: "/DashBoard",
       active: true,
     },
+     {
+      icon: <FaTachometerAlt />,
+      label: "District Registrations",
+      path: "/DistrictRegistrations",
+      active: true,
+    },
+    {
+      icon: <FaTachometerAlt />,
+      label: "District Manage Registrations",
+      path: "/DistrictManageRegistration",
+      active: true,
+    },
    
      
 

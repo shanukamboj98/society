@@ -15,19 +15,9 @@ const Login = () => {
 
   // List of 13 districts of Uttarakhand
   const districts = [
-    "Almora",
-    "Bageshwar",
-    "Chamoli",
-    "Champawat",
-    "Dehradun",
-    "Haridwar",
-    "Nainital",
-    "Pauri Garhwal",
-    "Pithoragarh",
-    "Rudraprayag",
-    "Tehri Garhwal",
-    "Udham Singh Nagar",
-    "Uttarkashi"
+ "haridwar", "dehradun", "uttarkashi", "chamoli", "rudraprayag",
+"tehri_garhwal", "pauri_garhwal", "nainital", "almora", "pithoragarh",
+"udham_singh_nagar", "bageshwar", "champawat"
   ];
 
   // Get the login function from AuthContext
@@ -49,20 +39,20 @@ const Login = () => {
         requestBody = {
           email_or_phone: emailOrPhone,
           password: password,
-          role: 'user'
+         
         };
       } else if (role === 'admin') {
         requestBody = {
-          admin_id: adminId,
+          email_or_phone: adminId,
           password: password,
-          role: 'admin'
+         
         };
       } else if (role === 'district-admin') {
         requestBody = {
           // district_name: selectedDistrict,
           email_or_phone: email,
           password: password,
-          role: 'district-admin'
+        
         };
       }
 

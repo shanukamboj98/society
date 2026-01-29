@@ -9,8 +9,7 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-
-
+import ProtectedRoute from "./componets/protected/ProtectedRoute";
 
 
 import Home from "./componets/pages/Home";
@@ -37,9 +36,10 @@ import AssociatedWings from "./componets/pages/associated_wings/AssociatedWings"
 import Activity from "./componets/pages/activity_event/Activity";
 import DistrictDashboard from "./componets/district_login/DistrictDashboard";
 import DonateActivity from "./componets/pages/activity_event/DonateActivity";
-
-
-
+import DistrictRegistration from "./componets/district_login/DistrictRegistration";
+import DistrictRegistrations from "./componets/event_panel/dashboard_pages/DistrictRegistrations";
+import DistrictManageRegistration from "./componets/event_panel/dashboard_pages/DistrictManageRegistration";
+import DistrictMailMeeting from "./componets/district_login/DistrictMailMeeting";
 
 
 
@@ -57,15 +57,15 @@ function App() {
     "/ManageRegistration",
     "/AddActivity",
     "/ManageActivity",
-    "/DistrictDashboard"
+    "/DistrictDashboard",
+    "/DistrictRegistration",
+    "/DistrictRegistrations",
+    "/DistrictManageRegistration",
+    "/DistrictMailMeeting"
   ]);
 
-  // const hiddenFooter1= new Set([ 
-
-  // ]);
-
   const shouldHideNavbar = hiddenPaths.has(location.pathname);
-  //  const shouldHideFooter1 = hiddenFooter1.has(location.pathname);
+  
   return (
 
     <div className="app-container">
@@ -77,24 +77,85 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/AboutUs" element={<AboutUs />} />
           <Route path="/DashBoardHeader" element={<DashBoardHeader />} />
-          <Route path="/DashBoard" element={<DashBoard />} />
-
           <Route path="/Login" element={<Login />} />
-          <Route path="/UserDashBoard" element={<UserDashBoard />} />
-          <Route path="/AddHeader" element={<AddHeader />} />
-          <Route path="/ManageHeader" element={<ManageHeader />} />
           <Route path="/Registration" element={<Registration />} />
           <Route path="/MembersList" element={<MembersList />} />
-          <Route path="/AddWings" element={<AddWings />} />
-          <Route path="/ManageWings" element={<ManageWings />} />
-          <Route path="/ManageRegistration" element={<ManageRegistration />} />
           <Route path="/DonationSociety" element={<DonationSociety />} />
-          <Route path="/AddActivity" element={<AddActivity />} />
-          <Route path="/ManageActivity" element={<ManageActivity />} />
           <Route path="/AssociatedWings" element={<AssociatedWings />} />
-            <Route path="/Activity" element={<Activity />} />
-            <Route path="/DistrictDashboard" element={<DistrictDashboard />} />
-             <Route path="/DonateActivity" element={<DonateActivity/>} />
+          <Route path="/Activity" element={<Activity />} />
+          <Route path="/DonateActivity" element={<DonateActivity/>} />
+
+          {/* Protected Routes */}
+          <Route path="/DashBoard" element={
+            <ProtectedRoute>
+              <DashBoard />
+            </ProtectedRoute>
+          } />
+          <Route path="/UserDashBoard" element={
+            <ProtectedRoute>
+              <UserDashBoard />
+            </ProtectedRoute>
+          } />
+          <Route path="/AddHeader" element={
+            <ProtectedRoute>
+              <AddHeader />
+            </ProtectedRoute>
+          } />
+          <Route path="/ManageHeader" element={
+            <ProtectedRoute>
+              <ManageHeader />
+            </ProtectedRoute>
+          } />
+          <Route path="/AddWings" element={
+            <ProtectedRoute>
+              <AddWings />
+            </ProtectedRoute>
+          } />
+          <Route path="/ManageWings" element={
+            <ProtectedRoute>
+              <ManageWings />
+            </ProtectedRoute>
+          } />
+          <Route path="/ManageRegistration" element={
+            <ProtectedRoute>
+              <ManageRegistration />
+            </ProtectedRoute>
+          } />
+          <Route path="/AddActivity" element={
+            <ProtectedRoute>
+              <AddActivity />
+            </ProtectedRoute>
+          } />
+          <Route path="/ManageActivity" element={
+            <ProtectedRoute>
+              <ManageActivity />
+            </ProtectedRoute>
+          } />
+          <Route path="/DistrictDashboard" element={
+            <ProtectedRoute>
+              <DistrictDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/DistrictRegistration" element={
+            <ProtectedRoute>
+              <DistrictRegistration />
+            </ProtectedRoute>
+          } />
+          <Route path="/DistrictRegistrations" element={
+            <ProtectedRoute>
+              <DistrictRegistrations />
+            </ProtectedRoute>
+          } />
+          <Route path="/DistrictManageRegistration" element={
+            <ProtectedRoute>
+              <DistrictManageRegistration />
+            </ProtectedRoute>
+          } />
+          <Route path="/DistrictMailMeeting" element={
+            <ProtectedRoute>
+              <DistrictMailMeeting />
+            </ProtectedRoute>
+          } />
 
         </Routes>
       </main>

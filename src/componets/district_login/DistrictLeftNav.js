@@ -64,64 +64,22 @@ const menuItems = [
    
      
 
-     {
-      icon: <FaTachometerAlt />,
-      label: "Manage Registration",
-      path: "/ManageRegistration",
-      active: true,
-    },
+   
+
 
    {
   icon: <FaInfoCircle />,   // About Us main
-  label: "Activity",
+  label: "Members List",
   submenu: [
-    {
-      label: "Add Activity",
-      path: "/AddActivity",
-      icon: <FaUserCircle />, // profile
-    },
+    
      {
-          label: "Manage Activity",
-          path: "/ManageActivity",
+          label: "Member list",
+          path: "/DistrictRegistration",
           icon: <FaImage />,
         },
-   
-   
-  ],
-},
-
-   {
-  icon: <FaInfoCircle />,   // About Us main
-  label: "Registration",
-  submenu: [
-    {
-      label: "District wice Registration",
-      path: "/DistrictRegistration",
-      icon: <FaUserCircle />, // profile
-    },
-     {
-          label: "Manage header",
-          path: "/ManageHeader",
-          icon: <FaImage />,
-        },
-   
-   
-  ],
-},
-
-
-   {
-  icon: <FaInfoCircle />,   // About Us main
-  label: "Associative Wings",
-  submenu: [
-    {
-      label: "Add Wings",
-      path: "/AddWings",
-      icon: <FaUserCircle />, // profile
-    },
-     {
-          label: "Manage Wings",
-          path: "/ManageWings",
+         {
+          label: "Meeting List",
+          path: "/DistrictMailMeeting",
           icon: <FaImage />,
         },
    
