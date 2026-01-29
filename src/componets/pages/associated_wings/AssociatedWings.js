@@ -69,7 +69,7 @@ const AssociatedWings = () => {
                     onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
                     onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
-                    <Card.Header className="bg-primary text-white text-center">
+                    <Card.Header className="bg-secondary text-white text-center">
                         <h5 className="mb-0">{wing.native_wing}</h5>
                     </Card.Header>
                     <div className="text-center p-3">
