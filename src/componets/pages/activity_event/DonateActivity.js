@@ -55,11 +55,11 @@ const DonateActivity = () => {
             };
             setCharges(chargesData);
             
-                    // Set the amount field initially with the activity_fee
-                    setFormData(prev => ({
-                        ...prev,
-                        amount: chargesData.activity_fee,
-                    }));
+            // Set the amount field initially with the activity_fee
+            setFormData(prev => ({
+                ...prev,
+                amount: chargesData.activity_fee,
+            }));
             return;
         }
 
@@ -280,139 +280,166 @@ const DonateActivity = () => {
     }
 
     return (
-        <Container className="mt-5 mb-5">
-            <Row>
-                <Col md={8} className="mx-auto">
-                    <h1 className="mb-4">Donate for Activity</h1>
-                    
-                    {error && <Alert variant="danger">{error}</Alert>}
-                    {success && <Alert variant="success">Donation submitted successfully! Redirecting...</Alert>}
+        <Container className="py-4">
+            <h1 className="text-center mb-4">Donate for Activity</h1>
 
-                    {activityData && (
-                        <Card className="mb-4">
-                            <Card.Body>
-                                <h5 className="card-title">{activityData.activity_name || 'Activity'}</h5>
-                                <p className="text-muted">{activityData.activity_description}</p>
-                                <div className="activity-info mb-3">
-                                    <p><strong>Activity ID:</strong> {activityData.activity_id}</p>
-                                </div>
-                                {/* Charges breakdown is hidden by default; available in payment modal */}
-                            </Card.Body>
-                        </Card>
-                    )}
+            <div className="container border rounded-3 shadow-lg p-4 bg-white">
+                {error && <Alert variant="danger">{error}</Alert>}
+                {success && <Alert variant="success">Donation submitted successfully! Redirecting...</Alert>}
 
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>
-                                Full Name <span className="text-danger">*</span>
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="full_name"
-                                value={formData.full_name}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="Enter your full name"
-                                isInvalid={!!formErrors.full_name}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formErrors.full_name}
-                            </Form.Control.Feedback>
-                        </Form.Group>
+                {activityData && (
+                    <Card className="mb-4">
+                        <Card.Body>
+                            <h5 className="card-title">{activityData.activity_name || 'Activity'}</h5>
+                            <p className="text-muted">{activityData.activity_description}</p>
+                            <div className="activity-info mb-3">
+                                <p><strong>Activity ID:</strong> {activityData.activity_id}</p>
+                            </div>
+                            {/* Charges breakdown is hidden by default; available in payment modal */}
+                        </Card.Body>
+                    </Card>
+                )}
 
-                        <Form.Group className="mb-3">
-                            <Form.Label>
-                                Email <span className="text-danger">*</span>
-                            </Form.Label>
-                            <Form.Control
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="Enter your email"
-                                isInvalid={!!formErrors.email}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formErrors.email}
-                            </Form.Control.Feedback>
-                        </Form.Group>
+                <Form onSubmit={handleSubmit}>
+                    <Row className="mb-3">
+                        <Col sm={6}>
+                            <Form.Group controlId="full_name">
+                                <Form.Label>
+                                    Full Name <span className="text-danger">*</span>
+                                </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="full_name"
+                                    value={formData.full_name}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter your full name"
+                                    isInvalid={!!formErrors.full_name}
+                                    aria-required="true"
+                                    aria-describedby="full_name-error"
+                                />
+                                <Form.Control.Feedback type="invalid" id="full_name-error">
+                                    {formErrors.full_name}
+                                </Form.Control.Feedback>
+                                <Form.Text id="full_name-help" muted>
+                                    Only alphabets are allowed
+                                </Form.Text>
+                            </Form.Group>
+                        </Col>
+                        <Col sm={6}>
+                            <Form.Group controlId="email">
+                                <Form.Label>
+                                    Email <span className="text-danger">*</span>
+                                </Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter your email"
+                                    isInvalid={!!formErrors.email}
+                                    aria-required="true"
+                                    aria-describedby="email-error"
+                                />
+                                <Form.Control.Feedback type="invalid" id="email-error">
+                                    {formErrors.email}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
-                        <Form.Group className="mb-3">
-                            <Form.Label>
-                                Phone <span className="text-danger">*</span>
-                            </Form.Label>
-                            <Form.Control
-                                type="tel"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="Enter 10-digit phone number"
-                                maxLength="10"
-                                isInvalid={!!formErrors.phone}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formErrors.phone}
-                            </Form.Control.Feedback>
-                        </Form.Group>
+                    <Row className="mb-3">
+                        <Col sm={6}>
+                            <Form.Group controlId="phone">
+                                <Form.Label>
+                                    Phone <span className="text-danger">*</span>
+                                </Form.Label>
+                                <Form.Control
+                                    type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter 10-digit phone number"
+                                    maxLength="10"
+                                    isInvalid={!!formErrors.phone}
+                                    aria-required="true"
+                                    aria-describedby="phone-error"
+                                />
+                                <Form.Control.Feedback type="invalid" id="phone-error">
+                                    {formErrors.phone}
+                                </Form.Control.Feedback>
+                                <Form.Text id="phone-help" muted>
+                                    Enter exactly 10 digits
+                                </Form.Text>
+                            </Form.Group>
+                        </Col>
+                        <Col sm={6}>
+                            <Form.Group controlId="amount">
+                                <Form.Label>
+                                    Amount (₹) <span className="text-danger">*</span>
+                                </Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    name="amount"
+                                    value={formData.amount}
+                                    disabled={true}
+                                    className="fw-bold text-success"
+                                    step="0.01"
+                                    aria-describedby="amount-help"
+                                />
+                                <Form.Text id="amount-help" muted>
+                                    Auto-calculated including all charges
+                                </Form.Text>
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
-                        <Form.Group className="mb-4">
-                            <Form.Label>
-                                Amount (₹) <span className="text-danger">*</span>
-                            </Form.Label>
-                            <Form.Control
-                                type="number"
-                                name="amount"
-                                value={formData.amount}
-                                disabled={true}
-                                className="fw-bold text-success"
-                                step="0.01"
-                            />
-                            <Form.Text className="text-muted">
-                                Auto-calculated including all charges
-                            </Form.Text>
-                        </Form.Group>
+                    <Row className="mt-4">
+                        <Col sm={12} className="text-center">
+                            <div className="d-flex gap-2 justify-content-center">
+                                {!paymentSuccess && (
+                                    <Button 
+                                        variant="primary" 
+                                        type="button"
+                                        size="md"
+                                        onClick={handleOpenPaymentModal}
+                                        disabled={!activityData}
+                                        className="px-5"
+                                        aria-label="Proceed to payment"
+                                    >
+                                        Pay
+                                    </Button>
+                                )}
 
-                        <div className="d-flex gap-2">
-                            {!paymentSuccess && (
+                                {paymentSuccess && (
+                                    <Button 
+                                        variant="success" 
+                                        type="submit" 
+                                        size="md"
+                                        disabled={loading}
+                                        className="px-5"
+                                    >
+                                        {loading ? <Spinner animation="border" size="sm" className="me-2" /> : null}
+                                        {loading ? 'Processing...' : 'Submit Donation'}
+                                    </Button>
+                                )}
                                 <Button 
-                                    variant="primary" 
-                                    type="button"
-                                    size="md"
-                                    onClick={handleOpenPaymentModal}
-                                    disabled={!activityData}
-                                    className="flex-grow-1"
-                                >
-                                    Pay
-                                </Button>
-                            )}
-
-                            {paymentSuccess && (
-                                <Button 
-                                    variant="success" 
-                                    type="submit" 
+                                    variant="secondary" 
+                                    onClick={() => navigate('/Activity')}
                                     size="md"
                                     disabled={loading}
-                                    className="flex-grow-1"
+                                    className="px-5"
                                 >
-                                    {loading ? <Spinner animation="border" size="sm" className="me-2" /> : null}
-                                    {loading ? 'Processing...' : 'Submit Donation'}
+                                    Cancel
                                 </Button>
-                            )}
-                            <Button 
-                                variant="secondary" 
-                                onClick={() => navigate('/Activity')}
-                                size="md"
-                                disabled={loading}
-                                className="flex-grow-1"
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </Form>
-                </Col>
-            </Row>
+                            </div>
+                        </Col>
+                    </Row>
+                </Form>
+            </div>
+
             {/* Payment Modal */}
             <Modal show={showPaymentModal} onHide={handleClosePaymentModal} centered size="lg">
                 <Modal.Header closeButton className="bg-primary text-white">

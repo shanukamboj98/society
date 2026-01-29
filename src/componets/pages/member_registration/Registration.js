@@ -18,6 +18,8 @@ const Registration = () => {
         nature_of_work: '',
         education_level: '',
         other_text: '',
+        district: '',
+        state: 'Uttarakhand', // Default state value
     });
 
     // State for form submission
@@ -27,6 +29,13 @@ const Registration = () => {
     const [apiError, setApiError] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [memberId, setMemberId] = useState(null);
+
+    // District options
+    const districtOptions = [
+        "haridwar", "dehradun", "uttarkashi", "chamoli", "rudraprayag",
+        "tehri_garhwal", "pauri_garhwal", "nainital", "almora", "pithoragarh",
+        "udham_singh_nagar", "bageshwar", "champawat"
+    ];
 
     // Handle input changes
     const handleChange = (e) => {
@@ -157,6 +166,11 @@ const Registration = () => {
             newErrors.address = 'Address is required';
         }
 
+        // District validation
+        if (!formData.district) {
+            newErrors.district = 'District is required';
+        }
+
         // Short Description validation
         if (!formData.short_description.trim()) {
             newErrors.short_description = 'Short description is required';
@@ -213,6 +227,8 @@ const Registration = () => {
                 data.append('phone', formData.phone);
                 data.append('password', formData.password);
                 data.append('address', formData.address);
+                data.append('district', formData.district);
+                data.append('state', formData.state);
                 data.append('short_description', formData.short_description);
                 data.append('occupation', formData.occupation);
 
@@ -291,6 +307,8 @@ const Registration = () => {
                                 nature_of_work: '',
                                 education_level: '',
                                 other_text: '',
+                                district: '',
+                                state: 'Uttarakhand', // Keep default state
                             });
                             setImagePreview(null);
                             setSubmitted(false);
@@ -360,6 +378,8 @@ const Registration = () => {
                             nature_of_work: '',
                             education_level: '',
                             other_text: '',
+                            district: '',
+                            state: 'Uttarakhand', // Keep default state
                         });
                         setImagePreview(null);
                         setSubmitted(false);
@@ -743,7 +763,6 @@ const Registration = () => {
                                     )}
                                 </Form.Group>
                             </Col>
-
                         </Row>
 
                         <Row className="mb-3">
@@ -768,6 +787,53 @@ const Registration = () => {
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
+                        </Row>
+
+                        {/* New District and State Fields */}
+                        <Row className="mb-3">
+
+                              <Col sm={6}>
+                                <Form.Group controlId="state">
+                                    <Form.Label>
+                                        State <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="state"
+                                        value={formData.state}
+                                        disabled
+                                        aria-label="State field is disabled and prefilled with Uttarakhand"
+                                    />
+                                  
+                                </Form.Group>
+                            </Col>
+                            <Col sm={6}>
+                                <Form.Group controlId="district">
+                                    <Form.Label>
+                                        District <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Select
+                                        name="district"
+                                        value={formData.district}
+                                        onChange={handleChange}
+                                        isInvalid={!!errors.district}
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="district-error"
+                                    >
+                                        <option value="">Select District</option>
+                                        {districtOptions.map(district => (
+                                            <option key={district} value={district}>
+                                                {district.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                    <Form.Control.Feedback type="invalid" id="district-error">
+                                        {errors.district}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                          
                         </Row>
 
                         <Row className="mb-3">
