@@ -16,6 +16,13 @@ const ManageRegistration = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
 
+  // District options
+  const districtOptions = [
+    "haridwar", "dehradun", "uttarkashi", "chamoli", "rudraprayag",
+    "tehri_garhwal", "pauri_garhwal", "nainital", "almora", "pithoragarh",
+    "udham_singh_nagar", "bageshwar", "champawat"
+  ];
+
   // State for all registrations details
   const [registrations, setRegistrations] = useState([]);
   
@@ -27,6 +34,8 @@ const ManageRegistration = () => {
     email: "",
     phone: "",
     address: "",
+    district: "", // New field
+    state: "Uttarakhand", // New field with default value
     short_description: "",
     occupation: "",
     designation: "",
@@ -159,6 +168,8 @@ const ManageRegistration = () => {
           email: regData.email,
           phone: regData.phone,
           address: regData.address,
+          district: regData.district || "", // New field
+          state: regData.state || "Uttarakhand", // New field with default
           short_description: regData.short_description,
           occupation: regData.occupation,
           designation: regData.designation,
@@ -360,6 +371,8 @@ const ManageRegistration = () => {
         email: formData.email,
         phone: formData.phone,
         address: formData.address,
+        district: formData.district, // New field
+        state: formData.state, // New field
         short_description: formData.short_description,
         occupation: formData.occupation,
         designation: formData.designation,
@@ -383,6 +396,8 @@ const ManageRegistration = () => {
         dataToSend.append("email", formData.email);
         dataToSend.append("phone", formData.phone);
         dataToSend.append("address", formData.address);
+        dataToSend.append("district", formData.district); // New field
+        dataToSend.append("state", formData.state); // New field
         dataToSend.append("short_description", formData.short_description);
         dataToSend.append("occupation", formData.occupation);
         dataToSend.append("designation", formData.designation);
@@ -575,6 +590,12 @@ const ManageRegistration = () => {
     }
   };
 
+  // Function to format district name for display
+  const formatDistrictName = (district) => {
+    if (!district) return "";
+    return district.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   return (
     <>
       <div className="dashboard-container">
@@ -648,6 +669,12 @@ const ManageRegistration = () => {
                                       </Card.Text>
                                       <Card.Text className="text-muted mb-2">
                                         <strong>Phone:</strong> {reg.phone}
+                                      </Card.Text>
+                                      <Card.Text className="text-muted mb-2">
+                                        <strong>District:</strong> {formatDistrictName(reg.district)}
+                                      </Card.Text>
+                                      <Card.Text className="text-muted mb-2">
+                                        <strong>State:</strong> {reg.state || "Uttarakhand"}
                                       </Card.Text>
                                       <Card.Text className="text-muted mb-2">
                                         <strong>Occupation:</strong> {reg.occupation}
@@ -766,6 +793,44 @@ const ManageRegistration = () => {
                           disabled={!isEditing}
                         />
                       </Form.Group>
+
+                      {/* New District and State Fields */}
+                      <Row className="mb-3">
+                        <Col sm={6}>
+                          <Form.Group>
+                            <Form.Label>District</Form.Label>
+                            <Form.Select
+                              name="district"
+                              value={formData.district}
+                              onChange={handleChange}
+                              required
+                              disabled={!isEditing}
+                            >
+                              <option value="">Select District</option>
+                              {districtOptions.map(district => (
+                                <option key={district} value={district}>
+                                  {formatDistrictName(district)}
+                                </option>
+                              ))}
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                        <Col sm={6}>
+                          <Form.Group>
+                            <Form.Label>State</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="state"
+                              value={formData.state}
+                              disabled
+                              aria-label="State field is disabled and prefilled with Uttarakhand"
+                            />
+                            <Form.Text className="text-muted">
+                              State is automatically set to Uttarakhand
+                            </Form.Text>
+                          </Form.Group>
+                        </Col>
+                      </Row>
 
                       <Form.Group className="mb-3">
                         <Form.Label>Short Description</Form.Label>

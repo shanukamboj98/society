@@ -98,13 +98,13 @@ function NavBar() {
                   </Link>
                   <ul>
                     <li><Link to="/AboutUs">About Us</Link></li>
-                    <li><Link to="/Admissions">Admissions</Link></li>
+                   
                
                   </ul>
                 </li>
 
                 <li><Link to="/DonationSociety">Donations</Link></li>
-                <li><Link to="events.html">Gallery</Link></li>
+              
              
 
                 <li className={`dropdown ${openDropdowns['sponsors'] ? 'dropdown-active' : ''}`}>
@@ -113,7 +113,7 @@ function NavBar() {
                   </Link>
                   <ul>
                     <li><Link to="/Activity">Activity</Link></li>
-                    <li><Link to="event-details.html">Event Details</Link></li>
+                   
                
                   </ul>
                 </li>
