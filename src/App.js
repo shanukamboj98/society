@@ -35,6 +35,7 @@ import AddActivity from "./componets/event_panel/dashboard_pages/activity_items/
 import ManageActivity from "./componets/event_panel/dashboard_pages/activity_items/ManageActivity";
 import AssociatedWings from "./componets/pages/associated_wings/AssociatedWings";
 import Activity from "./componets/pages/activity_event/Activity";
+import DistrictDashboard from "./componets/district_login/DistrictDashboard";
 
 
 
@@ -55,6 +56,7 @@ function App() {
     "/ManageRegistration",
     "/AddActivity",
     "/ManageActivity",
+    "/DistrictDashboard"
   ]);
 
   // const hiddenFooter1= new Set([ 
@@ -90,6 +92,7 @@ function App() {
           <Route path="/ManageActivity" element={<ManageActivity />} />
           <Route path="/AssociatedWings" element={<AssociatedWings />} />
             <Route path="/Activity" element={<Activity />} />
+            <Route path="/DistrictDashboard" element={<DistrictDashboard />} />
 
         </Routes>
       </main>

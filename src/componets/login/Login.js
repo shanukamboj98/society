@@ -4,10 +4,31 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Adjust path if necessary
 
 const Login = () => {
+  const [role, setRole] = useState('user'); // Default role is user
   const [emailOrPhone, setEmailOrPhone] = useState('');
+  const [adminId, setAdminId] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // List of 13 districts of Uttarakhand
+  const districts = [
+    "Almora",
+    "Bageshwar",
+    "Chamoli",
+    "Champawat",
+    "Dehradun",
+    "Haridwar",
+    "Nainital",
+    "Pauri Garhwal",
+    "Pithoragarh",
+    "Rudraprayag",
+    "Tehri Garhwal",
+    "Udham Singh Nagar",
+    "Uttarkashi"
+  ];
 
   // Get the login function from AuthContext
   const { login } = useAuth();
@@ -20,19 +41,38 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/login/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email_or_phone: emailOrPhone,
-            password: password,
-          }),
-        }
-      );
+      let requestBody = {};
+      let endpoint = "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/login/";
+
+      // Prepare request body based on role
+      if (role === 'user') {
+        requestBody = {
+          email_or_phone: emailOrPhone,
+          password: password,
+          role: 'user'
+        };
+      } else if (role === 'admin') {
+        requestBody = {
+          admin_id: adminId,
+          password: password,
+          role: 'admin'
+        };
+      } else if (role === 'district-admin') {
+        requestBody = {
+          // district_name: selectedDistrict,
+          email_or_phone: email,
+          password: password,
+          role: 'district-admin'
+        };
+      }
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
 
       const data = await response.json();
 
@@ -45,8 +85,10 @@ const Login = () => {
         let redirectTo;
         if (data.role === 'admin') {
           redirectTo = "/DashBoard"; // Admin dashboard
+        } else if (data.role === 'district-admin') {
+          redirectTo = "/DistrictDashboard"; // District admin dashboard
         } else {
-          // Default to user dashboard for 'user' role or any other role
+          // Default to user dashboard for 'user' role
           redirectTo = "/UserDashBoard";
         }
 
@@ -64,42 +106,184 @@ const Login = () => {
     }
   };
 
+  // Function to get the appropriate title based on selected role
+  const getLoginTitle = () => {
+    switch(role) {
+      case 'admin':
+        return 'Admin Login';
+      case 'district-admin':
+        return 'District Admin Login';
+      default:
+        return 'User Login';
+    }
+  };
+
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-4">
           <div className="card shadow-sm">
             <div className="card-body">
-              <h2 className="card-title text-center mb-4">Login</h2>
+              <h2 className="card-title text-center mb-4">{getLoginTitle()}</h2>
               
               {/* Display error message if it exists */}
               {error && <div className="alert alert-danger" role="alert">{error}</div>}
               
+              {/* Role Selection Radio Buttons */}
+              <div className="mb-4">
+                <div className="d-flex justify-content-around">
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="role"
+                      id="userRole"
+                      value="user"
+                      checked={role === 'user'}
+                      onChange={() => setRole('user')}
+                    />
+                    <label className="form-check-label" htmlFor="userRole">
+                      User
+                    </label>
+                  </div>
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="role"
+                      id="adminRole"
+                      value="admin"
+                      checked={role === 'admin'}
+                      onChange={() => setRole('admin')}
+                    />
+                    <label className="form-check-label" htmlFor="adminRole">
+                      Admin
+                    </label>
+                  </div>
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="role"
+                      id="districtAdminRole"
+                      value="district-admin"
+                      checked={role === 'district-admin'}
+                      onChange={() => setRole('district-admin')}
+                    />
+                    <label className="form-check-label" htmlFor="districtAdminRole">
+                      District Admin
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
               <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="emailOrPhone" className="form-label">Email or Phone</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="emailOrPhone"
-                    value={emailOrPhone}
-                    onChange={(e) => setEmailOrPhone(e.target.value)}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">Password</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
+                {/* User Login Fields */}
+                {role === 'user' && (
+                  <>
+                    <div className="mb-3">
+                      <label htmlFor="emailOrPhone" className="form-label">Email or Phone</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="emailOrPhone"
+                        value={emailOrPhone}
+                        onChange={(e) => setEmailOrPhone(e.target.value)}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label htmlFor="password" className="form-label">Password</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </>
+                )}
+                
+                {/* Admin Login Fields */}
+                {role === 'admin' && (
+                  <>
+                    <div className="mb-3">
+                      <label htmlFor="adminId" className="form-label">Admin ID</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="adminId"
+                        value={adminId}
+                        onChange={(e) => setAdminId(e.target.value)}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label htmlFor="password" className="form-label">Password</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </>
+                )}
+                
+                {/* District Admin Login Fields */}
+                {role === 'district-admin' && (
+                  <>
+                    <div className="mb-3">
+                      <label htmlFor="districtSelect" className="form-label">District Name</label>
+                      <select
+                        className="form-select"
+                        id="districtSelect"
+                        value={selectedDistrict}
+                        onChange={(e) => setSelectedDistrict(e.target.value)}
+                        required
+                        disabled={isLoading}
+                      >
+                        <option value="" disabled>Select a district</option>
+                        {districts.map((district, index) => (
+                          <option key={index} value={district}>{district}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="mb-3">
+                      <label htmlFor="email" className="form-label">Email ID</label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label htmlFor="password" className="form-label">Password</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </>
+                )}
+                
                 <div className="d-grid">
                   <button type="submit" className="btn btn-primary" disabled={isLoading}>
                     {isLoading ? (
