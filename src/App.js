@@ -36,6 +36,7 @@ import ManageActivity from "./componets/event_panel/dashboard_pages/activity_ite
 import AssociatedWings from "./componets/pages/associated_wings/AssociatedWings";
 import Activity from "./componets/pages/activity_event/Activity";
 import DistrictDashboard from "./componets/district_login/DistrictDashboard";
+import DonateActivity from "./componets/pages/activity_event/DonateActivity";
 
 
 
@@ -93,6 +94,7 @@ function App() {
           <Route path="/AssociatedWings" element={<AssociatedWings />} />
             <Route path="/Activity" element={<Activity />} />
             <Route path="/DistrictDashboard" element={<DistrictDashboard />} />
+             <Route path="/DonateActivity" element={<DonateActivity/>} />
 
         </Routes>
       </main>
