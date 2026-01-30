@@ -73,12 +73,12 @@ const menuItems = [
   submenu: [
     
      {
-          label: "Member list",
+          label: "District Member List",
           path: "/DistrictRegistration",
           icon: <FaImage />,
         },
          {
-          label: "Meeting List",
+          label: "Mail Meeting List",
           path: "/DistrictMailMeeting",
           icon: <FaImage />,
         },

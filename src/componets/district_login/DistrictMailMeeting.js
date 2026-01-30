@@ -49,34 +49,36 @@ const DistrictMailMeeting = () => {
     return () => window.removeEventListener("resize", checkDevice);
   }, []);
 
-  // Fetch district mail data on component mount
+  // Fetch members on component mount
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      fetchDistrictMailData();
       fetchMembers();
     }
   }, [authLoading, isAuthenticated]);
 
   // Extract district from unique_id
   const getDistrictFromUniqueId = (uniqueId) => {
+    // Prefer allocated_district from auth if available
+    if (auth?.allocated_district) return auth.allocated_district;
+
+    // Fallback: try to derive district from uniqueId if possible
     if (!uniqueId) return "";
-    // Assuming unique_id format is "DIST/ADM/YYYY/XXXXX"
-    // We need to extract the district name from the user's data or use a default
-    // For now, let's use a default district
-    return "dehradun"; // This should be replaced with actual district extraction logic
+    // If uniqueId contains district info in some format, implement parsing here.
+    // Otherwise return empty string so caller can handle it.
+    return "";
   };
 
   // Fetch members from API (similar to DistrictRegistration)
   const fetchMembers = async () => {
     setIsLoading(true);
     try {
-      // Get district from user's unique_id or use a default
-      const district = getDistrictFromUniqueId(auth?.unique_id);
-      
+      // Get district from auth.allocated_district or unique_id fallback
+      const district = auth?.allocated_district || getDistrictFromUniqueId(auth?.unique_id);
+
       // Create URL with query parameters
       const url = new URL(`https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/`);
-      url.searchParams.append('district', district);
-      
+      if (district) url.searchParams.append('district', district);
+
       // Make authenticated request using authFetch
       const response = await authFetch(url.toString(), {
         method: 'GET',
@@ -200,18 +202,19 @@ const DistrictMailMeeting = () => {
 
   // Handle checkbox changes
   const handleMemberSelection = (memberId) => {
+    const idStr = String(memberId);
     setFormData(prev => {
-      if (prev.member_ids.includes(memberId)) {
+      if (prev.member_ids.includes(idStr)) {
         // Remove member if already selected
         return {
           ...prev,
-          member_ids: prev.member_ids.filter(id => id !== memberId)
+          member_ids: prev.member_ids.filter(id => id !== idStr)
         };
       } else {
         // Add member if not selected
         return {
           ...prev,
-          member_ids: [...prev.member_ids, memberId]
+          member_ids: [...prev.member_ids, idStr]
         };
       }
     });
@@ -278,7 +281,7 @@ const DistrictMailMeeting = () => {
     try {
       // Create the payload with the required fields
       const payload = {
-        district_admin_id: formData.district_admin_id,
+        district_admin_id: formData.district_admin_id || auth?.unique_id || districtAdminId,
         member_ids: formData.member_ids,
         subject: formData.subject,
         message: formData.message
@@ -412,20 +415,25 @@ const DistrictMailMeeting = () => {
                             {members.map((member) => (
                               <ListGroup.Item key={member.id || member.unique_id} className="d-flex justify-content-between align-items-center">
                                 <div className="d-flex align-items-center">
-                                  <Form.Check
-                                    type="checkbox"
-                                    id={`member-${member.id || member.unique_id}`}
-                                    checked={formData.member_ids.includes(member.id || member.unique_id)}
-                                    onChange={() => handleMemberSelection(member.id || member.unique_id)}
-                                    className="me-3"
-                                  />
+                                  {(() => {
+                                    const memberKey = String(member.member_id || member.unique_id || member.id);
+                                    return (
+                                      <Form.Check
+                                        type="checkbox"
+                                        id={`member-${memberKey}`}
+                                        checked={formData.member_ids.includes(memberKey)}
+                                        onChange={() => handleMemberSelection(memberKey)}
+                                        className="me-3"
+                                      />
+                                    );
+                                  })()}
                                   <div>
                                     <div className="fw-bold">{member.full_name || member.name || 'N/A'}</div>
                                     <div className="text-muted small">{member.email || 'N/A'}</div>
                                     <Badge bg="secondary" className="mt-1">{member.district || member.allocated_district || 'N/A'}</Badge>
                                   </div>
                                 </div>
-                                <div className="text-muted small">{member.id || member.unique_id}</div>
+                                    <div className="text-muted small">{member.member_id || member.id || member.unique_id}</div>
                               </ListGroup.Item>
                             ))}
                           </ListGroup>
