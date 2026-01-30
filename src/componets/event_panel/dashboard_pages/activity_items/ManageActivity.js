@@ -15,6 +15,23 @@ const ManageActivity = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
 
+  // District options for dropdown
+  const districtOptions = [
+    { value: "haridwar", label: "Haridwar" },
+    { value: "dehradun", label: "Dehradun" },
+    { value: "uttarkashi", label: "Uttarkashi" },
+    { value: "chamoli", label: "Chamoli" },
+    { value: "rudraprayag", label: "Rudraprayag" },
+    { value: "tehri_garhwal", label: "Tehri Garhwal" },
+    { value: "pauri_garhwal", label: "Pauri Garhwal" },
+    { value: "nainital", label: "Nainital" },
+    { value: "almora", label: "Almora" },
+    { value: "pithoragarh", label: "Pithoragarh" },
+    { value: "udham_singh_nagar", label: "Udham Singh Nagar" },
+    { value: "bageshwar", label: "Bageshwar" },
+    { value: "champawat", label: "Champawat" }
+  ];
+
   // State for all activities
   const [activities, setActivities] = useState([]);
   
@@ -32,6 +49,7 @@ const ManageActivity = () => {
     transaction_charges: "",
     tax_amount: "",
     total_amount: "",
+    allocated_district: "", // Added new field
     is_past: false,
     is_present: false,
     is_upcoming: false,
@@ -161,6 +179,7 @@ const ManageActivity = () => {
         transaction_charges: activityData.transaction_charges || "0.00",
         tax_amount: activityData.tax_amount || "0.00",
         total_amount: activityData.total_amount || "0.00",
+        allocated_district: activityData.allocated_district || "", // Added new field
         is_past: activityData.is_past,
         is_present: activityData.is_present,
         is_upcoming: activityData.is_upcoming,
@@ -232,6 +251,7 @@ const ManageActivity = () => {
       transaction_charges: "",
       tax_amount: "",
       total_amount: "",
+      allocated_district: "", // Reset new field
       is_past: false,
       is_present: false,
       is_upcoming: false,
@@ -274,6 +294,12 @@ const ManageActivity = () => {
     return <Badge bg="secondary">Not Set</Badge>;
   };
 
+  // Get district label by value
+  const getDistrictLabel = (value) => {
+    const district = districtOptions.find(d => d.value === value);
+    return district ? district.label : value;
+  };
+
   // Handle form submission (POST for new, PUT for update)
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -292,6 +318,7 @@ const ManageActivity = () => {
         venue: formData.venue,
         image: formData.image,
         activity_fee: formData.activity_fee,
+        allocated_district: formData.allocated_district, // Added new field
         is_past: status.is_past,
         is_present: status.is_present,
         is_upcoming: status.is_upcoming
@@ -537,7 +564,9 @@ const ManageActivity = () => {
           <Container fluid className="dashboard-body dashboard-main-container">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h1 className="page-title mb-0">Manage Activities</h1>
-             
+              <Button variant="primary" onClick={addNewActivity}>
+                <FaPlus /> Add New Activity
+              </Button>
             </div>
 
             {/* Alert for success/error messages */}
@@ -602,6 +631,9 @@ const ManageActivity = () => {
                                       <Card.Text className="text-muted mb-2">
                                         <FaMapMarkerAlt className="me-1" />
                                         {activity.venue}
+                                      </Card.Text>
+                                      <Card.Text className="text-muted mb-2">
+                                        <strong>District:</strong> {activity.allocated_district ? getDistrictLabel(activity.allocated_district) : "Not specified"}
                                       </Card.Text>
                                       <Card.Text className="text-muted mb-2">
                                         <FaMoneyBillWave className="me-1" />
@@ -748,27 +780,53 @@ const ManageActivity = () => {
                             </Col>
                           </Row>
 
-                          <Form.Group className="mb-3">
-                            <Form.Label>Image URL</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="Enter image URL"
-                              name="image"
-                              value={formData.image}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                            />
-                            {formData.image && (
-                              <div className="mt-2">
-                                <Image 
-                                  src={getImageUrl(formData.image)} 
-                                  alt="Activity preview"
-                                  fluid
-                                  style={{ maxHeight: "200px" }}
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Allocated District</Form.Label>
+                                <Form.Select
+                                  name="allocated_district"
+                                  value={formData.allocated_district}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                >
+                                  <option value="">Select District</option>
+                                  {districtOptions.map((district) => (
+                                    <option key={district.value} value={district.value}>
+                                      {district.label}
+                                    </option>
+                                  ))}
+                                </Form.Select>
+                                <Form.Text className="text-muted">
+                                  Select the district where the activity will be conducted
+                                </Form.Text>
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Image URL</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Enter image URL"
+                                  name="image"
+                                  value={formData.image}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
                                 />
-                              </div>
-                            )}
-                          </Form.Group>
+                              </Form.Group>
+                            </Col>
+                          </Row>
+
+                          {formData.image && (
+                            <div className="mb-3">
+                              <Image 
+                                src={getImageUrl(formData.image)} 
+                                alt="Activity preview"
+                                fluid
+                                style={{ maxHeight: "200px" }}
+                              />
+                            </div>
+                          )}
 
                           {/* Fee Breakdown (Read-only) */}
                           {formData.id && (

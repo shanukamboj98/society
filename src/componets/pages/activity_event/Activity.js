@@ -21,6 +21,30 @@ function Activity() {
   const [joinedActivities, setJoinedActivities] = useState([]);
   const navigate = useNavigate();
 
+  // District options for display
+  const districtOptions = [
+    { value: "haridwar", label: "Haridwar" },
+    { value: "dehradun", label: "Dehradun" },
+    { value: "uttarkashi", label: "Uttarkashi" },
+    { value: "chamoli", label: "Chamoli" },
+    { value: "rudraprayag", label: "Rudraprayag" },
+    { value: "tehri_garhwal", label: "Tehri Garhwal" },
+    { value: "pauri_garhwal", label: "Pauri Garhwal" },
+    { value: "nainital", label: "Nainital" },
+    { value: "almora", label: "Almora" },
+    { value: "pithoragarh", label: "Pithoragarh" },
+    { value: "udham_singh_nagar", label: "Udham Singh Nagar" },
+    { value: "bageshwar", label: "Bageshwar" },
+    { value: "champawat", label: "Champawat" }
+  ];
+
+  // Helper function to get district label by value
+  const getDistrictLabel = (value) => {
+    if (!value) return "Not specified";
+    const district = districtOptions.find(d => d.value === value);
+    return district ? district.label : value;
+  };
+
   useEffect(() => {
     const fetchActivities = async () => {
       try {
@@ -494,6 +518,10 @@ function Activity() {
                         <span>{activity.venue}</span>
                       </div>
                       <div className="info-item">
+                        <FaMapMarkerAlt className="info-icon" />
+                        <span>{getDistrictLabel(activity.allocated_district)}</span>
+                      </div>
+                      <div className="info-item">
                         <FaClock className="info-icon" />
                         <span>{time}</span>
                       </div>
@@ -580,8 +608,6 @@ function Activity() {
           </Form>
         </Modal.Body>
       </Modal>
-
-    
     </Container>
   );
 }

@@ -18,13 +18,31 @@ const AddActivity = () => {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
+  // District options for dropdown
+  const districtOptions = [
+    { value: "haridwar", label: "Haridwar" },
+    { value: "dehradun", label: "Dehradun" },
+    { value: "uttarkashi", label: "Uttarkashi" },
+    { value: "chamoli", label: "Chamoli" },
+    { value: "rudraprayag", label: "Rudraprayag" },
+    { value: "tehri_garhwal", label: "Tehri Garhwal" },
+    { value: "pauri_garhwal", label: "Pauri Garhwal" },
+    { value: "nainital", label: "Nainital" },
+    { value: "almora", label: "Almora" },
+    { value: "pithoragarh", label: "Pithoragarh" },
+    { value: "udham_singh_nagar", label: "Udham Singh Nagar" },
+    { value: "bageshwar", label: "Bageshwar" },
+    { value: "champawat", label: "Champawat" }
+  ];
+
   // Form state
   const [formData, setFormData] = useState({
     activity_name: "",
     objective: "",
     activity_date_time: "",
     venue: "",
-    activity_fee: ""
+    activity_fee: "",
+    allocated_district: "" // Added new field
   });
 
   // Status fields (calculated based on activity date time)
@@ -139,6 +157,10 @@ const AddActivity = () => {
       errors.activity_fee = "Valid activity fee is required";
     }
     
+    if (!formData.allocated_district) {
+      errors.allocated_district = "District is required";
+    }
+    
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -163,6 +185,7 @@ const AddActivity = () => {
       submitData.append('activity_date_time', formData.activity_date_time);
       submitData.append('venue', formData.venue);
       submitData.append('activity_fee', formData.activity_fee);
+      submitData.append('allocated_district', formData.allocated_district); // Added new field
       
       // Add image if selected
       if (imageFile) {
@@ -192,7 +215,8 @@ const AddActivity = () => {
           objective: "",
           activity_date_time: "",
           venue: "",
-          activity_fee: ""
+          activity_fee: "",
+          allocated_district: "" // Reset new field
         });
         
         // Reset image
@@ -242,6 +266,12 @@ const AddActivity = () => {
       return <span className="badge bg-primary">Upcoming</span>;
     }
     return <span className="badge bg-secondary">Not Set</span>;
+  };
+
+  // Get district label by value
+  const getDistrictLabel = (value) => {
+    const district = districtOptions.find(d => d.value === value);
+    return district ? district.label : value;
   };
 
   return (
@@ -384,7 +414,7 @@ const AddActivity = () => {
                     </Col>
                   </Row>
 
-                  {/* Activity Image */}
+                  {/* Activity Image and District */}
                   <Row>
                     <Col md={6} className="mb-3">
                       <Form.Group>
@@ -401,6 +431,35 @@ const AddActivity = () => {
                         />
                         <Form.Text className="text-muted">
                           Upload an image for the activity (optional)
+                        </Form.Text>
+                      </Form.Group>
+                    </Col>
+                    
+                    <Col md={6} className="mb-3">
+                      <Form.Group>
+                        <Form.Label className="d-flex align-items-center">
+                          <FaMapMarkerAlt className="me-2 text-danger" />
+                          Allocated District <span className="text-danger ms-1">*</span>
+                        </Form.Label>
+                        <Form.Select
+                          name="allocated_district"
+                          value={formData.allocated_district}
+                          onChange={handleChange}
+                          isInvalid={!!validationErrors.allocated_district}
+                          className="form-control-lg"
+                        >
+                          <option value="">Select District</option>
+                          {districtOptions.map((district) => (
+                            <option key={district.value} value={district.value}>
+                              {district.label}
+                            </option>
+                          ))}
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                          {validationErrors.allocated_district}
+                        </Form.Control.Feedback>
+                        <Form.Text className="text-muted">
+                          Select the district where the activity will be conducted
                         </Form.Text>
                       </Form.Group>
                     </Col>
@@ -498,6 +557,7 @@ const AddActivity = () => {
                       <p><strong>Name:</strong> {formData.activity_name || 'Not specified'}</p>
                       <p><strong>Venue:</strong> {formData.venue || 'Not specified'}</p>
                       <p><strong>Status:</strong> {getStatusBadge()}</p>
+                      <p><strong>District:</strong> {formData.allocated_district ? getDistrictLabel(formData.allocated_district) : 'Not specified'}</p>
                     </Col>
                     <Col md={6}>
                       <p><strong>Date & Time:</strong> {formData.activity_date_time ? 
