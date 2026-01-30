@@ -45,13 +45,17 @@ const DistrictRegistration = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Extract district from unique_id
+  // Extract district from unique_id or use allocated_district
   const getDistrictFromUniqueId = (uniqueId) => {
+    // Use allocated_district if available (from login response)
+    if (auth?.allocated_district) {
+      return auth.allocated_district;
+    }
+    
+    // Fallback: extract from unique_id if needed
     if (!uniqueId) return "";
     // Assuming unique_id format is "DIST/ADM/YYYY/XXXXX"
-    // We need to extract the district name from the user's data or use a default
-    // For now, let's use a default district
-    return "dehradun"; // This should be replaced with actual district extraction logic
+    return uniqueId; // Default fallback
   };
 
    // Fetch members from API

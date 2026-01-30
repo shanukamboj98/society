@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
     refresh: null,
     role: null,
     unique_id: null,
+    allocated_district: null,
   });
  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -41,12 +42,13 @@ export const AuthProvider = ({ children }) => {
     console.log("Login function called with data:", data); // Debug log
    
     // This logic correctly handles the login API response you provided:
-    // { "access": "...", "refresh": "...", "unique_id": "...", "role": "..." }
+    // { "access": "...", "refresh": "...", "unique_id": "...", "role": "...", "allocated_district": "..." }
     const authData = {
       access: data.access || data.token || data.accessToken,
       refresh: data.refresh || data.refreshToken,
       role: data.role || data.userRole,
       unique_id: data.unique_id || data.user_id || data.id || data.userId || data.pk,
+      allocated_district: data.allocated_district || null,
     };
    
     console.log("Processed auth data:", authData); // Debug log
@@ -65,6 +67,7 @@ export const AuthProvider = ({ children }) => {
       refresh: null,
       role: null,
       unique_id: null,
+      allocated_district: null,
     });
     setIsAuthenticated(false);
    
@@ -216,6 +219,7 @@ export const AuthProvider = ({ children }) => {
         refreshToken: auth.refresh,
         role: auth.role,
         unique_id: auth.unique_id,
+        allocated_district: auth.allocated_district,
       }}
     >
       {children}

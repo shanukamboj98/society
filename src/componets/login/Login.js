@@ -1,10 +1,10 @@
 // src/componets/pages/Login.js
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Adjust path if necessary
+import { useAuth } from '../context/AuthContext'; 
 
 const Login = () => {
-  const [role, setRole] = useState('user'); // Default role is user
+  const [role, setRole] = useState('member'); // Default role is 'member'
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [adminId, setAdminId] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
@@ -35,7 +35,7 @@ const Login = () => {
       let endpoint = "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/login/";
 
       // Prepare request body based on role
-      if (role === 'user') {
+      if (role === 'member') {
         requestBody = {
           email_or_phone: emailOrPhone,
           password: password,
@@ -67,6 +67,16 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // --- ROLE VALIDATION: Check if selected role matches credential role ---
+        // For member role, the API returns "member"
+        const isRoleMatch = data.role === role;
+
+        if (!isRoleMatch) {
+          throw new Error(
+            `Invalid login attempt. Selected role "${role}" does not match the credential role "${data.role}". Please select the correct role and try again.`
+          );
+        }
+
         // On successful login, call the login function from AuthContext
         // This will save the tokens and update the authentication state globally
         login(data);
@@ -77,8 +87,11 @@ const Login = () => {
           redirectTo = "/DashBoard"; // Admin dashboard
         } else if (data.role === 'district-admin') {
           redirectTo = "/DistrictDashboard"; // District admin dashboard
+        } else if (data.role === 'member') {
+          // For member/user role
+          redirectTo = "/UserDashBoard";
         } else {
-          // Default to user dashboard for 'user' role
+          // Default to user dashboard
           redirectTo = "/UserDashBoard";
         }
 
@@ -103,8 +116,10 @@ const Login = () => {
         return 'Admin Login';
       case 'district-admin':
         return 'District Admin Login';
+      case 'member':
+        return 'Member Login';
       default:
-        return 'User Login';
+        return 'Member Login';
     }
   };
 
@@ -127,13 +142,13 @@ const Login = () => {
                       className="form-check-input"
                       type="radio"
                       name="role"
-                      id="userRole"
-                      value="user"
-                      checked={role === 'user'}
-                      onChange={() => setRole('user')}
+                      id="memberRole"
+                      value="member"
+                      checked={role === 'member'}
+                      onChange={() => setRole('member')}
                     />
-                    <label className="form-check-label" htmlFor="userRole">
-                      User
+                    <label className="form-check-label" htmlFor="memberRole">
+                      Member
                     </label>
                   </div>
                   <div className="form-check">
@@ -168,8 +183,8 @@ const Login = () => {
               </div>
               
               <form onSubmit={handleSubmit}>
-                {/* User Login Fields */}
-                {role === 'user' && (
+                {/* Member Login Fields */}
+                {role === 'member' && (
                   <>
                     <div className="mb-3">
                       <label htmlFor="emailOrPhone" className="form-label">Email or Phone</label>
