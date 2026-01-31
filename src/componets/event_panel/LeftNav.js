@@ -184,6 +184,11 @@ const menuItems = [
             </div>
           </div>
         </div>
+        
+        {/* Added Admin Dashboard heading for desktop */}
+        <div className="sidebar-heading">
+          <h5 className="dashboard-title">Admin Dashboard</h5>
+        </div>
 
         <Nav className="sidebar-nav flex-column">
           
@@ -267,6 +272,11 @@ const menuItems = [
   </Offcanvas.Header>
 
   <Offcanvas.Body className="br-offcanvas">
+    {/* Added Admin Dashboard heading for mobile/tablet */}
+    <div className="sidebar-heading">
+      <h5 className="dashboard-title">Admin Dashboard</h5>
+    </div>
+    
     <Nav className="flex-column">
       {menuItems.map((item, index) => (
         <div key={index}>
