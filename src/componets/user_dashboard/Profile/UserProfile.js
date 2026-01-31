@@ -352,7 +352,7 @@ const UserProfile = () => {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            disabled={!isEditing}
+                           disabled={true}
                           />
                         </Form.Group>
                       </Col>
@@ -364,7 +364,7 @@ const UserProfile = () => {
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            disabled={!isEditing}
+                           disabled={true}
                           />
                         </Form.Group>
                       </Col>
