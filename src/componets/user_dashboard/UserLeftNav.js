@@ -56,58 +56,20 @@ const menuItems = [
     {
       icon: <FaTachometerAlt />,
       label: "Dashboard",
-      path: "/",
+      path: "/UserDashBoard",
       active: true,
     },
-
-    
-   
-
-  
-   {
-  icon: <FaInfoCircle />,   // About Us main
-  label: "About Us",
-  submenu: [
-    {
-      label: "Add Profile",
-      path: "/#",
-      icon: <FaUserCircle />, // profile
-    },
-     {
-          label: "Manage Profile",
-          path: "/#",
-          icon: <FaImage />,
-        },
-    {
-      label: "Add About Us",
-      path: "/AddAboutUs",
-      icon: <FaEdit />, // add/edit content
-    },
-    {
-      label: "Manage About Us",
-      path: "/ManageAboutUs",
-      icon: <FaListUl />, // manage/list
-    },
-  ],
-},
-
-
-
-
-   
 
      {
       icon: <FaTachometerAlt />,
-      label: "Manage Hero Section",
-      path: "/ManageHeroSection",
+      label: "Profile",
+      path: "/UserProfile",
       active: true,
     },
     
-    
-  
    
 
-    
+
   
   ];
 
