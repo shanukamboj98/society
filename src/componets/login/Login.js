@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; 
 
 const Login = () => {
-  const [role, setRole] = useState('member'); // Default role is 'member'
+  const [role, setRole] = useState('admin'); // Default role is 'member'
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [adminId, setAdminId] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
@@ -137,6 +137,35 @@ const Login = () => {
               {/* Role Selection Radio Buttons */}
               <div className="mb-4">
                 <div className="d-flex justify-content-around">
+                    <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="role"
+                      id="adminRole"
+                      value="admin"
+                      checked={role === 'admin'}
+                      onChange={() => setRole('admin')}
+                    />
+                    <label className="form-check-label" htmlFor="adminRole">
+                      Admin
+                    </label>
+                  </div>
+
+                    <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="role"
+                      id="districtAdminRole"
+                      value="district-admin"
+                      checked={role === 'district-admin'}
+                      onChange={() => setRole('district-admin')}
+                    />
+                    <label className="form-check-label" htmlFor="districtAdminRole">
+                      District Admin
+                    </label>
+                  </div>
                   <div className="form-check">
                     <input
                       className="form-check-input"
@@ -151,34 +180,8 @@ const Login = () => {
                       Member
                     </label>
                   </div>
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="role"
-                      id="adminRole"
-                      value="admin"
-                      checked={role === 'admin'}
-                      onChange={() => setRole('admin')}
-                    />
-                    <label className="form-check-label" htmlFor="adminRole">
-                      Admin
-                    </label>
-                  </div>
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="role"
-                      id="districtAdminRole"
-                      value="district-admin"
-                      checked={role === 'district-admin'}
-                      onChange={() => setRole('district-admin')}
-                    />
-                    <label className="form-check-label" htmlFor="districtAdminRole">
-                      District Admin
-                    </label>
-                  </div>
+                
+                
                 </div>
               </div>
               
