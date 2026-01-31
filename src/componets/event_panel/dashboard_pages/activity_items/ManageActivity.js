@@ -43,7 +43,7 @@ const ManageActivity = () => {
     objective: "",
     activity_date_time: "",
     venue: "",
-    image: "",
+    image: null,
     activity_fee: "",
     portal_charges: "",
     transaction_charges: "",
@@ -62,6 +62,10 @@ const ManageActivity = () => {
   const [message, setMessage] = useState("");
   const [variant, setVariant] = useState("success");
   const [showAlert, setShowAlert] = useState(false);
+
+  // State for file preview and existing image
+  const [imagePreview, setImagePreview] = useState(null);
+  const [existingImage, setExistingImage] = useState(null);
 
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
@@ -96,8 +100,11 @@ const ManageActivity = () => {
   const fetchAllActivities = async () => {
     setIsLoading(true);
     try {
-      const response = await authFetch(
-        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/"
+      const response = await fetch(
+        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/",
+        {
+          method: "GET",
+        }
       );
 
       if (!response.ok) {
@@ -130,8 +137,11 @@ const ManageActivity = () => {
     setIsLoading(true);
     try {
       console.log("Fetching activity with ID:", activityId);
-      const response = await authFetch(
-        `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/`
+      const response = await fetch(
+        `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/?id=${activityId}`,
+        {
+          method: "GET",
+        }
       );
 
       if (!response.ok) {
@@ -144,24 +154,17 @@ const ManageActivity = () => {
       let activityData;
       
       // Check if data is an array or a single object
-      if (Array.isArray(result)) {
-        activityData = result.find(item => item.id.toString() === activityId.toString());
+      if (Array.isArray(result.data)) {
+        activityData = result.data.find(item => item.id.toString() === activityId.toString());
         if (!activityData) {
           throw new Error(`Activity with ID ${activityId} not found in response array`);
         }
-      } else if (result.data) {
-        if (Array.isArray(result.data)) {
-          activityData = result.data.find(item => item.id.toString() === activityId.toString());
-          if (!activityData) {
-            throw new Error(`Activity with ID ${activityId} not found in response array`);
-          }
-        } else if (result.data.id && result.data.id.toString() === activityId.toString()) {
+      } else if (result.data && result.data.id) {
+        if (result.data.id.toString() === activityId.toString()) {
           activityData = result.data;
         } else {
           throw new Error(`Returned activity ID ${result.data.id} does not match requested ID ${activityId}`);
         }
-      } else if (result.id && result.id.toString() === activityId.toString()) {
-        activityData = result;
       } else {
         throw new Error("Invalid activity data structure in response");
       }
@@ -173,7 +176,7 @@ const ManageActivity = () => {
         objective: activityData.objective,
         activity_date_time: activityData.activity_date_time,
         venue: activityData.venue,
-        image: activityData.image || "",
+        image: null, // Reset to null for proper handling
         activity_fee: activityData.activity_fee,
         portal_charges: activityData.portal_charges || "0.00",
         transaction_charges: activityData.transaction_charges || "0.00",
@@ -188,6 +191,8 @@ const ManageActivity = () => {
       });
 
       setSelectedActivityId(activityId);
+      // store existing image for preview
+      setExistingImage(activityData.image || null);
     } catch (error) {
       console.error("Error fetching activity data:", error);
       setMessage(error.message || "An error occurred while fetching activity data");
@@ -206,11 +211,27 @@ const ManageActivity = () => {
 
   // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+
+    if (name === "image") {
+      const file = files && files[0];
+      setFormData((prev) => ({
+        ...prev,
+        image: file || null,
+      }));
+
+      if (file) {
+        const previewUrl = URL.createObjectURL(file);
+        setImagePreview(previewUrl);
+      } else {
+        setImagePreview(null);
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   // Reset form to original data
@@ -245,7 +266,7 @@ const ManageActivity = () => {
       objective: "",
       activity_date_time: "",
       venue: "",
-      image: "",
+      image: null,
       activity_fee: "",
       portal_charges: "",
       transaction_charges: "",
@@ -311,12 +332,12 @@ const ManageActivity = () => {
       const status = calculateActivityStatus(formData.activity_date_time);
       
       const payload = {
+        id: formData.id,
         activity_id: formData.activity_id,
         activity_name: formData.activity_name,
         objective: formData.objective,
         activity_date_time: formData.activity_date_time,
         venue: formData.venue,
-        image: formData.image,
         activity_fee: formData.activity_fee,
         allocated_district: formData.allocated_district, // Added new field
         is_past: status.is_past,
@@ -327,67 +348,191 @@ const ManageActivity = () => {
       console.log("Submitting data for activity:", formData.activity_name);
       console.log("Payload:", payload);
 
-      let response;
-      let successMessage;
-      
-      if (formData.id) {
-        // Update existing activity
-        payload.id = formData.id;
-        response = await authFetch(
-          `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/`,
-          {
-            method: "PUT",
-            body: JSON.stringify(payload),
-          }
-        );
-        successMessage = "Activity updated successfully!";
-      } else {
-        // Create new activity
-        response = await authFetch(
-          "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/",
-          {
-            method: "POST",
-            body: JSON.stringify(payload),
-          }
-        );
-        successMessage = "Activity created successfully!";
-      }
+      // If we have a new image, we need to handle it with FormData
+      if (formData.image) {
+        const dataToSend = new FormData();
+        if (formData.id) dataToSend.append('id', formData.id);
+        dataToSend.append('activity_id', formData.activity_id);
+        dataToSend.append('activity_name', formData.activity_name);
+        dataToSend.append('objective', formData.objective);
+        dataToSend.append('activity_date_time', formData.activity_date_time);
+        dataToSend.append('venue', formData.venue);
+        dataToSend.append('activity_fee', formData.activity_fee);
+        dataToSend.append('allocated_district', formData.allocated_district || '');
+        dataToSend.append('is_past', status.is_past);
+        dataToSend.append('is_present', status.is_present);
+        dataToSend.append('is_upcoming', status.is_upcoming);
+        dataToSend.append('image', formData.image, formData.image.name);
 
-      console.log("Response status:", response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Server error response:", errorData);
-        throw new Error(
-          errorData.message || "Failed to save activity details"
-        );
-      }
-
-      const result = await response.json();
-      console.log("Success response:", result);
-
-      if (result.success) {
-        setMessage(successMessage);
-        setVariant("success");
-        setShowAlert(true);
-        setIsEditing(false);
-        
-        // Refresh the activities list
-        await fetchAllActivities();
-        
-        // If creating a new activity, switch to view mode for the new activity
-        if (!formData.id && result.data && result.data.id) {
-          fetchActivityData(result.data.id);
+        console.log('FormData content:');
+        for (let pair of dataToSend.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
         }
+
+        const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/?id=${formData.id}`;
+        console.log('PUT URL (FormData):', url);
         
-        setTimeout(() => setShowAlert(false), 3000);
+        let response = await fetch(url, {
+          method: 'PUT',
+          body: dataToSend,
+          headers: {
+            Authorization: `Bearer ${auth?.access}`,
+          },
+        });
+
+        // If unauthorized, try refreshing token and retry once
+        if (response.status === 401) {
+          const newAccess = await refreshAccessToken();
+          if (!newAccess) throw new Error('Session expired');
+          response = await fetch(url, {
+            method: 'PUT',
+            body: dataToSend,
+            headers: {
+              Authorization: `Bearer ${newAccess}`,
+            },
+          });
+        }
+
+        console.log("PUT Response status:", response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorData = null;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            /* not JSON */
+          }
+          console.error('Server error response:', errorData || errorText);
+          throw new Error(
+            (errorData && errorData.message) ||
+              "Failed to update activity details"
+          );
+        }
+
+        const result = await response.json();
+        console.log("PUT Success response:", result);
+
+        if (result.success) {
+          setMessage("Activity details updated successfully!");
+          setVariant("success");
+          setShowAlert(true);
+          setIsEditing(false);
+
+          // Update existing image if new one was uploaded
+          if (formData.image) {
+            if (result.data && result.data.image) {
+              setExistingImage(result.data.image);
+            }
+            setImagePreview(null);
+            setFormData((prev) => ({ ...prev, image: null }));
+          }
+
+          // Update the activity in the list
+          if (result.data) {
+            let updatedActivity;
+            if (Array.isArray(result.data)) {
+              updatedActivity = result.data.find(item => item.id === formData.id);
+            } else {
+              updatedActivity = result.data;
+            }
+            
+            if (updatedActivity) {
+              setActivities(prevActivities => 
+                prevActivities.map(activity => 
+                  activity.id === formData.id ? updatedActivity : activity
+                )
+              );
+            }
+          }
+
+          setTimeout(() => setShowAlert(false), 3000);
+        } else {
+          throw new Error(
+            result.message || "Failed to update activity details"
+          );
+        }
       } else {
-        throw new Error(
-          result.message || "Failed to save activity details"
-        );
+        // For updates without new image, use JSON
+        const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/?id=${formData.id}`;
+        console.log("PUT URL (JSON):", url);
+        
+        let response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${auth?.access}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        // If unauthorized, try refreshing token and retry once
+        if (response.status === 401) {
+          const newAccess = await refreshAccessToken();
+          if (!newAccess) throw new Error('Session expired');
+          response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${newAccess}`,
+            },
+            body: JSON.stringify(payload),
+          });
+        }
+
+        console.log("PUT Response status:", response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorData = null;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            /* not JSON */
+          }
+          console.error('Server error response:', errorData || errorText);
+          throw new Error(
+            (errorData && errorData.message) ||
+              "Failed to update activity details"
+          );
+        }
+
+        const result = await response.json();
+        console.log("PUT Success response:", result);
+
+        if (result.success) {
+          setMessage("Activity details updated successfully!");
+          setVariant("success");
+          setShowAlert(true);
+          setIsEditing(false);
+          
+          // Update the activity in the list
+          if (result.data) {
+            let updatedActivity;
+            if (Array.isArray(result.data)) {
+              updatedActivity = result.data.find(item => item.id === formData.id);
+            } else {
+              updatedActivity = result.data;
+            }
+            
+            if (updatedActivity) {
+              setActivities(prevActivities => 
+                prevActivities.map(activity => 
+                  activity.id === formData.id ? updatedActivity : activity
+                )
+              );
+            }
+          }
+          
+          setTimeout(() => setShowAlert(false), 3000);
+        } else {
+          throw new Error(
+            result.message || "Failed to update activity details"
+          );
+        }
       }
     } catch (error) {
-      console.error("Error saving activity details:", error);
+      console.error("Error updating activity details:", error);
       let errorMessage = "An unexpected error occurred. Please try again.";
 
       if (
@@ -420,8 +565,8 @@ const ManageActivity = () => {
       const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/?id=${activityToDelete.id}`;
       console.log("DELETE URL:", url);
       
-      // Create request body with the activity_id (not the id)
-      const payload = { activity_id: activityToDelete.activity_id };
+      // Create request body with the ID
+      const payload = { id: activityToDelete.id };
       
       let response = await fetch(url, {
         method: "DELETE",
@@ -804,29 +949,51 @@ const ManageActivity = () => {
                             </Col>
                             <Col md={6}>
                               <Form.Group className="mb-3">
-                                <Form.Label>Image URL</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  placeholder="Enter image URL"
-                                  name="image"
-                                  value={formData.image}
-                                  onChange={handleChange}
-                                  disabled={!isEditing}
-                                />
+                                <Form.Label>Profile Image</Form.Label>
+                                {isEditing ? (
+                                  <>
+                                    <Form.Control
+                                      type="file"
+                                      name="image"
+                                      onChange={handleChange}
+                                      accept="image/*"
+                                    />
+                                    {imagePreview ? (
+                                      <div className="mt-3">
+                                        <p>New Image Preview:</p>
+                                        <img
+                                          src={imagePreview}
+                                          alt="Image Preview"
+                                          style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                        />
+                                      </div>
+                                    ) : (
+                                      existingImage && (
+                                        <div className="mt-3">
+                                          <p>Current Image:</p>
+                                          <img
+                                            src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                                            alt="Current Image"
+                                            style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                          />
+                                        </div>
+                                      )
+                                    )}
+                                  </>
+                                ) : (
+                                  existingImage && (
+                                    <div className="mt-3">
+                                      <img
+                                        src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                                        alt="Activity preview"
+                                        style={{ maxHeight: "200px" }}
+                                      />
+                                    </div>
+                                  )
+                                )}
                               </Form.Group>
                             </Col>
                           </Row>
-
-                          {formData.image && (
-                            <div className="mb-3">
-                              <Image 
-                                src={getImageUrl(formData.image)} 
-                                alt="Activity preview"
-                                fluid
-                                style={{ maxHeight: "200px" }}
-                              />
-                            </div>
-                          )}
 
                           {/* Fee Breakdown (Read-only) */}
                           {formData.id && (

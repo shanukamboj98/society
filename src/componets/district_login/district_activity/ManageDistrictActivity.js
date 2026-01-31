@@ -43,13 +43,13 @@ const ManageDistrictActivity = () => {
     objective: "",
     activity_date_time: "",
     venue: "",
-    image: "",
+    image: null, // Changed from empty string to null
     activity_fee: "",
     portal_charges: "",
     transaction_charges: "",
     tax_amount: "",
     total_amount: "",
-    allocated_district: "", // Added new field
+    allocated_district: "",
     is_past: false,
     is_present: false,
     is_upcoming: false,
@@ -62,6 +62,10 @@ const ManageDistrictActivity = () => {
   const [message, setMessage] = useState("");
   const [variant, setVariant] = useState("success");
   const [showAlert, setShowAlert] = useState(false);
+
+  // State for file preview and existing image
+  const [imagePreview, setImagePreview] = useState(null);
+  const [existingImage, setExistingImage] = useState(null);
 
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
@@ -101,7 +105,9 @@ const ManageDistrictActivity = () => {
         url += `?created_by=${auth.unique_id}`;
       }
 
-      const response = await authFetch(url);
+      const response = await fetch(url, {
+        method: "GET",
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch activities data");
@@ -142,8 +148,11 @@ const ManageDistrictActivity = () => {
     setIsLoading(true);
     try {
       console.log("Fetching district activity with ID:", activityId);
-      const response = await authFetch(
-        `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/`
+      const response = await fetch(
+        `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/?id=${activityId}`,
+        {
+          method: "GET",
+        }
       );
 
       if (!response.ok) {
@@ -154,24 +163,17 @@ const ManageDistrictActivity = () => {
       console.log("GET Activity Details API Response:", result);
 
       let activityData;
-      if (Array.isArray(result)) {
-        activityData = result.find(item => item.id.toString() === activityId.toString());
+      if (Array.isArray(result.data)) {
+        activityData = result.data.find(item => item.id.toString() === activityId.toString());
         if (!activityData) {
           throw new Error(`Activity with ID ${activityId} not found in response array`);
         }
-      } else if (result.data) {
-        if (Array.isArray(result.data)) {
-          activityData = result.data.find(item => item.id.toString() === activityId.toString());
-          if (!activityData) {
-            throw new Error(`Activity with ID ${activityId} not found in response array`);
-          }
-        } else if (result.data.id && result.data.id.toString() === activityId.toString()) {
+      } else if (result.data && result.data.id) {
+        if (result.data.id.toString() === activityId.toString()) {
           activityData = result.data;
         } else {
           throw new Error(`Returned activity ID ${result.data.id} does not match requested ID ${activityId}`);
         }
-      } else if (result.id && result.id.toString() === activityId.toString()) {
-        activityData = result;
       } else {
         throw new Error("Invalid activity data structure in response");
       }
@@ -183,7 +185,7 @@ const ManageDistrictActivity = () => {
         objective: activityData.objective,
         activity_date_time: activityData.activity_date_time,
         venue: activityData.venue,
-        image: activityData.image || "",
+        image: null, // Reset to null for proper handling
         activity_fee: activityData.activity_fee,
         portal_charges: activityData.portal_charges || "0.00",
         transaction_charges: activityData.transaction_charges || "0.00",
@@ -198,6 +200,8 @@ const ManageDistrictActivity = () => {
       });
 
       setSelectedActivityId(activityId);
+      // set existing image for preview
+      setExistingImage(activityData.image || null);
     } catch (error) {
       console.error("Error fetching activity data:", error);
       setMessage(error.message || "An error occurred while fetching activity data");
@@ -216,11 +220,27 @@ const ManageDistrictActivity = () => {
 
   // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+
+    if (name === "image") {
+      const file = files && files[0];
+      setFormData((prev) => ({
+        ...prev,
+        image: file || null,
+      }));
+
+      if (file) {
+        const previewUrl = URL.createObjectURL(file);
+        setImagePreview(previewUrl);
+      } else {
+        setImagePreview(null);
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   // Reset form to original data
@@ -255,7 +275,7 @@ const ManageDistrictActivity = () => {
       objective: "",
       activity_date_time: "",
       venue: "",
-      image: "",
+      image: null, // Changed from empty string to null
       activity_fee: "",
       portal_charges: "",
       transaction_charges: "",
@@ -318,12 +338,12 @@ const ManageDistrictActivity = () => {
     try {
       const status = calculateActivityStatus(formData.activity_date_time);
       const payload = {
+        id: formData.id,
         activity_id: formData.activity_id,
         activity_name: formData.activity_name,
         objective: formData.objective,
         activity_date_time: formData.activity_date_time,
         venue: formData.venue,
-        image: formData.image,
         activity_fee: formData.activity_fee,
         allocated_district: formData.allocated_district,
         is_past: status.is_past,
@@ -336,38 +356,140 @@ const ManageDistrictActivity = () => {
 
       let response;
       let successMessage;
-      
-      if (formData.id) {
-        payload.id = formData.id;
-        response = await authFetch(
-          `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/`,
-          {
-            method: "PUT",
-            body: JSON.stringify(payload),
+      const isFileImage = formData.image && typeof formData.image === 'object' && formData.image instanceof File;
+
+      if (isFileImage) {
+        const dataToSend = new FormData();
+        if (formData.id) dataToSend.append('id', formData.id);
+        dataToSend.append('activity_id', formData.activity_id);
+        dataToSend.append('activity_name', formData.activity_name);
+        dataToSend.append('objective', formData.objective);
+        dataToSend.append('activity_date_time', formData.activity_date_time);
+        dataToSend.append('venue', formData.venue);
+        dataToSend.append('activity_fee', formData.activity_fee);
+        dataToSend.append('allocated_district', formData.allocated_district || '');
+        dataToSend.append('is_past', status.is_past);
+        dataToSend.append('is_present', status.is_present);
+        dataToSend.append('is_upcoming', status.is_upcoming);
+        dataToSend.append('image', formData.image, formData.image.name);
+
+        if (formData.id) {
+          const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/?id=${formData.id}`;
+          console.log("PUT URL (FormData):", url);
+          
+          response = await fetch(url, {
+            method: 'PUT',
+            body: dataToSend,
+            headers: { Authorization: `Bearer ${auth?.access}` },
+          });
+
+          if (response.status === 401) {
+            const newAccess = await refreshAccessToken();
+            if (!newAccess) throw new Error('Session expired');
+            response = await fetch(url, {
+              method: 'PUT',
+              body: dataToSend,
+              headers: { Authorization: `Bearer ${newAccess}` },
+            });
           }
-        );
-        successMessage = "Activity updated successfully!";
+
+          successMessage = 'Activity updated successfully!';
+        } else {
+          // include created_by for district creation
+          dataToSend.append('created_by', auth && auth.unique_id ? auth.unique_id : '');
+          const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/`;
+          console.log("POST URL (FormData):", url);
+          
+          response = await fetch(url, {
+            method: 'POST',
+            body: dataToSend,
+            headers: { Authorization: `Bearer ${auth?.access}` },
+          });
+
+          if (response.status === 401) {
+            const newAccess = await refreshAccessToken();
+            if (!newAccess) throw new Error('Session expired');
+            response = await fetch(url, {
+              method: 'POST',
+              body: dataToSend,
+              headers: { Authorization: `Bearer ${newAccess}` },
+            });
+          }
+
+          successMessage = 'Activity created successfully!';
+        }
       } else {
-        // for district creation include created_by
-        payload.created_by = auth && auth.unique_id ? auth.unique_id : '';
-        response = await authFetch(
-          "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/",
-          {
-            method: "POST",
+        // For updates without new image, use JSON - FIXED PART
+        if (formData.id) {
+          const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/?id=${formData.id}`;
+          console.log("PUT URL (JSON):", url);
+          
+          response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${auth?.access}`,
+            },
             body: JSON.stringify(payload),
+          });
+
+          if (response.status === 401) {
+            const newAccess = await refreshAccessToken();
+            if (!newAccess) throw new Error('Session expired');
+            response = await fetch(url, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${newAccess}`,
+              },
+              body: JSON.stringify(payload),
+            });
           }
-        );
-        successMessage = "Activity created successfully!";
+
+          successMessage = 'Activity updated successfully!';
+        } else {
+          payload.created_by = auth && auth.unique_id ? auth.unique_id : '';
+          const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/`;
+          console.log("POST URL (JSON):", url);
+          
+          response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${auth?.access}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (response.status === 401) {
+            const newAccess = await refreshAccessToken();
+            if (!newAccess) throw new Error('Session expired');
+            response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${newAccess}`,
+              },
+              body: JSON.stringify(payload),
+            });
+          }
+
+          successMessage = 'Activity created successfully!';
+        }
       }
 
       console.log("Response status:", response.status);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Server error response:", errorData);
-        throw new Error(
-          errorData.message || "Failed to save activity details"
-        );
+        const errorText = await response.text();
+        let errorData = null;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          /* not JSON */
+        }
+        console.error("Server error response:", errorData || errorText);
+        throw new Error((errorData && (errorData.message || errorData.detail)) || "Failed to save activity details");
       }
 
       const result = await response.json();
@@ -380,11 +502,27 @@ const ManageDistrictActivity = () => {
         setIsEditing(false);
         
         await fetchAllActivities();
-        
+
         if (!formData.id && result.data && result.data.id) {
           fetchActivityData(result.data.id);
         }
-        
+
+        // update image preview/state if returned
+        if (result.data) {
+          let updated;
+          if (Array.isArray(result.data)) {
+            updated = result.data.find(item => item.id === formData.id) || null;
+          } else {
+            updated = result.data;
+          }
+
+          if (updated && updated.image) {
+            setExistingImage(updated.image);
+            setImagePreview(null);
+            setFormData(prev => ({ ...prev, image: null }));
+          }
+        }
+
         setTimeout(() => setShowAlert(false), 3000);
       } else {
         throw new Error(
@@ -425,7 +563,7 @@ const ManageDistrictActivity = () => {
       const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/activity-items/?id=${activityToDelete.id}`;
       console.log("DELETE URL:", url);
       
-      const payload = { activity_id: activityToDelete.activity_id };
+      const payload = { id: activityToDelete.id };
       
       let response = await fetch(url, {
         method: "DELETE",
@@ -803,29 +941,51 @@ const ManageDistrictActivity = () => {
                             </Col>
                             <Col md={6}>
                               <Form.Group className="mb-3">
-                                <Form.Label>Image URL</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  placeholder="Enter image URL"
-                                  name="image"
-                                  value={formData.image}
-                                  onChange={handleChange}
-                                  disabled={!isEditing}
-                                />
+                                <Form.Label>Profile Image</Form.Label>
+                                {isEditing ? (
+                                  <>
+                                    <Form.Control
+                                      type="file"
+                                      name="image"
+                                      onChange={handleChange}
+                                      accept="image/*"
+                                    />
+                                    {imagePreview ? (
+                                      <div className="mt-3">
+                                        <p>New Image Preview:</p>
+                                        <img
+                                          src={imagePreview}
+                                          alt="Image Preview"
+                                          style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                        />
+                                      </div>
+                                    ) : (
+                                      existingImage && (
+                                        <div className="mt-3">
+                                          <p>Current Image:</p>
+                                          <img
+                                            src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                                            alt="Current Image"
+                                            style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                          />
+                                        </div>
+                                      )
+                                    )}
+                                  </>
+                                ) : (
+                                  existingImage && (
+                                    <div className="mt-3">
+                                      <img
+                                        src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                                        alt="Activity preview"
+                                        style={{ maxHeight: "200px" }}
+                                      />
+                                    </div>
+                                  )
+                                )}
                               </Form.Group>
                             </Col>
                           </Row>
-
-                          {formData.image && (
-                            <div className="mb-3">
-                              <Image 
-                                src={getImageUrl(formData.image)} 
-                                alt="Activity preview"
-                                fluid
-                                style={{ maxHeight: "200px" }}
-                              />
-                            </div>
-                          )}
 
                           {/* Fee Breakdown (Read-only) */}
                           {formData.id && (

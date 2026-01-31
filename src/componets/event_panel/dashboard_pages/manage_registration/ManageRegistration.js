@@ -179,7 +179,7 @@ const ManageRegistration = () => {
           education_level: regData.education_level,
           status: regData.status,
           other_text: regData.other_text,
-          image: null,
+          image: null, // Reset to null for proper handling
         });
 
         // Set existing image URL for preview
@@ -363,13 +363,10 @@ const ManageRegistration = () => {
     setShowAlert(false);
 
     try {
-      // Prepare the data for submission
-      const payload = {
-        id: formData.id,
-        member_id: formData.member_id,
+      // Create payload including member_id but excluding email and phone
+      const jsonPayload = {
+        member_id: formData.member_id, // Include member_id
         full_name: formData.full_name,
-        email: formData.email,
-        phone: formData.phone,
         address: formData.address,
         district: formData.district, // New field
         state: formData.state, // New field
@@ -385,16 +382,15 @@ const ManageRegistration = () => {
       };
 
       console.log("Submitting data for registration ID:", formData.id);
-      console.log("Payload:", payload);
+      console.log("JSON Payload:", jsonPayload);
 
       // If we have a new image, we need to handle it with FormData
       if (formData.image) {
+        // For FormData (when there's a new image), include all fields
         const dataToSend = new FormData();
         dataToSend.append("id", formData.id);
-        dataToSend.append("member_id", formData.member_id);
+        dataToSend.append("member_id", formData.member_id); // Include member_id for FormData
         dataToSend.append("full_name", formData.full_name);
-        dataToSend.append("email", formData.email);
-        dataToSend.append("phone", formData.phone);
         dataToSend.append("address", formData.address);
         dataToSend.append("district", formData.district); // New field
         dataToSend.append("state", formData.state); // New field
@@ -418,7 +414,7 @@ const ManageRegistration = () => {
         }
 
         const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?id=${formData.id}`;
-        console.log("PUT URL:", url);
+        console.log("PUT URL (FormData):", url);
         
         let response = await fetch(url, {
           method: "PUT",
@@ -452,6 +448,18 @@ const ManageRegistration = () => {
             /* not JSON */
           }
           console.error("Server error response:", errorData || errorText);
+          
+          // Provide more specific error messages
+          if (errorData && errorData.errors) {
+            if (errorData.errors.email) {
+              throw new Error('Email address is already in use');
+            } else if (errorData.errors.phone) {
+              throw new Error('Phone number is already in use');
+            } else if (errorData.errors.member_id) {
+              throw new Error('Member ID is already in use');
+            }
+          }
+          
           throw new Error(
             (errorData && errorData.message) ||
               "Failed to update registration details"
@@ -501,22 +509,59 @@ const ManageRegistration = () => {
           );
         }
       } else {
-        // For updates without new image, use JSON
+        // For updates without new image, use JSON - FIXED PART
         const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?id=${formData.id}`;
         console.log("PUT URL (JSON):", url);
         
-        const response = await authFetch(url, {
+        let response = await fetch(url, {
           method: "PUT",
-          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth?.access}`,
+          },
+          body: JSON.stringify(jsonPayload),
         });
+
+        // If unauthorized, try refreshing token and retry once
+        if (response.status === 401) {
+          const newAccess = await refreshAccessToken();
+          if (!newAccess) throw new Error("Session expired");
+          response = await fetch(url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${newAccess}`,
+            },
+            body: JSON.stringify(jsonPayload),
+          });
+        }
 
         console.log("PUT Response status:", response.status);
 
         if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Server error response:", errorData);
+          const errorText = await response.text();
+          let errorData = null;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            /* not JSON */
+          }
+          console.error("Server error response:", errorData || errorText);
+          
+          // Provide more specific error messages
+          if (errorData && errorData.errors) {
+            if (errorData.errors.email) {
+              throw new Error('Email address is already in use');
+            } else if (errorData.errors.phone) {
+              throw new Error('Phone number is already in use');
+            } else if (errorData.errors.member_id) {
+              throw new Error('Member ID is already in use');
+            }
+          }
+          
           throw new Error(
-            errorData.message || "Failed to update registration details"
+            (errorData && errorData.message) ||
+              "Failed to update registration details"
           );
         }
 
@@ -763,8 +808,11 @@ const ManageRegistration = () => {
                           value={formData.email}
                           onChange={handleChange}
                           required
-                          disabled={!isEditing}
+                          disabled={true}
                         />
+                        <Form.Text className="text-muted">
+                          Email address cannot be changed
+                        </Form.Text>
                       </Form.Group>
 
                       <Form.Group className="mb-3">
@@ -776,8 +824,11 @@ const ManageRegistration = () => {
                           value={formData.phone}
                           onChange={handleChange}
                           required
-                          disabled={!isEditing}
+                          disabled={true}
                         />
+                        <Form.Text className="text-muted">
+                          Phone number cannot be changed
+                        </Form.Text>
                       </Form.Group>
 
                       <Form.Group className="mb-3">

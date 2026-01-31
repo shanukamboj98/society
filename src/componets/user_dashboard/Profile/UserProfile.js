@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useAuthFetch } from '../../context/AuthFetch';
 
 const UserProfile = () => {
-  const { auth } = useAuth();
+  const { auth, refreshAccessToken } = useAuth();
   const authFetch = useAuthFetch();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -20,7 +20,7 @@ const UserProfile = () => {
     full_name: "",
     email: "",
     phone: "",
-    image: "",
+    image: null, // Changed from empty string to null
     address: "",
     short_description: "",
     occupation: "",
@@ -42,6 +42,10 @@ const UserProfile = () => {
   const [message, setMessage] = useState("");
   const [variant, setVariant] = useState("success");
   const [showAlert, setShowAlert] = useState(false);
+
+  // image preview / existing image
+  const [imagePreview, setImagePreview] = useState(null);
+  const [existingImage, setExistingImage] = useState(null);
 
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
@@ -83,7 +87,9 @@ const UserProfile = () => {
       const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?member_id=${auth.unique_id}`;
       console.log("Fetching user profile from:", url);
 
-      const response = await authFetch(url);
+      const response = await fetch(url, {
+        method: "GET",
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch user profile. Status: ${response.status}`);
@@ -115,7 +121,7 @@ const UserProfile = () => {
         full_name: profileData.full_name || "",
         email: profileData.email || "",
         phone: profileData.phone || "",
-        image: profileData.image || "",
+        image: null, // Reset to null for proper handling
         address: profileData.address || "",
         short_description: profileData.short_description || "",
         occupation: profileData.occupation || "",
@@ -134,6 +140,7 @@ const UserProfile = () => {
 
       setFormData(profileFormData);
       setOriginalFormData(profileFormData);
+      setExistingImage(profileData.image || null);
       setIsEditing(false);
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -147,11 +154,23 @@ const UserProfile = () => {
 
   // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+
+    if (name === 'image') {
+      const file = files && files[0];
+      setFormData(prev => ({ ...prev, image: file || null }));
+      if (file) {
+        const previewUrl = URL.createObjectURL(file);
+        setImagePreview(previewUrl);
+      } else {
+        setImagePreview(null);
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   // Enable editing mode
@@ -182,12 +201,9 @@ const UserProfile = () => {
         throw new Error("Member ID and Full Name are required fields.");
       }
 
-      const payload = {
-        member_id: formData.member_id,
+      // Create payload excluding read-only fields (email, phone, status) for JSON submission
+      const jsonPayload = {
         full_name: formData.full_name,
-        email: formData.email,
-        phone: formData.phone,
-        image: formData.image,
         address: formData.address,
         short_description: formData.short_description,
         occupation: formData.occupation,
@@ -196,42 +212,135 @@ const UserProfile = () => {
         organization_name: formData.organization_name,
         nature_of_work: formData.nature_of_work,
         education_level: formData.education_level,
-        status: formData.status,
         other_text: formData.other_text,
         district: formData.district,
         state: formData.state
       };
 
       console.log("Submitting profile update for:", formData.member_id);
-      console.log("Payload:", payload);
+      console.log("JSON Payload:", jsonPayload);
 
-      const response = await authFetch(
-        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/",
-        {
-          method: "PUT",
-          body: JSON.stringify(payload),
+      const isFileImage = formData.image && typeof formData.image === 'object' && formData.image instanceof File;
+
+      let response;
+
+      if (isFileImage) {
+        // For FormData (when there's a new image), include member_id as it's required by the API
+        const dataToSend = new FormData();
+        if (formData.id) dataToSend.append('id', formData.id);
+        dataToSend.append('member_id', formData.member_id); // Include member_id for FormData
+        dataToSend.append('full_name', formData.full_name);
+        dataToSend.append('address', formData.address);
+        dataToSend.append('short_description', formData.short_description);
+        dataToSend.append('occupation', formData.occupation);
+        dataToSend.append('designation', formData.designation);
+        dataToSend.append('department_name', formData.department_name);
+        dataToSend.append('organization_name', formData.organization_name);
+        dataToSend.append('nature_of_work', formData.nature_of_work);
+        dataToSend.append('education_level', formData.education_level);
+        dataToSend.append('other_text', formData.other_text);
+        dataToSend.append('district', formData.district);
+        dataToSend.append('state', formData.state);
+        dataToSend.append('image', formData.image, formData.image.name);
+
+        console.log("FormData content:");
+        for (let pair of dataToSend.entries()) {
+          console.log(pair[0] + ": " + pair[1]);
         }
-      );
 
-      console.log("Response status:", response.status);
+        const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?id=${formData.id}`;
+        console.log('PUT URL (FormData):', url);
+
+        response = await fetch(url, {
+          method: 'PUT',
+          body: dataToSend,
+          headers: { Authorization: `Bearer ${auth?.access}` },
+        });
+
+        if (response.status === 401) {
+          const newAccess = await refreshAccessToken();
+          if (!newAccess) throw new Error('Session expired');
+          response = await fetch(url, {
+            method: 'PUT',
+            body: dataToSend,
+            headers: { Authorization: `Bearer ${newAccess}` },
+          });
+        }
+      } else {
+        // For JSON submission (when there's no new image), exclude member_id
+        const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?id=${formData.id}`;
+        console.log('PUT URL (JSON):', url);
+        
+        response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${auth?.access}`,
+          },
+          body: JSON.stringify(jsonPayload),
+        });
+
+        if (response.status === 401) {
+          const newAccess = await refreshAccessToken();
+          if (!newAccess) throw new Error('Session expired');
+          response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${newAccess}`,
+            },
+            body: JSON.stringify(jsonPayload),
+          });
+        }
+      }
+
+      console.log('Response status:', response.status);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Server error response:", errorData);
-        throw new Error(
-          errorData.message || errorData.detail || "Failed to update profile"
-        );
+        const errorText = await response.text();
+        let errorData = null;
+        try { 
+          errorData = JSON.parse(errorText); 
+        } catch (e) { 
+          /* not JSON */ 
+        }
+        console.error('Server error response:', errorData || errorText);
+        
+        // Provide more specific error messages
+        if (errorData && errorData.errors) {
+          if (errorData.errors.email) {
+            throw new Error('Email address is already in use');
+          } else if (errorData.errors.phone) {
+            throw new Error('Phone number is already in use');
+          } else if (errorData.errors.member_id) {
+            throw new Error('Member ID is already in use');
+          }
+        }
+        
+        throw new Error((errorData && (errorData.message || errorData.detail)) || 'Failed to update profile');
       }
 
       const result = await response.json();
-      console.log("Success response:", result);
+      console.log('Success response:', result);
 
-      setMessage("Profile updated successfully!");
-      setVariant("success");
+      setMessage('Profile updated successfully!');
+      setVariant('success');
       setShowAlert(true);
       setIsEditing(false);
-      setOriginalFormData(formData);
       
+      // Update the original form data with the current form data
+      setOriginalFormData({
+        ...formData,
+        image: null // Reset image to null
+      });
+
+      // Update existing image if available
+      if (result.data && result.data.image) {
+        setExistingImage(result.data.image);
+        setImagePreview(null);
+        setFormData(prev => ({ ...prev, image: null }));
+      }
+
       setTimeout(() => setShowAlert(false), 3000);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -354,6 +463,9 @@ const UserProfile = () => {
                             onChange={handleChange}
                            disabled={true}
                           />
+                          <Form.Text className="text-muted">
+                            Your email address (cannot be changed)
+                          </Form.Text>
                         </Form.Group>
                       </Col>
                       <Col md={6}>
@@ -366,6 +478,9 @@ const UserProfile = () => {
                             onChange={handleChange}
                            disabled={true}
                           />
+                          <Form.Text className="text-muted">
+                            Your phone number (cannot be changed)
+                          </Form.Text>
                         </Form.Group>
                       </Col>
                     </Row>
@@ -522,23 +637,47 @@ const UserProfile = () => {
                     <Row>
                       <Col md={12}>
                         <Form.Group className="mb-3">
-                          <Form.Label>Profile Image URL</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="image"
-                            value={formData.image}
-                            onChange={handleChange}
-                            disabled={!isEditing}
-                            placeholder="Image path or URL"
-                          />
-                          {formData.image && (
-                            <div className="mt-2">
-                              <img 
-                                src={formData.image.startsWith('http') ? formData.image : `https://mahadevaaya.com/ngoproject/ngoproject_backend${formData.image}`}
-                                alt="Profile"
-                                style={{ maxHeight: "150px", objectFit: "cover", borderRadius: "4px" }}
+                          <Form.Label>Profile Image</Form.Label>
+                          {isEditing ? (
+                            <>
+                              <Form.Control
+                                type="file"
+                                name="image"
+                                onChange={handleChange}
+                                accept="image/*"
                               />
-                            </div>
+                              {imagePreview ? (
+                                <div className="mt-3">
+                                  <p>New Image Preview:</p>
+                                  <img
+                                    src={imagePreview}
+                                    alt="Image Preview"
+                                    style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                  />
+                                </div>
+                              ) : (
+                                existingImage && (
+                                  <div className="mt-3">
+                                    <p>Current Image:</p>
+                                    <img
+                                      src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                                      alt="Current Image"
+                                      style={{ maxHeight: "150px", objectFit: "cover", borderRadius: "4px" }}
+                                    />
+                                  </div>
+                                )
+                              )}
+                            </>
+                          ) : (
+                            existingImage && (
+                              <div className="mt-3">
+                                <img 
+                                  src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                                  alt="Profile"
+                                  style={{ maxHeight: "150px", objectFit: "cover", borderRadius: "4px" }}
+                                />
+                              </div>
+                            )
                           )}
                         </Form.Group>
                       </Col>
