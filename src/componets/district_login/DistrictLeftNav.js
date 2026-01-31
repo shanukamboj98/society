@@ -88,6 +88,27 @@ const menuItems = [
 },
 
 
+   {
+  icon: <FaInfoCircle />,   // About Us main
+  label: "District  Activities",
+  submenu: [
+    
+     {
+          label: "District Add Activity",
+          path: "/AddDistrictActivity",
+          icon: <FaImage />,
+        },
+         {
+          label: "District Manage Activity",
+          path: "/ManageDistrictActivity",
+          icon: <FaImage />,
+        },
+   
+   
+  ],
+},
+
+
    
 
  

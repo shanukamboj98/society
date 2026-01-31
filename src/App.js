@@ -40,7 +40,8 @@ import DistrictRegistration from "./componets/district_login/DistrictRegistratio
 import DistrictRegistrations from "./componets/event_panel/dashboard_pages/DistrictRegistrations";
 import DistrictManageRegistration from "./componets/event_panel/dashboard_pages/DistrictManageRegistration";
 import DistrictMailMeeting from "./componets/district_login/DistrictMailMeeting";
-
+import AddDistrictActivity from "./componets/district_login/district_activity/AddDistrictActivity";
+import ManageDistrictActivity from "./componets/district_login/district_activity/ManageDistrictActivity";
 
 
 function App() {
@@ -61,7 +62,9 @@ function App() {
     "/DistrictRegistration",
     "/DistrictRegistrations",
     "/DistrictManageRegistration",
-    "/DistrictMailMeeting"
+    "/DistrictMailMeeting",
+    "/AddDistrictActivity",
+    "/ManageDistrictActivity",
   ]);
 
   const shouldHideNavbar = hiddenPaths.has(location.pathname);
@@ -156,7 +159,18 @@ function App() {
               <DistrictMailMeeting />
             </ProtectedRoute>
           } />
+            
+             <Route path="/AddDistrictActivity" element={
+            <ProtectedRoute>
+              <AddDistrictActivity />
+            </ProtectedRoute>
+          } />
 
+            <Route path="/ManageDistrictActivity" element={
+            <ProtectedRoute>
+              <ManageDistrictActivity />
+            </ProtectedRoute>
+          } />
         </Routes>
       </main>
       {/* {!shouldHideFooter1 && <Footer />} */}
@@ -165,5 +179,6 @@ function App() {
 
   );
 }
+
 
 export default App;

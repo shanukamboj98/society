@@ -489,7 +489,7 @@ const DistrictMailMeeting = () => {
                     <Button 
                       variant="secondary" 
                       className="me-2"
-                      onClick={() => navigate('/dashboard')}
+                      onClick={() => navigate('/DistrictDashboard')}
                     >
                       <FaTimes className="me-1" /> Cancel
                     </Button>
