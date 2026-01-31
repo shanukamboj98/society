@@ -143,7 +143,7 @@ const MembersList = () => {
         const occupationDetails = getOccupationDetails(selectedMember);
 
         return (
-            <Container>
+             <div className="container border rounded-3 shadow-lg p-4 bg-white mt-2">
                 <Button variant="secondary" onClick={handleBackToList} className="mb-4">
                     ← Back to Members List
                 </Button>
@@ -199,12 +199,12 @@ const MembersList = () => {
                         </Row>
                     </Card.Body>
                 </Card>
-            </Container>
+            </div>
         );
     };
 
     return (
-        <Container className="py-4">
+          <div className="container border rounded-3 shadow-lg p-4 bg-white mt-2">
             <h1 className="text-center mb-4">Members List</h1>
             
             {error && (
@@ -235,7 +235,7 @@ const MembersList = () => {
                     )}
                 </Container>
             )}
-        </Container>
+        </div>
     );
 };
 

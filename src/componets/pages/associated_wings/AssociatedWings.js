@@ -169,7 +169,7 @@ const AssociatedWings = () => {
     };
 
     return (
-        <Container className="py-4">
+        <div className="container border rounded-3 shadow-lg p-4 bg-white mt-2">
             <h1 className="text-center mb-4">Associated Wings</h1>
             
             {error && (
@@ -200,7 +200,7 @@ const AssociatedWings = () => {
                     )}
                 </Container>
             )}
-        </Container>
+        </div>
     );
 };
 

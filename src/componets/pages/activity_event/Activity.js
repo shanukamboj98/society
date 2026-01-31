@@ -459,7 +459,7 @@ function Activity() {
   }
 
   return (
-    <Container className='activity-container'>
+      <div className="container border rounded-3 shadow-lg p-4 bg-white mt-2">
       <section id="activities" className="activities-section">
         {registrationMessage && (
           <div className="alert-container mb-4">
@@ -469,9 +469,9 @@ function Activity() {
           </div>
         )}
 
-        <div className="section-header text-center mb-5">
+        <div className=" text-center">
           <h2 className="section-title">Activities</h2>
-          <p className="section-subtitle">Explore and participate in our engaging activities</p>
+         
         </div>
 
         <Tabs
@@ -608,7 +608,7 @@ function Activity() {
           </Form>
         </Modal.Body>
       </Modal>
-    </Container>
+    </div>
   );
 }
 

@@ -256,10 +256,11 @@ const DonationSociety = () => {
     };
 
     return (
-        <Container className="py-4">
-            <h1 className="text-center mb-4">Donation Form</h1>
+       
+          
 
-            <div className="container border rounded-3 shadow-lg p-4 bg-white">
+            <div className="container border rounded-3 shadow-lg p-4 bg-white mt-2">
+                  <h1 className="text-center mb-4">Donation Form</h1>
                 {submitted ? (
                     <Alert variant="success" className="text-center">
                         <Alert.Heading>Thank You for Your Donation!</Alert.Heading>
@@ -464,7 +465,7 @@ const DonationSociety = () => {
                     </Form>
                 )}
             </div>
-        </Container>
+      
     );
 };
 
