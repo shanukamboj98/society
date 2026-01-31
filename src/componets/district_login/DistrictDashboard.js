@@ -80,7 +80,7 @@ const DistrictDashboard = () => {
 
         <Container fluid className="dashboard-body dashboard-main-container">
           <h1 className="page-title">Dashboard</h1>
-          <p>Welcome to the Dashboard!</p>
+          <p>Welcome to the District Admin Dashboard!</p>
        
         </Container>
       </div>
