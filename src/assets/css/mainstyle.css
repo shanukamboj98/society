@@ -269,7 +269,7 @@ h6 {
   }
 
   .sitename {
-    background-image: linear-gradient(65deg, #FF4D79 0, #FF809F 100%);
+    background-color: #0077B5;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text !important;
@@ -278,7 +278,7 @@ h6 {
   .navmenu li:hover>a,
   .navmenu .active,
   .navmenu .active:focus {
-    background-image: linear-gradient(65deg, #FF4D79 0, #FF809F 100%);
+    background-color: #0077B5;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text !important;
@@ -8458,7 +8458,7 @@ ul.event-social-link {
 ul.event-social-link li a,
 ul.event-social-link li a svg {
   transition: all .3s linear;
-  color: #f0597f !important;
+  color: #0077B5 !important;
 }
 
 .event-social-link a {
@@ -8477,7 +8477,7 @@ ul.event-social-link li a svg {
 }
 
 .top-nav {
-  background-color: #FF809F !important;
+  background-color: #0077B5!important;
   color: #fff;
 }
 

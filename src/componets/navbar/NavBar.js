@@ -84,7 +84,7 @@ function NavBar() {
             <Link to="/" className="logo d-flex align-items-center me-auto">
               <img src={EventLogo} alt="logo" className="logo-wecd" />
 
-              <h1 className="sitename">Br Events</h1>
+              <h1 className="sitename">NGO Events</h1>
             </Link>
 
             <nav id="navmenu" className={`navmenu ${isMenuOpen ? 'navmenu-active' : ''}`}>
