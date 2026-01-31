@@ -85,6 +85,12 @@ const menuItems = [
       path: "/ManageRegistration",
       active: true,
     },
+     {
+      icon: <FaTachometerAlt />,
+      label: "Manage About Us ",
+      path: "/ManageAboutUs",
+      active: true,
+    },
 
    {
   icon: <FaInfoCircle />,   // About Us main

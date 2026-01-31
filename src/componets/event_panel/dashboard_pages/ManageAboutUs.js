@@ -23,6 +23,7 @@ const ManageAboutUs = () => {
   const [formData, setFormData] = useState({
     id: null,
     title: "",
+    sub_title: "", // Added sub_title field
     description: "",
     image: null,
     modules: [{ content: "", description: "" }], // Initialize with one empty module object
@@ -78,9 +79,9 @@ const ManageAboutUs = () => {
   const fetchAboutUsData = async () => {
     setIsLoading(true);
     try {
-      // Simple GET request without credentials
+      // Updated API endpoint
       const response = await fetch(
-        "https://mahadevaaya.com/trilokayurveda/trilokabackend/api/aboutus-item/",
+        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/carousel1-item/",
         {
           method: "GET",
         }
@@ -94,7 +95,8 @@ const ManageAboutUs = () => {
       console.log("GET API Response:", result); // Log the response
 
       if (result.success && result.data.length > 0) {
-        const aboutData = result.data[0]; // Get the first item
+        // Get the first item from the data array
+        const aboutData = result.data[0];
 
         // Check if modules is an array of objects or strings
         let modulesData = [];
@@ -123,6 +125,7 @@ const ManageAboutUs = () => {
         setFormData({
           id: aboutData.id,
           title: aboutData.title,
+          sub_title: aboutData.sub_title || "", // Added sub_title
           description: aboutData.description,
           image: null, // We don't have the actual file, just the URL
           modules: modulesData,
@@ -258,6 +261,7 @@ const ManageAboutUs = () => {
       const payload = {
         id: formData.id,
         title: formData.title,
+        sub_title: formData.sub_title, // Added sub_title
         description: formData.description,
         module: formData.modules,
       };
@@ -270,6 +274,7 @@ const ManageAboutUs = () => {
         const dataToSend = new FormData();
         dataToSend.append("id", formData.id);
         dataToSend.append("title", formData.title);
+        dataToSend.append("sub_title", formData.sub_title); // Added sub_title
         dataToSend.append("description", formData.description);
         dataToSend.append("image", formData.image, formData.image.name);
         dataToSend.append("module", JSON.stringify(formData.modules));
@@ -282,7 +287,7 @@ const ManageAboutUs = () => {
         // Use fetch directly for FormData so the browser sets Content-Type automatically.
         // Also handle 401 by refreshing the access token and retrying once.
         const url =
-          "https://mahadevaaya.com/trilokayurveda/trilokabackend/api/aboutus-item/";
+          "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/carousel1-item/";
         let response = await fetch(url, {
           method: "PUT",
           body: dataToSend,
@@ -358,7 +363,7 @@ const ManageAboutUs = () => {
       } else {
         // For updates without a new image, use JSON
         const response = await authFetch(
-          "https://mahadevaaya.com/trilokayurveda/trilokabackend/api/aboutus-item/",
+          "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/carousel1-item/",
           {
             method: "PUT",
             body: JSON.stringify(payload),
@@ -473,6 +478,19 @@ const ManageAboutUs = () => {
                     />
                   </Form.Group>
 
+                  {/* Added Sub Title Field */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>Sub Title</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter sub title"
+                      name="sub_title"
+                      value={formData.sub_title}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                    />
+                  </Form.Group>
+
                   <Form.Group className="mb-3">
                     <Form.Label>
                       Description (must be more than 10 words)
@@ -510,7 +528,6 @@ const ManageAboutUs = () => {
                               src={imagePreview}
                               alt="Image Preview"
                               className="img-wrapper"
-                             
                             />
                           </div>
                         ) : (
@@ -518,10 +535,9 @@ const ManageAboutUs = () => {
                             <div className="mt-3">
                               <p>Current Image:</p>
                               <img
-                                src={`https://mahadevaaya.com/trilokayurveda/trilokabackend${existingImage}`}
+                                src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
                                 alt="Current About Us"
                                 className="img-wrapper"
-                               
                               />
                             </div>
                           )
@@ -531,10 +547,9 @@ const ManageAboutUs = () => {
                       existingImage && (
                         <div className="mt-3">
                           <img
-                            src={`https://mahadevaaya.com/trilokayurveda/trilokabackend${existingImage}`}
+                            src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
                             alt="Current About Us"
                             className="img-wrapper"
-              
                           />
                         </div>
                       )
