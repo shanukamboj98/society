@@ -157,17 +157,7 @@ function ContactUs() {
           ) : companyData ? (
             <Card className="company-details-card h-100">
               <Card.Body className="p-4">
-                <div className="text-center mb-4">
-                  {companyData.logo && (
-                    <Image 
-                      src={`https://mahadevaaya.com/eventmanagement/eventmanagement_backend${companyData.logo}`} 
-                      alt={`${companyData.company_name} Logo`}
-                      className="company-logo mb-3"
-                      style={{ maxWidth: '200px', maxHeight: '150px' }}
-                    />
-                  )}
-                  <h3 className="company-name">{companyData.company_name}</h3>
-                </div>
+            
                 
                 <div className="company-info">
                   <div className="info-item mb-3">

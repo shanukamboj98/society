@@ -21,8 +21,8 @@ function Footer() {
         <div className="row gy-4">
           <div className="col-lg-4 col-md-6 footer-about">
             <Link to="/" className="logo d-flex align-items-center">
-              <img src={EventLogo} alt="logo" className="logo-wecd" />
-              <span className="sitename" style={{ color: '#ffffff' }}>NGO Events</span>
+              {/* <img src={EventLogo} alt="logo" className="logo-wecd" /> */}
+              <span className="sitename" style={{ color: '#ffffff' }}>NGO</span>
             </Link>
             <div className="footer-contact pt-3">
               <p style={{ color: '#ffffff' }}>A108 Adam Street</p>

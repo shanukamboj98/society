@@ -24,8 +24,8 @@ function NavBar() {
       <div className='top-nav d-flex align-items-center'>
         <Container className='container-fluid container-xl d-flex justify-content-center justify-content-md-between'>
           <div className='d-flex align-items-center'>
-            <i className="bi bi-envelope-fill d-flex align-items-center ms-4 mx-3"><span className='mx-1'> admin@brainrock.in</span></i>
-            <i className="bi bi-phone d-flex align-items-center"><span className='mx-1'>+91-8193991148</span></i>
+            <i className="bi bi-envelope-fill d-flex align-items-center ms-4 mx-3"><span className='mx-1'> admin@ngo.in</span></i>
+            <i className="bi bi-phone d-flex align-items-center"><span className='mx-1'>+91-9876543210</span></i>
           </div> 
           <div className='social-links d-none d-md-flex align-items-center'>
             <ul className="event-social-link">
@@ -68,8 +68,8 @@ function NavBar() {
         <header id="header" className={`header d-flex align-items-center sticky-top ${isMenuOpen ? 'mobile-nav-active' : ''}`}>
           <div className="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-end">
             <Link to="/" className="logo d-flex align-items-center me-auto">
-              <img src={EventLogo} alt="logo" className="logo-wecd" />
-              <h1 className="sitename">NGO Events</h1>
+              {/* <img src={EventLogo} alt="logo" className="logo-wecd" /> */}
+              <h1 className="sitename">Demo NGO</h1>
             </Link>
             <nav id="navmenu" className={`navmenu ${isMenuOpen ? 'navmenu-active' : ''}`}>
               <ul>
