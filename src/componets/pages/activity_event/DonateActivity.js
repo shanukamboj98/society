@@ -459,9 +459,7 @@ const DonateActivity = () => {
                         <>
                             {/* Activity and Charges Card */}
                             <Card className="mb-4 border-0 shadow-sm">
-                                <Card.Header className="bg-light border-bottom">
-                                    <h6 className="mb-0 fw-bold text-primary">{activityData.activity_name}</h6>
-                                </Card.Header>
+                                
                                 <Card.Body>
                                     <p className="text-muted small mb-3">{activityData.activity_description}</p>
                                     
