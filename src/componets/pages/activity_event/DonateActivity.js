@@ -161,6 +161,14 @@ const DonateActivity = () => {
         }
     };
 
+    // Determine whether all required fields are filled and valid
+    const isFormValid = (
+        formData.full_name && formData.full_name.toString().trim() !== '' &&
+        formData.email && formData.email.toString().trim() !== '' &&
+        formData.phone && formData.phone.toString().trim().length === 10 &&
+        !formErrors.full_name && !formErrors.email && !formErrors.phone
+    );
+
     const handleOpenPaymentModal = () => {
         setShowPaymentModal(true);
     };
@@ -405,7 +413,7 @@ const DonateActivity = () => {
                                         type="button"
                                         size="md"
                                         onClick={handleOpenPaymentModal}
-                                        disabled={!activityData}
+                                        disabled={!activityData || !isFormValid}
                                         className="px-5"
                                         aria-label="Proceed to payment"
                                     >
@@ -451,9 +459,7 @@ const DonateActivity = () => {
                         <>
                             {/* Activity and Charges Card */}
                             <Card className="mb-4 border-0 shadow-sm">
-                                <Card.Header className="bg-light border-bottom">
-                                    <h6 className="mb-0 fw-bold text-primary">{activityData.activity_name}</h6>
-                                </Card.Header>
+                                
                                 <Card.Body>
                                     <p className="text-muted small mb-3">{activityData.activity_description}</p>
                                     
@@ -565,7 +571,7 @@ const DonateActivity = () => {
                     <Button 
                         variant="success" 
                         onClick={handleConfirmPayment} 
-                        disabled={paymentProcessing || paymentSuccess}
+                        disabled={paymentProcessing || paymentSuccess || !isFormValid}
                         size="lg"
                     >
                         {paymentProcessing ? 'Processing...' : (paymentSuccess ? 'Payment Successful' : 'Confirm & Pay')}
