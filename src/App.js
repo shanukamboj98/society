@@ -47,6 +47,7 @@ import UserProfile from "./componets/user_dashboard/Profile/UserProfile";
 import ManageCarousel from "./componets/event_panel/dashboard_pages/ManageCarousel";
 import Organisation from "./componets/pages/Organisation";
 import Events from "./componets/pages/Events";
+import ContactUs from "./componets/pages/ContactUs";
 
 
 function App() {
@@ -98,6 +99,7 @@ function App() {
           <Route path="/DonateActivity" element={<DonateActivity/>} />
            <Route path="/Organisation" element={<Organisation />} />
               <Route path="/Events" element={<Events />} />
+              <Route path="/ContactUs" element={<ContactUs />} />
 
           {/* Protected Routes */}
           <Route path="/DashBoard" element={

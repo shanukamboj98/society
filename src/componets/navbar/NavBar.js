@@ -101,7 +101,7 @@ function NavBar() {
                   </ul>
                 </li>
                 <li><Link to="/AssociatedWings">Associated Wings</Link></li>
-                <li><Link to="contact.html">Contact</Link></li>
+                <li><Link to="/ContactUs">Contact</Link></li>
               </ul>
               <i
                 className={`mobile-nav-toggle d-xl-none bi ${isMenuOpen ? 'bi-x' : 'bi-list'}`}
