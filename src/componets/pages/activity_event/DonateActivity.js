@@ -161,6 +161,14 @@ const DonateActivity = () => {
         }
     };
 
+    // Determine whether all required fields are filled and valid
+    const isFormValid = (
+        formData.full_name && formData.full_name.toString().trim() !== '' &&
+        formData.email && formData.email.toString().trim() !== '' &&
+        formData.phone && formData.phone.toString().trim().length === 10 &&
+        !formErrors.full_name && !formErrors.email && !formErrors.phone
+    );
+
     const handleOpenPaymentModal = () => {
         setShowPaymentModal(true);
     };
@@ -405,7 +413,7 @@ const DonateActivity = () => {
                                         type="button"
                                         size="md"
                                         onClick={handleOpenPaymentModal}
-                                        disabled={!activityData}
+                                        disabled={!activityData || !isFormValid}
                                         className="px-5"
                                         aria-label="Proceed to payment"
                                     >
@@ -565,7 +573,7 @@ const DonateActivity = () => {
                     <Button 
                         variant="success" 
                         onClick={handleConfirmPayment} 
-                        disabled={paymentProcessing || paymentSuccess}
+                        disabled={paymentProcessing || paymentSuccess || !isFormValid}
                         size="lg"
                     >
                         {paymentProcessing ? 'Processing...' : (paymentSuccess ? 'Payment Successful' : 'Confirm & Pay')}
