@@ -1,86 +1,97 @@
-import React from 'react'
+import React, { useState } from 'react';
+import "../../assets/css/mainstyle.css"
+import { Link } from 'react-router-dom';
+import EventLogo from '../../assets/images/br-event-logo.png'
+import { Container } from 'react-bootstrap';
 
 function Footer() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openDropdowns, setOpenDropdowns] = useState({});
+
+  const toggleDropdown = (key) => {
+    setOpenDropdowns(prevState => ({
+      ...prevState,
+      [key]: !prevState[key]
+    }));
+  };
+
   return (
-    <div>  <footer id="footer" class="footer position-relative light-background">
-
-    <div class="container footer-top">
-      <div class="row gy-4">
-        <div class="col-lg-4 col-md-6 footer-about">
-          <a href="index.html" class="logo d-flex align-items-center">
-            <span class="sitename">College</span>
-          </a>
-          <div class="footer-contact pt-3">
-            <p>A108 Adam Street</p>
-            <p>New York, NY 535022</p>
-            <p class="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
-            <p><strong>Email:</strong> <span>info@example.com</span></p>
+    <footer id="footer" className="footer position-relative light-background">
+      <div className="container footer-top">
+        <div className="row gy-4">
+          <div className="col-lg-4 col-md-6 footer-about">
+            <Link to="/" className="logo d-flex align-items-center">
+              <img src={EventLogo} alt="logo" className="logo-wecd" />
+              <span className="sitename">NGO Events</span>
+            </Link>
+            <div className="footer-contact pt-3">
+              <p>A108 Adam Street</p>
+              <p>New York, NY 535022</p>
+              <p className="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
+              <p><strong>Email:</strong> <span>info@example.com</span></p>
+            </div>
+            <div className="social-links d-flex mt-4">
+              <a href="#"><i className="bi bi-twitter-x"></i></a>
+              <a href="#"><i className="bi bi-facebook"></i></a>
+              <a href="#"><i className="bi bi-instagram"></i></a>
+              <a href="#"><i className="bi bi-linkedin"></i></a>
+            </div>
           </div>
-          <div class="social-links d-flex mt-4">
-            <a href=""><i class="bi bi-twitter-x"></i></a>
-            <a href=""><i class="bi bi-facebook"></i></a>
-            <a href=""><i class="bi bi-instagram"></i></a>
-            <a href=""><i class="bi bi-linkedin"></i></a>
+
+          <div className="col-lg-2 col-md-3 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/AboutUs">About Us</Link></li>
+              <li><Link to="/DonationSociety">Donations</Link></li>
+              <li><Link to="/Activity">Activity</Link></li>
+              <li><Link to="/AssociatedWings">Associated Wings</Link></li>
+            </ul>
+          </div>
+
+          <div className="col-lg-2 col-md-3 footer-links">
+            <h4>Registration</h4>
+            <ul>
+              <li><Link to="/Registration">Member Registration</Link></li>
+              <li><Link to="/MembersList">Members List</Link></li>
+              <li><Link to="/Login">Login</Link></li>
+              <li><Link to="#">Terms of service</Link></li>
+              <li><Link to="#">Privacy policy</Link></li>
+            </ul>
+          </div>
+
+          <div className="col-lg-2 col-md-3 footer-links">
+            <h4>Events</h4>
+            <ul>
+              <li><Link to="#">Upcoming Events</Link></li>
+              <li><Link to="#">Past Events</Link></li>
+              <li><Link to="#">Event Calendar</Link></li>
+              <li><Link to="#">Event Gallery</Link></li>
+              <li><Link to="#">Event Reports</Link></li>
+            </ul>
+          </div>
+
+          <div className="col-lg-2 col-md-3 footer-links">
+            <h4>Contact</h4>
+            <ul>
+              <li><Link to="#">Get in Touch</Link></li>
+              <li><Link to="#">Support</Link></li>
+              <li><Link to="#">FAQ</Link></li>
+              <li><Link to="#">Volunteer</Link></li>
+              <li><Link to="#">Partnerships</Link></li>
+            </ul>
           </div>
         </div>
-
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Useful Links</h4>
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About us</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Terms of service</a></li>
-            <li><a href="#">Privacy policy</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Our Services</h4>
-          <ul>
-            <li><a href="#">Web Design</a></li>
-            <li><a href="#">Web Development</a></li>
-            <li><a href="#">Product Management</a></li>
-            <li><a href="#">Marketing</a></li>
-            <li><a href="#">Graphic Design</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Hic solutasetp</h4>
-          <ul>
-            <li><a href="#">Molestiae accusamus iure</a></li>
-            <li><a href="#">Excepturi dignissimos</a></li>
-            <li><a href="#">Suscipit distinctio</a></li>
-            <li><a href="#">Dilecta</a></li>
-            <li><a href="#">Sit quas consectetur</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Nobis illum</h4>
-          <ul>
-            <li><a href="#">Ipsam</a></li>
-            <li><a href="#">Laudantium dolorum</a></li>
-            <li><a href="#">Dinera</a></li>
-            <li><a href="#">Trodelas</a></li>
-            <li><a href="#">Flexo</a></li>
-          </ul>
-        </div>
-
       </div>
-    </div>
 
-    <div class="container copyright text-center mt-4">
-      <p>© <span>Copyright</span> <strong class="px-1 sitename">MyWebsite</strong> <span>All Rights Reserved</span></p>
-      <div class="credits">
-       
-        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      <div className="container copyright text-center mt-4">
+        <p>© <span>Copyright</span> <strong className="px-1 sitename">NGO Events</strong> <span>All Rights Reserved</span></p>
+        <div className="credits">
+          Designed by <a href="https://bootstrapmade.com/">Brainrock</a>
+        </div>
       </div>
-    </div>
-
-  </footer></div>
-  )
+    </footer>
+  );
 }
 
-export default Footer
+export default Footer;

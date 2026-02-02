@@ -1,29 +1,8 @@
 // src/components/HeroCarousel.js
-
 import React, { useState, useEffect } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
 import { Spinner, Alert } from 'react-bootstrap';
 import "../../assets/css/mainstyle.css";
-
-// Default values for fields not provided by the API
-const defaultStats = [
-  { value: "Expert Speaker", label: "Industry Professional" },
-  { value: "Date & Time", label: "Upcoming Event" },
-  { value: "Venue", label: "Event Location" }
-];
-
-const defaultFeatures = [
-  { icon: "bi-book-fill", title: "Quality Content", content: "Learn from the best." },
-  { icon: "bi-laptop-fill", title: "Modern Resources", content: "Access to latest materials.", active: true },
-  { icon: "bi-people-fill", title: "Community", content: "Connect with others." }
-];
-
-const defaultEvent = { 
-  day: "15", 
-  month: "NOV", 
-  title: "Upcoming Event", 
-  description: "Join us for this exciting event." 
-};
 
 function EventCarousel() {
   const [index, setIndex] = useState(0);
@@ -49,10 +28,7 @@ function EventCarousel() {
             id: item.id,
             title: item.title,
             subtitle: item.sub_title,
-            image: `https://mahadevaaya.com/ngoproject/ngoproject_backend${item.image}`,
-            stats: defaultStats,
-            features: defaultFeatures,
-            event: defaultEvent
+            image: `https://mahadevaaya.com/ngoproject/ngoproject_backend${item.image}`
           }));
           
           setCarouselSlides(transformedSlides);
@@ -122,66 +98,13 @@ function EventCarousel() {
                     <div className="col-lg-6 hero-content" data-aos="fade-right">
                       <h1>{slide.title}</h1>
                       <p>{slide.subtitle}</p>
-                      <div className="stats-row">
-                        {slide.stats.map((stat, index) => (
-                          <div key={index} className="stat-item">
-                            <span className="stat-number">{stat.value}</span>
-                            <span className="stat-label">{stat.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="action-buttons">
-                        <a href="/RegistrationModal" className="btn-primary" >Start Your Journey</a>
-                        <a href="#" className="btn-secondary">Virtual Tour</a>
-                      </div>
+                     
                     </div>
                     <div className="col-lg-6 hero-media" data-aos="zoom-in">
                       <img src={slide.image} alt="Showcase" className="img-fluid" />
                       <div className="image-overlay">
-                        <div className="badge-accredited">
-                          <i className="bi bi-patch-check-fill"></i>
-                          <span>Accredited Excellence</span>
-                        </div>
+                       
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="feature-cards-wrapper" data-aos="fade-up">
-                <div className="container">
-                  <div className="row gy-4">
-                    {slide.features.map((feature, index) => (
-                      <div key={index} className="col-lg-4" data-aos="fade-up">
-                        <div className={`feature-card ${feature.active ? 'active' : ''}`}>
-                          <div className="feature-icon">
-                            <i className={`bi ${feature.icon}`}></i>
-                          </div>
-                          <div className="feature-content">
-                            <h3>{feature.title}</h3>
-                            <p>{feature.content}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="upcoming-event" data-aos="fade-up">
-                <div className="container">
-                  <div className="event-content">
-                    <div className="event-date">
-                      <span className="day">{slide.event.day}</span>
-                      <span className="month">{slide.event.month}</span>
-                    </div>
-                    <div className="event-info">
-                      <h3>{slide.event.title}</h3>
-                      <p>{slide.event.description}</p>
-                    </div>
-                    <div className="event-action">
-                      <a href="#" className="btn-event">RSVP Now</a>
-                      <span className="countdown">Starts in 3 weeks</span>
                     </div>
                   </div>
                 </div>
