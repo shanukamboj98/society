@@ -238,7 +238,7 @@ function ContactUs() {
                     value={formData.full_name}
                     onChange={handleChange}
                     isInvalid={!!errors.full_name}
-                    placeholder="Enetr name"
+                    placeholder="Enter name"
                   />
                   <Form.Control.Feedback type="invalid">
                     {errors.full_name}
@@ -268,7 +268,7 @@ function ContactUs() {
                     value={formData.mobile_number}
                     onChange={handleChange}
                     isInvalid={!!errors.mobile_number}
-                    placeholder="Enater Phone Number "
+                    placeholder="Enter Phone Number "
                   />
                   <Form.Control.Feedback type="invalid">
                     {errors.mobile_number}

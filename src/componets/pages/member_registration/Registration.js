@@ -209,193 +209,160 @@ const Registration = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    // Handle form submission
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+ // Update your handleSubmit function with this improved error handling section:
 
-        if (validateForm()) {
-            setIsLoading(true);
-            setApiError(null);
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-            try {
-                // Create FormData for file upload
-                const data = new FormData();
+    if (validateForm()) {
+        setIsLoading(true);
+        setApiError(null);
 
-                // Add all form fields to FormData
-                data.append('full_name', formData.full_name);
-                data.append('email', formData.email);
-                data.append('phone', formData.phone);
-                data.append('password', formData.password);
-                data.append('address', formData.address);
-                data.append('district', formData.district);
-                data.append('state', formData.state);
-                data.append('short_description', formData.short_description);
-                data.append('occupation', formData.occupation);
+        try {
+            // Create FormData for file upload
+            const data = new FormData();
 
-                // Add image if available
-                if (formData.image) {
-                    data.append('image', formData.image);
-                }
+            // Add all form fields to FormData
+            data.append('full_name', formData.full_name);
+            data.append('email', formData.email);
+            data.append('phone', formData.phone);
+            data.append('password', formData.password);
+            data.append('address', formData.address);
+            data.append('district', formData.district);
+            data.append('state', formData.state);
+            data.append('short_description', formData.short_description);
+            data.append('occupation', formData.occupation);
 
-                // Add conditional fields
-                if (formData.occupation !== 'Student') {
-                    data.append('designation', formData.designation);
-                }
-
-                if (formData.occupation === 'Government') {
-                    data.append('department_name', formData.department_name);
-                }
-
-                if (formData.occupation === 'Private') {
-                    data.append('organization_name', formData.organization_name);
-                }
-
-                if (formData.occupation === 'Self Employed') {
-                    data.append('nature_of_work', formData.nature_of_work);
-                }
-
-                if (formData.occupation === 'Student') {
-                    data.append('education_level', formData.education_level);
-                }
-
-                if (formData.occupation === 'Others') {
-                    data.append('other_text', formData.other_text);
-                }
-
-                // Log the form data for debugging
-                console.log('Submitting form data:');
-                for (let [key, value] of data.entries()) {
-                    console.log(key, value);
-                }
-
-                // Make API call
-                const response = await fetch('https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/', {
-                    method: 'POST',
-                    body: data,
-                });
-
-                // Update your handleSubmit function in Registration.js
-                // Replace the error handling section with this improved version:
-
-                const responseText = await response.text();
-                console.log('API Response:', responseText);
-
-                let result;
-                try {
-                    result = JSON.parse(responseText);
-
-                    // Handle successful JSON response
-                    if (result.success) {
-                        // Store member ID for success message
-                        setMemberId(result.member_id);
-                        setSubmitted(true);
-
-                        // Reset form after successful submission
-                        setTimeout(() => {
-                            setFormData({
-                                full_name: '',
-                                email: '',
-                                phone: '',
-                                password: '',
-                                image: null,
-                                address: '',
-                                short_description: '',
-                                occupation: '',
-                                designation: '',
-                                department_name: '',
-                                organization_name: '',
-                                nature_of_work: '',
-                                education_level: '',
-                                other_text: '',
-                                district: '',
-                                state: 'Uttarakhand', // Keep default state
-                            });
-                            setImagePreview(null);
-                            setSubmitted(false);
-                            setMemberId(null);
-                        }, 5000);
-                        return; // Exit early for successful case
-                    } else {
-                        throw new Error(result.message || 'Registration failed. Please try again.');
-                    }
-                } catch (e) {
-                    console.error('Invalid JSON response:', e);
-
-                    // Check if it's an HTML error page
-                    if (responseText.startsWith('<!DOCTYPE')) {
-                        // Check for IntegrityError (duplicate entry)
-                        if (responseText.includes('IntegrityError') &&
-                            responseText.includes('Duplicate entry') &&
-                            (responseText.includes('email') || responseText.includes('&#x27;email&#x27;'))) {
-                            throw new Error('This email is already registered. Please use a different email or try logging in.');
-                        }
-
-                        // Check for other specific errors
-                        if (responseText.includes('ValidationError')) {
-                            throw new Error('Please check your input and try again.');
-                        }
-
-                        // Generic server error
-                        throw new Error('Server error occurred. Please try again later.');
-                    }
-
-                    throw new Error('Server returned an invalid response. Please try again later.');
-                }
-
-                if (!response.ok) {
-                    // Handle specific error messages from the API
-                    if (result.errors) {
-                        // If the API returns field-specific errors, display them
-                        const errorMessages = Object.values(result.errors).join(', ');
-                        throw new Error(errorMessages || 'Registration failed. Please check your input and try again.');
-                    } else if (result.message) {
-                        throw new Error(result.message);
-                    } else {
-                        throw new Error(`Registration failed with status: ${response.status}`);
-                    }
-                }
-
-                // Replace this section in your handleSubmit function
-                if (result.success) {
-                    // Store member ID for success message
-                    setMemberId(result.member_id); // Get member_id directly from result
-                    setSubmitted(true);
-
-                    // Reset form after successful submission
-                    setTimeout(() => {
-                        setFormData({
-                            full_name: '',
-                            email: '',
-                            phone: '',
-                            password: '',
-                            image: null,
-                            address: '',
-                            short_description: '',
-                            occupation: '',
-                            designation: '',
-                            department_name: '',
-                            organization_name: '',
-                            nature_of_work: '',
-                            education_level: '',
-                            other_text: '',
-                            district: '',
-                            state: 'Uttarakhand', // Keep default state
-                        });
-                        setImagePreview(null);
-                        setSubmitted(false);
-                        setMemberId(null);
-                    }, 5000);
-                } else {
-                    throw new Error(result.message || 'Registration failed. Please try again.');
-                }
-            } catch (error) {
-                console.error('Registration error:', error);
-                setApiError(error.message || 'An error occurred during registration. Please try again.');
-            } finally {
-                setIsLoading(false);
+            // Add image if available
+            if (formData.image) {
+                data.append('image', formData.image);
             }
+
+            // Add conditional fields
+            if (formData.occupation !== 'Student') {
+                data.append('designation', formData.designation);
+            }
+
+            if (formData.occupation === 'Government') {
+                data.append('department_name', formData.department_name);
+            }
+
+            if (formData.occupation === 'Private') {
+                data.append('organization_name', formData.organization_name);
+            }
+
+            if (formData.occupation === 'Self Employed') {
+                data.append('nature_of_work', formData.nature_of_work);
+            }
+
+            if (formData.occupation === 'Student') {
+                data.append('education_level', formData.education_level);
+            }
+
+            if (formData.occupation === 'Others') {
+                data.append('other_text', formData.other_text);
+            }
+
+            // Log the form data for debugging
+            console.log('Submitting form data:');
+            for (let [key, value] of data.entries()) {
+                console.log(key, value);
+            }
+
+            // Make API call
+            const response = await fetch('https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/', {
+                method: 'POST',
+                body: data,
+            });
+
+            // Get response as text first
+            const responseText = await response.text();
+            console.log('API Response:', responseText);
+
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Invalid JSON response:', e);
+                
+                // Check if it's an HTML error page
+                if (responseText.startsWith('<!DOCTYPE')) {
+                    // Check for IntegrityError (duplicate entry)
+                    if (responseText.includes('IntegrityError') &&
+                        responseText.includes('Duplicate entry') &&
+                        (responseText.includes('email') || responseText.includes('&#x27;email&#x27;'))) {
+                        throw new Error('This email is already registered. Please use a different email or try logging in.');
+                    }
+
+                    // Check for other specific errors
+                    if (responseText.includes('ValidationError')) {
+                        throw new Error('Please check your input and try again.');
+                    }
+
+                    // Generic server error
+                    throw new Error('Server error occurred. Please try again later.');
+                }
+
+                throw new Error('Server returned an invalid response. Please try again later.');
+            }
+
+            // Handle successful JSON response
+            if (result.success) {
+                // Store member ID for success message
+                setMemberId(result.member_id);
+                setSubmitted(true);
+
+                // Reset form after successful submission
+                setTimeout(() => {
+                    setFormData({
+                        full_name: '',
+                        email: '',
+                        phone: '',
+                        password: '',
+                        image: null,
+                        address: '',
+                        short_description: '',
+                        occupation: '',
+                        designation: '',
+                        department_name: '',
+                        organization_name: '',
+                        nature_of_work: '',
+                        education_level: '',
+                        other_text: '',
+                        district: '',
+                        state: 'Uttarakhand', // Keep default state
+                    });
+                    setImagePreview(null);
+                    setSubmitted(false);
+                    setMemberId(null);
+                }, 5000);
+            } else {
+                // Handle error response - check for email error
+                if (result.email && result.email.length > 0) {
+                    throw new Error(result.email[0]);
+                }
+                
+                // Handle other field-specific errors
+                if (result.errors) {
+                    const errorMessages = Object.values(result.errors).flat().join(', ');
+                    throw new Error(errorMessages || 'Registration failed. Please check your input and try again.');
+                }
+                
+                // Handle general error message
+                if (result.message) {
+                    throw new Error(result.message);
+                }
+                
+                throw new Error('Registration failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            setApiError(error.message || 'An error occurred during registration. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
-    };
+    }
+};
 
     // Render conditional fields based on occupation
     const renderConditionalFields = () => {
@@ -654,6 +621,7 @@ const Registration = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="full_name-error"
+                                        placeholder="Enter Name"
                                     />
                                     <Form.Control.Feedback type="invalid" id="full_name-error">
                                         {errors.full_name}
@@ -677,6 +645,7 @@ const Registration = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="email-error"
+                                        placeholder="Enter Email"
                                     />
                                     <Form.Control.Feedback type="invalid" id="email-error">
                                         {errors.email}
@@ -701,6 +670,7 @@ const Registration = () => {
                                         aria-required="true"
                                         aria-describedby="phone-error"
                                         maxLength="10"
+                                        placeholder="Enter Phone Number "
                                     />
                                     <Form.Control.Feedback type="invalid" id="phone-error">
                                         {errors.phone}
@@ -724,6 +694,7 @@ const Registration = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="password-error"
+                                        placeholder="Enter Password"
                                     />
                                     <Form.Control.Feedback type="invalid" id="password-error">
                                         {errors.password}
@@ -750,6 +721,7 @@ const Registration = () => {
                                         aria-describedby="image-help image-error"
                                         isInvalid={!!errors.image}
                                         required
+
                                     />
                                     <Form.Text id="image-help" muted>
                                         Upload a recent photo (JPG, PNG format)
@@ -782,6 +754,7 @@ const Registration = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="address-error"
+                                        placeholder="Enter Address"
                                     />
                                     <Form.Control.Feedback type="invalid" id="address-error">
                                         {errors.address}
@@ -804,6 +777,7 @@ const Registration = () => {
                                         value={formData.state}
                                         disabled
                                         aria-label="State field is disabled and prefilled with Uttarakhand"
+
                                     />
                                   
                                 </Form.Group>
@@ -821,6 +795,7 @@ const Registration = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="district-error"
+
                                     >
                                         <option value="">Select District</option>
                                         {districtOptions.map(district => (
@@ -853,6 +828,7 @@ const Registration = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="short_description-error"
+                                        placeholder="Enter a brief description about yourself"
                                     />
                                     <Form.Control.Feedback type="invalid" id="short_description-error">
                                         {errors.short_description}
@@ -875,6 +851,7 @@ const Registration = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="occupation-error"
+
                                     >
                                         <option value="">Select Occupation</option>
                                         <option value="Government">Government</option>
