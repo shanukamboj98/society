@@ -342,6 +342,7 @@ const DonationSociety = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="full_name-error"
+                                        placeholder="Enter Name"
                                     />
                                     <Form.Control.Feedback type="invalid" id="full_name-error">
                                         {errors.full_name}
@@ -365,6 +366,7 @@ const DonationSociety = () => {
                                         required
                                         aria-required="true"
                                         aria-describedby="email-error"
+                                        placeholder="Enter Email"
                                     />
                                     <Form.Control.Feedback type="invalid" id="email-error">
                                         {errors.email}
@@ -389,6 +391,7 @@ const DonationSociety = () => {
                                         aria-required="true"
                                         aria-describedby="phone-error"
                                         maxLength="10"
+                                        placeholder="Enter Phone Number"   
                                     />
                                     <Form.Control.Feedback type="invalid" id="phone-error">
                                         {errors.phone}
