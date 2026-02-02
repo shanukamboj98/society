@@ -3,10 +3,13 @@
 @font-face {
   font-family: 'Poppins', sans-serif;
 }
-
+ .table-thead th{
+  background-color: #0d77cb;
+  color: #fff;
+ }
 .card-header{
   background-color: #0d77cb !important;
- 
+
 
 }
 .span-text{

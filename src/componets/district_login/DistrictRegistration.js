@@ -237,10 +237,10 @@ const fetchMembers = async () => {
                   </Alert>
                 ) : (
                   <Card>
-                    <Card.Header as="h5">Members List</Card.Header>
+                    {/* <Card.Header as="h5">Members List</Card.Header> */}
                     <Card.Body className="p-0">
                       <Table striped bordered hover responsive>
-                        <thead>
+                        <thead className="table-thead">
                           <tr>
                             <th>#</th>
                             <th>Name</th>

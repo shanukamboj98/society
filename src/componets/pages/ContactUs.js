@@ -185,7 +185,7 @@ function ContactUs() {
                       <FaEnvelope className="info-icon me-3 text-primary" />
                       <div>
                         <h5 className="info-title">Email</h5>
-                        <p className="info-text">{companyData.email}</p>
+                        <p className="info-text">admin@ngo.in</p>
                       </div>
                     </div>
                   </div>

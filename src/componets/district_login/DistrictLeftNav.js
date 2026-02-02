@@ -137,16 +137,16 @@ const menuItems = [
         <div className="sidebar-header">
           <div className="logo-container">
             <div className="logo">
-             
+               <div className="sidebar-heading">
+          <h5 className="dashboard-title">District Admin</h5>
+        </div>
               {/* <span className="logo-text"><img src={BRLogo} alt="text"></img></span> */}
             </div>
           </div>
         </div>
 
          {/* Added Admin Dashboard heading for desktop */}
-        <div className="sidebar-heading">
-          <h5 className="dashboard-title">District Admin Dashboard</h5>
-        </div>
+      
 
         <Nav className="sidebar-nav flex-column">
           

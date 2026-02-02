@@ -90,15 +90,15 @@ const menuItems = [
           <div className="logo-container">
             <div className="logo">
              
+          <h5 className="dashboard-title">Member Dashboard</h5>
+      
               {/* <span className="logo-text"><img src={BRLogo} alt="text"></img></span> */}
             </div>
           </div>
         </div>
 
          {/* Added Admin Dashboard heading for desktop */}
-        <div className="sidebar-heading">
-          <h5 className="dashboard-title">Member Dashboard</h5>
-        </div>
+      
 
         <Nav className="sidebar-nav flex-column">
           

@@ -27,8 +27,8 @@ function Footer() {
             <div className="footer-contact pt-3">
               <p style={{ color: '#ffffff' }}>A108 Adam Street</p>
               <p style={{ color: '#ffffff' }}>New York, NY 535022</p>
-              <p className="mt-3" style={{ color: '#ffffff' }}><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
-              <p style={{ color: '#ffffff' }}><strong>Email:</strong> <span>info@example.com</span></p>
+             
+              <p style={{ color: '#ffffff' }}><strong>Email:</strong> <span>admin@ngo.in</span></p>
             </div>
             <div className="social-links d-flex mt-4">
               <a href="#" style={{ color: '#ffffff' }}><i className="bi bi-twitter-x"></i></a>
