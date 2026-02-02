@@ -81,76 +81,14 @@ function AboutUs() {
               <div className="about-image" data-aos="zoom-in" data-aos-delay="300">
                 <img src={getImageUrl(aboutData?.image)} className="img-fluid" alt="About Us Image" />
 
-                <div className="mission-vision" data-aos="fade-up" data-aos-delay="400">
-                  <div className="mission">
-                    <h3>Our Mission</h3>
-                    <p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.</p>
-                  </div>
-
-                  <div className="vision">
-                    <h3>Our Vision</h3>
-                    <p>Nulla porttitor accumsan tincidunt. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Cras ultricies ligula sed magna dictum porta.</p>
-                  </div>
-                </div>
+              
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Core Values Section */}
-      <section className="core-values-section">
-        <div className="container">
-          <div className="row mt-5">
-            <div className="col-lg-12">
-              <div className="core-values" data-aos="fade-up" data-aos-delay="500">
-                <h3 className="text-center mb-4">Core Values</h3>
-                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-                  <div className="col">
-                    <div className="value-card">
-                      <div className="value-icon">
-                        <i className="bi bi-book"></i>
-                      </div>
-                      <h4>Academic Excellence</h4>
-                      <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi.</p>
-                    </div>
-                  </div>
-
-                  <div className="col">
-                    <div className="value-card">
-                      <div className="value-icon">
-                        <i className="bi bi-people"></i>
-                      </div>
-                      <h4>Community Engagement</h4>
-                      <p>Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus.</p>
-                    </div>
-                  </div>
-
-                  <div className="col">
-                    <div className="value-card">
-                      <div className="value-icon">
-                        <i className="bi bi-lightbulb"></i>
-                      </div>
-                      <h4>Innovation</h4>
-                      <p>Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem.</p>
-                    </div>
-                  </div>
-
-                  <div className="col">
-                    <div className="value-card">
-                      <div className="value-icon">
-                        <i className="bi bi-globe"></i>
-                      </div>
-                      <h4>Global Perspective</h4>
-                      <p>Donec sollicitudin molestie malesuada. Curabitur non nulla sit amet nisl tempus.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+    
     </div>
   );
 }

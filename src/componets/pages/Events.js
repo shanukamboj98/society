@@ -1,276 +1,106 @@
-import React from 'react'
-import Event3 from "../../assets/images/education/events-3.webp";
-import Event5 from "../../assets/images/education/events-5.webp";
-import Event6 from "../../assets/images/education/events-7.webp";   
-import Event2 from "../../assets/images/education/events-2.webp";  
-import Event8 from "../../assets/images/education/events-8.webp"; 
-import Event7 from "../../assets/images/education/events-6.webp";
+import React, { useState, useEffect } from 'react';
 
-function Events() {
+const Events = () => {
+  const [eventsData, setEventsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Fetch data from the API
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://mahadevaaya.com/ngoproject/ngoproject_backend/api/aboutus-item/');
+        const result = await response.json();
+        
+        if (result.success) {
+          // Get only the id=3 data (Events)
+          const eventItem = result.data.find(item => item.id === 3);
+          setEventsData(eventItem);
+        } else {
+          setError('Failed to fetch data');
+        }
+      } catch (err) {
+        setError('Error fetching data: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-5">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-5 text-danger">{error}</div>;
+  }
+
+  if (!eventsData) {
+    return <div className="text-center py-5">No data available</div>;
+  }
+
+  // Function to get full image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    // If the path already starts with http, return as is
+    if (imagePath.startsWith('http')) return imagePath;
+    // Otherwise, prepend the base URL
+    return `https://mahadevaaya.com/ngoproject/ngoproject_backend${imagePath}`;
+  };
+
   return (
     <div>
-
-         <section id="events" class="events section">
-
- 
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Events</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div>
-
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="row g-4">
-
-          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="200">
-            <div class="event-item">
-              <div class="event-image">
-                <img src={Event3} alt="Workshop" class="img-fluid"/>
-                <div class="event-date-overlay">
-                  <span class="date">MAR<br/>18</span>
-                </div>
-              </div>
-              <div class="event-details">
-                <div class="event-category">
-                  <span class="badge academic">Academic</span>
-                  <span class="event-time">2:00 PM</span>
-                </div>
-                <h3>Advanced Mathematics Workshop</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et
-                  dolore magna aliqua.</p>
-                <div class="event-info">
-                  <div class="info-row">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>Room 205, Science Building</span>
-                  </div>
-                  <div class="info-row">
-                    <i class="bi bi-people"></i>
-                    <span>25 Participants</span>
-                  </div>
-                </div>
-                <div class="event-footer">
-                  <a href="#" class="register-btn">Register Now</a>
-                  <div class="event-share">
-                    <i class="bi bi-share"></i>
-                    <i class="bi bi-heart"></i>
-                  </div>
-                </div>
+      {/* Events Section (id=3) */}
+      <section id="events" className="events section">
+        <div className="container" data-aos="fade-up" data-aos-delay="100">
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="section-header text-center mb-5">
+                <h3>Events</h3>
+                <h2>{eventsData?.title || "Our Events"}</h2>
               </div>
             </div>
           </div>
+          
+          <div className="row align-items-center g-5">
+            <div className="col-lg-6">
+              <div className="events-content" data-aos="fade-up" data-aos-delay="200">
+                <p>{eventsData?.description || "Event description..."}</p>
 
-          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="300">
-            <div class="event-item">
-              <div class="event-image">
-                <img src={Event5} alt="Tournament" class="img-fluid"/>
-                <div class="event-date-overlay">
-                  <span class="date">APR<br/>05</span>
-                </div>
-              </div>
-              <div class="event-details">
-                <div class="event-category">
-                  <span class="badge sports">Sports</span>
-                  <span class="event-time">9:00 AM</span>
-                </div>
-                <h3>Inter-School Basketball Championship</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit sed eiusmod tempor incididunt ut labore et
-                  dolore magna.</p>
-                <div class="event-info">
-                  <div class="info-row">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>Sports Complex Gym</span>
-                  </div>
-                  <div class="info-row">
-                    <i class="bi bi-people"></i>
-                    <span>8 Teams</span>
-                  </div>
-                </div>
-                <div class="event-footer">
-                  <a href="#" class="register-btn">Register Now</a>
-                  <div class="event-share">
-                    <i class="bi bi-share"></i>
-                    <i class="bi bi-heart"></i>
-                  </div>
+                <div className="event-list mt-4">
+                  {eventsData?.module && eventsData.module.map((item, index) => (
+                    <div className="event-item mb-4" key={index}>
+                      <div className="event-icon">
+                        <i className="bi bi-calendar-event"></i>
+                      </div>
+                      <div className="event-details">
+                        <h4>{item[0] || `Event ${index + 1}`}</h4>
+                        <p>{item[1] || "Event description"}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="400">
-            <div class="event-item">
-              <div class="event-image">
-                <img src={Event6} alt="Art Exhibition" class="img-fluid"/>
-                <div class="event-date-overlay">
-                  <span class="date">APR<br/>12</span>
-                </div>
+            <div className="col-lg-6">
+              <div className="events-image" data-aos="zoom-in" data-aos-delay="300">
+                {eventsData?.image ? (
+                  <img src={getImageUrl(eventsData.image)} className="img-fluid" alt="Events Image" />
+                ) : (
+                  <div className="no-image-placeholder">
+                    <i className="bi bi-calendar-event display-1 text-muted"></i>
+                  </div>
+                )}
               </div>
-              <div class="event-details">
-                <div class="event-category">
-                  <span class="badge arts">Arts</span>
-                  <span class="event-time">6:00 PM</span>
-                </div>
-                <h3>Student Art Exhibition Opening</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et
-                  dolore.</p>
-                <div class="event-info">
-                  <div class="info-row">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>Art Gallery, First Floor</span>
-                  </div>
-                  <div class="info-row">
-                    <i class="bi bi-people"></i>
-                    <span>Open to All</span>
-                  </div>
-                </div>
-                <div class="event-footer">
-                  <a href="#" class="register-btn">Register Now</a>
-                  <div class="event-share">
-                    <i class="bi bi-share"></i>
-                    <i class="bi bi-heart"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="200">
-            <div class="event-item">
-              <div class="event-image">
-                <img src={Event2} alt="Science Fair" class="img-fluid"/>
-                <div class="event-date-overlay">
-                  <span class="date">MAY<br/>03</span>
-                </div>
-              </div>
-              <div class="event-details">
-                <div class="event-category">
-                  <span class="badge academic">Academic</span>
-                  <span class="event-time">10:00 AM</span>
-                </div>
-                <h3>Annual Science Fair Competition</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et
-                  dolore magna aliqua.</p>
-                <div class="event-info">
-                  <div class="info-row">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>Main Auditorium Hall</span>
-                  </div>
-                  <div class="info-row">
-                    <i class="bi bi-people"></i>
-                    <span>45 Projects</span>
-                  </div>
-                </div>
-                <div class="event-footer">
-                  <a href="#" class="register-btn">Register Now</a>
-                  <div class="event-share">
-                    <i class="bi bi-share"></i>
-                    <i class="bi bi-heart"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="300">
-            <div class="event-item">
-              <div class="event-image">
-                <img src={Event8} alt="Community Event" class="img-fluid"/>
-                <div class="event-date-overlay">
-                  <span class="date">MAY<br/>15</span>
-                </div>
-              </div>
-              <div class="event-details">
-                <div class="event-category">
-                  <span class="badge community">Community</span>
-                  <span class="event-time">3:00 PM</span>
-                </div>
-                <h3>Family Fun Day Celebration</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et
-                  dolore.</p>
-                <div class="event-info">
-                  <div class="info-row">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>School Playground Area</span>
-                  </div>
-                  <div class="info-row">
-                    <i class="bi bi-people"></i>
-                    <span>All Families</span>
-                  </div>
-                </div>
-                <div class="event-footer">
-                  <a href="#" class="register-btn">Register Now</a>
-                  <div class="event-share">
-                    <i class="bi bi-share"></i>
-                    <i class="bi bi-heart"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="400">
-            <div class="event-item">
-              <div class="event-image">
-                <img src={Event6} alt="Music Concert" class="img-fluid"/>
-                <div class="event-date-overlay">
-                  <span class="date">JUN<br/>02</span>
-                </div>
-              </div>
-              <div class="event-details">
-                <div class="event-category">
-                  <span class="badge arts">Arts</span>
-                  <span class="event-time">7:30 PM</span>
-                </div>
-                <h3>Summer Music Concert Finale</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et
-                  dolore magna.</p>
-                <div class="event-info">
-                  <div class="info-row">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>Music Hall Theater</span>
-                  </div>
-                  <div class="info-row">
-                    <i class="bi bi-people"></i>
-                    <span>300 Seats</span>
-                  </div>
-                </div>
-                <div class="event-footer">
-                  <a href="#" class="register-btn">Register Now</a>
-                  <div class="event-share">
-                    <i class="bi bi-share"></i>
-                    <i class="bi bi-heart"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="events-navigation" data-aos="fade-up" data-aos-delay="500">
-          <div class="row align-items-center">
-            <div class="col-md-8">
-              <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All Events</button>
-                <button class="filter-tab" data-filter="academic">Academic</button>
-                <button class="filter-tab" data-filter="sports">Sports</button>
-                <button class="filter-tab" data-filter="arts">Arts</button>
-                <button class="filter-tab" data-filter="community">Community</button>
-              </div>
-            </div>
-            <div class="col-md-4 text-end">
-              <a href="#" class="view-calendar-btn">
-                <i class="bi bi-calendar3"></i>
-                View Calendar
-              </a>
             </div>
           </div>
         </div>
-
-      </div>
-
-    </section>
+      </section>
     </div>
-  )
-}
+  );
+};
 
-export default Events
+export default Events;

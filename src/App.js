@@ -45,6 +45,8 @@ import ManageDistrictActivity from "./componets/district_login/district_activity
 import ManageAboutUs from "./componets/event_panel/dashboard_pages/ManageAboutUs";
 import UserProfile from "./componets/user_dashboard/Profile/UserProfile";
 import ManageCarousel from "./componets/event_panel/dashboard_pages/ManageCarousel";
+import Organisation from "./componets/pages/Organisation";
+import Events from "./componets/pages/Events";
 
 
 function App() {
@@ -94,6 +96,8 @@ function App() {
           <Route path="/AssociatedWings" element={<AssociatedWings />} />
           <Route path="/Activity" element={<Activity />} />
           <Route path="/DonateActivity" element={<DonateActivity/>} />
+           <Route path="/Organisation" element={<Organisation />} />
+              <Route path="/Events" element={<Events />} />
 
           {/* Protected Routes */}
           <Route path="/DashBoard" element={
