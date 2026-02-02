@@ -1,7 +1,8 @@
-import React from 'react'
+
 import Carousel from './EventCarousel'
 import AboutUs from './AboutUs'
-import Events from './Events'
+import Activity from "../pages/activity_event/Activity"
+
 
 
 function Home() {
@@ -10,7 +11,7 @@ function Home() {
 <Carousel />
 <AboutUs />
 
-<Events />
+<Activity />
     </div>
   )
 }

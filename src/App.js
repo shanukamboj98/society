@@ -74,6 +74,7 @@ function App() {
   ]);
 
   const shouldHideNavbar = hiddenPaths.has(location.pathname);
+  const shouldHideFooter1 = hiddenPaths.has(location.pathname);
   
   return (
 
@@ -196,7 +197,7 @@ function App() {
          
         </Routes>
       </main>
-      {/* {!shouldHideFooter1 && <Footer />} */}
+      {!shouldHideFooter1 && <Footer />}
 
     </div>
 
