@@ -170,7 +170,7 @@ const AssociatedWings = () => {
 
     return (
         <div className="container border rounded-3 shadow-lg p-4 bg-white mt-2">
-            <h1 className="text-center mb-4">Associated Wings</h1>
+            <h1 className="text-center  mb-4">Associated Wings</h1>
             
             {error && (
                 <Alert variant="danger" dismissible onClose={() => setError(null)}>
