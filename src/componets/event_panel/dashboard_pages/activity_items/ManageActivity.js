@@ -709,9 +709,7 @@ const ManageActivity = () => {
           <Container fluid className="dashboard-body dashboard-main-container">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h1 className="page-title mb-0">Manage Activities</h1>
-              <Button variant="primary" onClick={addNewActivity}>
-                <FaPlus /> Add New Activity
-              </Button>
+             
             </div>
 
             {/* Alert for success/error messages */}
@@ -740,7 +738,7 @@ const ManageActivity = () => {
                   <>
                     <Row className="mb-4">
                       <Col>
-                        <h2 className="mb-4">Select an Activity to Edit</h2>
+                     
                         {activities.length === 0 ? (
                           <Alert variant="info">
                             No activities found. 

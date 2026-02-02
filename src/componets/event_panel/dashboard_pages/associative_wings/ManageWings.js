@@ -578,7 +578,7 @@ const ManageWings = () => {
                   <>
                     <Row className="mb-4">
                       <Col>
-                        <h2 className="mb-4">Select a Wing to Edit</h2>
+                     
                         {wingsDetails.length === 0 ? (
                           <Alert variant="info">
                             No wings details found.

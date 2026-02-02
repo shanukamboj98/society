@@ -6,7 +6,6 @@ import {
   FaChevronDown,
   FaChevronRight,
   FaImages,
-  
   FaUsers,
   FaBook,
   FaBuilding,
@@ -17,243 +16,187 @@ import {
   FaProjectDiagram,
   FaServer,
   FaUserCircle,
+  FaClipboardList, // New
+  FaTasks,         // New
+  FaUsersCog,      // New
+  FaEdit,          // Already imported, but will be used more
+  FaBullseye,      // Already imported
+  FaPlusSquare,    // Already imported
+  FaListUl,        // Already imported
+  FaWindowMaximize // New
 } from "react-icons/fa";
 import axios from "axios";
 import "../../assets/css/dashboard.css";
 import { Link } from "react-router-dom";
-import {
-  FaInfoCircle,
- 
-  FaEdit,
-  FaListUl,
-  FaBullseye,
-  FaPlusSquare,
-  FaTasks
-} from "react-icons/fa";
-import {  useNavigate } from "react-router-dom"; // Add useNavigate import
-import { useAuth } from "../context/AuthContext"; // Import useAuth
-// import BRLogo from "../../assets/images/brainrock_logo.png";
-
-
-
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const LeftNav = ({ sidebarOpen, setSidebarOpen, isMobile, isTablet }) => {
-   const { logout } = useAuth();
-    const navigate = useNavigate();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
-    
- // Add logout handler function
-    const handleLogout = () => {
-        logout();
-        navigate("/Login", { replace: true });
-    };
+  const handleLogout = () => {
+    logout();
+    navigate("/Login", { replace: true });
+  };
 
-    const [userRole, setUserRole] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const toggleSubmenu = (index) => {
     setOpenSubmenu(openSubmenu === index ? null : index);
   };
-  
 
-
-
-const menuItems = [
+  const menuItems = [
     {
       icon: <FaTachometerAlt />,
       label: "Dashboard",
       path: "/DashBoard",
       active: true,
     },
-     {
-      icon: <FaTachometerAlt />,
+    {
+      icon: <FaClipboardList />, // Changed
       label: "District Registrations",
       path: "/DistrictRegistrations",
       active: true,
     },
     {
-      icon: <FaTachometerAlt />,
+      icon: <FaTasks />, // Changed
       label: "District Manage Registrations",
       path: "/DistrictManageRegistration",
       active: true,
     },
-   
-     
-
-     {
-      icon: <FaTachometerAlt />,
+    {
+      icon: <FaUsersCog />, // Changed
       label: "Manage Registration",
       path: "/ManageRegistration",
       active: true,
     },
-     {
-      icon: <FaTachometerAlt />,
+    {
+      icon: <FaEdit />, // Changed
       label: "Manage About Us ",
       path: "/ManageAboutUs",
       active: true,
     },
-{
-      icon: <FaTachometerAlt />,
+    {
+      icon: <FaImages />, // Changed
       label: "Manage Carousel ",
       path: "/ManageCarousel",
       active: true,
     },
-   {
-  icon: <FaInfoCircle />,   // About Us main
-  label: "Activity",
-  submenu: [
     {
-      label: "Add Activity",
-      path: "/AddActivity",
-      icon: <FaUserCircle />, // profile
-    },
-     {
+      icon: <FaBullseye />, // Changed
+      label: "Activity",
+      submenu: [
+        {
+          label: "Add Activity",
+          path: "/AddActivity",
+          icon: <FaPlusSquare />, // Changed
+        },
+        {
           label: "Manage Activity",
           path: "/ManageActivity",
-          icon: <FaImage />,
+          icon: <FaListUl />, // Changed
         },
-   
-   
-  ],
-},
-
-   {
-  icon: <FaInfoCircle />,   // About Us main
-  label: "Header",
-  submenu: [
-    {
-      label: "Add Header",
-      path: "/AddHeader",
-      icon: <FaUserCircle />, // profile
+      ],
     },
-     {
-          label: "Manage header",
-          path: "/ManageHeader",
-          icon: <FaImage />,
+    // {
+    //   icon: <FaWindowMaximize />, // Changed
+    //   label: "Header",
+    //   submenu: [
+    //     {
+    //       label: "Add Header",
+    //       path: "/AddHeader",
+    //       icon: <FaPlusSquare />, // Changed
+    //     },
+    //     {
+    //       label: "Manage header",
+    //       path: "/ManageHeader",
+    //       icon: <FaEdit />, // Changed
+    //     },
+    //   ],
+    // },
+    {
+      icon: <FaProjectDiagram />, // Changed
+      label: "Associative Wings",
+      submenu: [
+        {
+          label: "Add Wings",
+          path: "/AddWings",
+          icon: <FaPlusSquare />, // Changed
         },
-   
-   
-  ],
-},
-
-
-   {
-  icon: <FaInfoCircle />,   // About Us main
-  label: "Associative Wings",
-  submenu: [
-    {
-      label: "Add Wings",
-      path: "/AddWings",
-      icon: <FaUserCircle />, // profile
-    },
-     {
+        {
           label: "Manage Wings",
           path: "/ManageWings",
-          icon: <FaImage />,
+          icon: <FaListUl />, // Changed
         },
-   
-   
-  ],
-},
-
-
-   
-
- 
-    
-    
-  
-   
-
-    
-  
+      ],
+    },
   ];
-
-
-  
-  
-
-  //  Auto-close sidebar when switching to mobile or tablet
-  
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <div
-        className={`sidebar ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}
-      >
+      <div className={`sidebar ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
         <div className="sidebar-header">
           <div className="logo-container">
-            <div className="logo">
-             
-              {/* <span className="logo-text"><img src={BRLogo} alt="text"></img></span> */}
-            </div>
+            <div className="logo"></div>
           </div>
         </div>
-        
-        {/* Added Admin Dashboard heading for desktop */}
+
         <div className="sidebar-heading">
           <h5 className="dashboard-title">Admin Dashboard</h5>
         </div>
 
         <Nav className="sidebar-nav flex-column">
-          
-        {menuItems
-  .filter(item =>
-    item.allowedRoles ? item.allowedRoles.includes(userRole) : true
-  )
-  .map((item, index) => (
-    <div key={index}>
-      {/* If submenu exists */}
-      {item.submenu ? (
-        <Nav.Link
-          className={`nav-item ${item.active ? "active" : ""}`}
-          onClick={() => toggleSubmenu(index)}
-        >
-          <span className="nav-icon">{item.icon}</span>
-          <span className="nav-text">{item.label}</span>
-          <span className="submenu-arrow">
-            {openSubmenu === index ? <FaChevronDown /> : <FaChevronRight />}
-          </span>
-        </Nav.Link>
-      ) : (
-        <Link
-          to={item.path}
-          className={`nav-item nav-link ${item.active ? "active" : ""}`}
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="nav-icon">{item.icon}</span>
-          <span className="nav-text">{item.label}</span>
-        </Link>
-      )}
+          {menuItems
+            .filter((item) => (item.allowedRoles ? item.allowedRoles.includes(userRole) : true))
+            .map((item, index) => (
+              <div key={index}>
+                {item.submenu ? (
+                  <Nav.Link
+                    className={`nav-item ${item.active ? "active" : ""}`}
+                    onClick={() => toggleSubmenu(index)}
+                  >
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-text">{item.label}</span>
+                    <span className="submenu-arrow">
+                      {openSubmenu === index ? <FaChevronDown /> : <FaChevronRight />}
+                    </span>
+                  </Nav.Link>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className={`nav-item nav-link ${item.active ? "active" : ""}`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-text">{item.label}</span>
+                  </Link>
+                )}
 
-      {/* Submenu */}
-      {item.submenu && (
-        <Collapse in={openSubmenu === index}>
-          <div className="submenu-container">
-            {item.submenu.map((subItem, subIndex) => (
-              <Link
-                key={subIndex}
-                to={subItem.path}
-                className="submenu-item nav-link"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <span className="submenu-icon">{subItem.icon}</span>
-                <span className="nav-text br-text-sub">{subItem.label}</span>
-              </Link>
+                {item.submenu && (
+                  <Collapse in={openSubmenu === index}>
+                    <div className="submenu-container">
+                      {item.submenu.map((subItem, subIndex) => (
+                        <Link
+                          key={subIndex}
+                          to={subItem.path}
+                          className="submenu-item nav-link"
+                          onClick={() => setSidebarOpen(false)}
+                        >
+                          <span className="submenu-icon">{subItem.icon}</span>
+                          <span className="nav-text br-text-sub">{subItem.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </Collapse>
+                )}
+              </div>
             ))}
-          </div>
-        </Collapse>
-      )}
-    </div>
-  ))}
-
         </Nav>
 
         <div className="sidebar-footer">
-          <Nav.Link
-            className="nav-item logout-btn"
-           onClick={handleLogout}
-          >
+          <Nav.Link className="nav-item logout-btn" onClick={handleLogout}>
             <span className="nav-icon">
               <FaSignOutAlt />
             </span>
@@ -262,84 +205,78 @@ const menuItems = [
         </div>
       </div>
 
-      {/*  Mobile / Tablet Sidebar (Offcanvas) */}
-  <Offcanvas
-  show={(isMobile || isTablet) && sidebarOpen}
-  onHide={() => setSidebarOpen(false)}
-  className="mobile-sidebar"
-  placement="start"
-  backdrop={true}
-  scroll={false}
-  enforceFocus={false} //  ADD THIS LINE — fixes close button focus issue
->
-  <Offcanvas.Header closeButton className="br-offcanvas-header">
-    <Offcanvas.Title className="br-off-title">Menu</Offcanvas.Title>
-  </Offcanvas.Header>
+      {/* Mobile / Tablet Sidebar (Offcanvas) */}
+      <Offcanvas
+        show={(isMobile || isTablet) && sidebarOpen}
+        onHide={() => setSidebarOpen(false)}
+        className="mobile-sidebar"
+        placement="start"
+        backdrop={true}
+        scroll={false}
+        enforceFocus={false}
+      >
+        <Offcanvas.Header closeButton className="br-offcanvas-header">
+          <Offcanvas.Title className="br-off-title">Menu</Offcanvas.Title>
+        </Offcanvas.Header>
 
-  <Offcanvas.Body className="br-offcanvas">
-    {/* Added Admin Dashboard heading for mobile/tablet */}
-    <div className="sidebar-heading">
-      <h5 className="dashboard-title">Admin Dashboard</h5>
-    </div>
-    
-    <Nav className="flex-column">
-      {menuItems.map((item, index) => (
-        <div key={index}>
-          {item.submenu ? (
-            <Nav.Link
-              className={`nav-item ${item.active ? "active" : ""}`}
-              onClick={() => toggleSubmenu(index)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-text br-nav-text-mob">{item.label}</span>
-              <span className="submenu-arrow">
-                {openSubmenu === index ? <FaChevronDown /> : <FaChevronRight />}
-              </span>
-            </Nav.Link>
-          ) : (
-            <Link
-              to={item.path}
-              className={`nav-item nav-link ${item.active ? "active" : ""}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-text br-nav-text-mob">{item.label}</span>
-            </Link>
-          )}
+        <Offcanvas.Body className="br-offcanvas">
+          <div className="sidebar-heading">
+            <h5 className="dashboard-title">Admin Dashboard</h5>
+          </div>
 
-          {item.submenu && (
-            <Collapse in={openSubmenu === index}>
-              <div className="submenu-container">
-                {item.submenu.map((subItem, subIndex) => (
+          <Nav className="flex-column">
+            {menuItems.map((item, index) => (
+              <div key={index}>
+                {item.submenu ? (
+                  <Nav.Link
+                    className={`nav-item ${item.active ? "active" : ""}`}
+                    onClick={() => toggleSubmenu(index)}
+                  >
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-text br-nav-text-mob">{item.label}</span>
+                    <span className="submenu-arrow">
+                      {openSubmenu === index ? <FaChevronDown /> : <FaChevronRight />}
+                    </span>
+                  </Nav.Link>
+                ) : (
                   <Link
-                    key={subIndex}
-                    to={subItem.path}
-                    className="submenu-item nav-link"
+                    to={item.path}
+                    className={`nav-item nav-link ${item.active ? "active" : ""}`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <span className="nav-text">{subItem.label}</span>
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-text br-nav-text-mob">{item.label}</span>
                   </Link>
-                ))}
-              </div>
-            </Collapse>
-          )}
-        </div>
-      ))}
+                )}
 
-       {/* Add logout button to mobile menu as well */}
-                        <Nav.Link
-                            className="nav-item logout-btn"
-                            onClick={handleLogout}
+                {item.submenu && (
+                  <Collapse in={openSubmenu === index}>
+                    <div className="submenu-container">
+                      {item.submenu.map((subItem, subIndex) => (
+                        <Link
+                          key={subIndex}
+                          to={subItem.path}
+                          className="submenu-item nav-link"
+                          onClick={() => setSidebarOpen(false)}
                         >
-                            <span className="nav-icon">
-                                <FaSignOutAlt />
-                            </span>
-                            <span className="nav-text">Logout</span>
-                        </Nav.Link>
-    </Nav>
-  </Offcanvas.Body>
-</Offcanvas>
+                          <span className="nav-text">{subItem.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </Collapse>
+                )}
+              </div>
+            ))}
 
+            <Nav.Link className="nav-item logout-btn" onClick={handleLogout}>
+              <span className="nav-icon">
+                <FaSignOutAlt />
+              </span>
+              <span className="nav-text">Logout</span>
+            </Nav.Link>
+          </Nav>
+        </Offcanvas.Body>
+      </Offcanvas>
     </>
   );
 };

@@ -685,7 +685,7 @@ const ManageRegistration = () => {
                   <>
                     <Row className="mb-4">
                       <Col>
-                        <h2 className="mb-4">Select a Registration to View/Edit</h2>
+                       
                         {registrations.length === 0 ? (
                           <Alert variant="info">
                             No member registrations found.
@@ -765,11 +765,7 @@ const ManageRegistration = () => {
                       <Button variant="outline-secondary" onClick={backToRegistrationList}>
                         <FaArrowLeft /> Back to Registrations List
                       </Button>
-                      {!isEditing && (
-                        <Button variant="danger" onClick={handleDelete} disabled={isSubmitting}>
-                          <FaTrash /> Delete Registration
-                        </Button>
-                      )}
+                     
                     </div>
 
                     <Form onSubmit={handleSubmit}>

@@ -7,11 +7,26 @@
   background-color: #0d77cb;
   color: #fff;
  }
+ .form-control-lg{
+  font-size: 12px;
+ }
+ .form-label{
+  font-size: 12px;
+  font-weight: 600;
+ }
+ .btn-lg{
+  font-size: 12px;
+ }
 .card-header{
   background-color: #0d77cb !important;
 
 
 }
+.form-check-input[type=checkbox] {
+    border-radius: .25em;
+    border: #000000 1px solid !important;
+}
+
 .span-text{
   color: #0d77cb !important;
 }

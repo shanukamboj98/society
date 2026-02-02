@@ -497,7 +497,7 @@ const DistrictMailMeeting = () => {
                       variant="primary" 
                       type="submit"
                       disabled={isSubmitting}
-                      className="d-flex align-items-center"
+                      className="d-flex align-items-center btn-lg"
                     >
                       <FaSave className="me-1" /> 
                       {isSubmitting ? 'Sending...' : 'Send Mail'}
