@@ -1,50 +1,53 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Alert, Card, Spinner, Modal } from "react-bootstrap";
 import "../../../assets/css/dashboard.css";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useAuthFetch } from "../../context/AuthFetch";
+import { useNavigate } from "react-router-dom";
+import { FaEdit, FaArrowLeft, FaPlus, FaTrash } from "react-icons/fa";
 import LeftNav from "../LeftNav";
 import DashBoardHeader from "../DashBoardHeader";
-import { FaPlus, FaTrash } from "react-icons/fa";
 
 const ManageAboutUs = () => {
-  const { auth, logout, refreshAccessToken } = useAuth();
-  const admin_id = auth?.unique_id;
-
-  console.log("Admin ID:", admin_id);
+  const { auth, logout, refreshAccessToken, isLoading: authLoading, isAuthenticated } = useAuth();
   const authFetch = useAuthFetch();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
 
-  // Form state for About Us
-  const [formData, setFormData] = useState({
+  // State for carousel items
+  const [carouselItems, setCarouselItems] = useState([]);
+  
+  // Form state for carousel item
+  const [carouselFormData, setCarouselFormData] = useState({
     id: null,
     title: "",
-    sub_title: "", // Added sub_title field
     description: "",
     image: null,
-    modules: [{ content: "", description: "" }], // Initialize with one empty module object
+    imageFile: null, // Store the actual file object
+    module: [
+      ["", ""],
+      ["", ""],
+      ["", ""]
+    ]
   });
-
-  // State for image preview
-  const [imagePreview, setImagePreview] = useState(null);
-  const [existingImage, setExistingImage] = useState(null);
-
-  // State for description validation error
-  const [descriptionError, setDescriptionError] = useState("");
 
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
-  const [variant, setVariant] = useState("success"); // 'success' or 'danger'
+  const [variant, setVariant] = useState("success");
   const [showAlert, setShowAlert] = useState(false);
 
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedCarouselId, setSelectedCarouselId] = useState(null);
+
+  // Modal state for image preview
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Check device width
   useEffect(() => {
@@ -59,12 +62,7 @@ const ManageAboutUs = () => {
     return () => window.removeEventListener("resize", checkDevice);
   }, []);
 
-  // Fetch About Us data on component mount
-  useEffect(() => {
-    fetchAboutUsData();
-  }, []);
-
-  // Cleanup object URL to avoid memory leaks
+  // Cleanup image preview URL
   useEffect(() => {
     return () => {
       if (imagePreview) {
@@ -73,72 +71,61 @@ const ManageAboutUs = () => {
     };
   }, [imagePreview]);
 
+  // Fetch carousel items when auth is ready
+  useEffect(() => {
+    // Only fetch when auth is not loading and user is authenticated
+    if (!authLoading && isAuthenticated) {
+      fetchCarouselItems();
+    }
+  }, [authLoading, isAuthenticated]);
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Fetch About Us data from API
-  const fetchAboutUsData = async () => {
+  // Fetch carousel items from API
+  const fetchCarouselItems = async () => {
     setIsLoading(true);
     try {
-      // Updated API endpoint
-      const response = await fetch(
-        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/carousel1-item/",
-        {
-          method: "GET",
-        }
+      const response = await authFetch(
+        "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/aboutus-item/"
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch About Us data");
+        throw new Error("Failed to fetch carousel items");
       }
 
       const result = await response.json();
-      console.log("GET API Response:", result); // Log the response
+      console.log("GET Carousel Items API Response:", result);
 
-      if (result.success && result.data.length > 0) {
-        // Get the first item from the data array
-        const aboutData = result.data[0];
-
-        // Check if modules is an array of objects or strings
-        let modulesData = [];
-        if (aboutData.module && Array.isArray(aboutData.module)) {
-          if (
-            aboutData.module.length > 0 &&
-            typeof aboutData.module[0] === "object"
-          ) {
-            modulesData = [...aboutData.module];
-          } else if (
-            aboutData.module.length > 0 &&
-            typeof aboutData.module[0] === "string"
-          ) {
-            // Convert strings to objects
-            modulesData = aboutData.module.map((item) => ({
-              content: item,
-              description: "",
-            }));
-          } else {
-            modulesData = [{ content: "", description: "" }];
-          }
+      // Check if the response is directly an array or wrapped in an object
+      if (Array.isArray(result)) {
+        // Direct array response
+        if (result.length > 0) {
+          setCarouselItems(result);
         } else {
-          modulesData = [{ content: "", description: "" }];
+          setCarouselItems([]);
         }
-
-        setFormData({
-          id: aboutData.id,
-          title: aboutData.title,
-          sub_title: aboutData.sub_title || "", // Added sub_title
-          description: aboutData.description,
-          image: null, // We don't have the actual file, just the URL
-          modules: modulesData,
-        });
-
-        // Set existing image URL for preview - use the full URL
-        setExistingImage(aboutData.image);
+      } else if (result.success && result.data && result.data.length > 0) {
+        // Wrapped response object
+        setCarouselItems(result.data);
       } else {
-        throw new Error("No About Us data found");
+        setCarouselItems([]);
       }
     } catch (error) {
-      console.error("Error fetching About Us data:", error);
-      setMessage(error.message || "An error occurred while fetching data");
+      console.error("Error fetching carousel items:", error);
+      
+      // Handle specific error cases
+      if (error.message.includes('403') || error.message.includes('permission')) {
+        setMessage("Permission denied. You may not have the required role to access this feature.");
+      } else if (error.message.includes('authenticated') || error.message.includes('Session expired')) {
+        setMessage("Authentication error. Please login again.");
+        // Redirect to login
+        setTimeout(() => {
+          navigate('/Login');
+        }, 2000);
+      } else {
+        setMessage(error.message || "An error occurred while fetching carousel data");
+      }
+      
       setVariant("danger");
       setShowAlert(true);
     } finally {
@@ -146,151 +133,205 @@ const ManageAboutUs = () => {
     }
   };
 
-  // Handle form input changes
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
+  // Fetch specific carousel item by ID
+  const fetchCarouselItem = async (itemId) => {
+    setIsLoading(true);
+    try {
+      console.log("Fetching carousel item with ID:", itemId);
+      const response = await authFetch(
+        `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/aboutus-item/?id=${itemId}`
+      );
 
-    if (name === "image") {
-      // Handle file input for image
-      const file = files[0];
-      setFormData((prev) => ({
-        ...prev,
-        image: file,
-      }));
-
-      // Create a preview URL for selected image
-      if (file) {
-        const previewUrl = URL.createObjectURL(file);
-        setImagePreview(previewUrl);
-      } else {
-        setImagePreview(null);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch carousel item. Status: ${response.status}`);
       }
-    } else {
-      // Handle text inputs
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
 
-      // Validate description length
-      if (name === "description") {
-        const wordCount = value.trim().split(/\s+/).length;
-        if (value.trim() === "") {
-          setDescriptionError("Description is required.");
-        } else if (wordCount <= 5) {
-          setDescriptionError(
-            `Description must be more than 05 words. You have entered ${wordCount} words.`
-          );
-        } else {
-          setDescriptionError(""); // Clear error if valid
+      const result = await response.json();
+      console.log("GET Carousel Item API Response:", result);
+
+      // Handle both array and object responses
+      let carouselData;
+      
+      if (Array.isArray(result)) {
+        // Direct array response
+        carouselData = result.find(item => item.id.toString() === itemId.toString());
+        if (!carouselData) {
+          throw new Error(`Carousel item with ID ${itemId} not found in response array`);
         }
+      } else if (result.success) {
+        // Wrapped response object
+        if (Array.isArray(result.data)) {
+          carouselData = result.data.find(item => item.id.toString() === itemId.toString());
+          if (!carouselData) {
+            throw new Error(`Carousel item with ID ${itemId} not found in response array`);
+          }
+        } else if (result.data && result.data.id) {
+          if (result.data.id.toString() === itemId.toString()) {
+            carouselData = result.data;
+          } else {
+            throw new Error(`Returned carousel item ID ${result.data.id} does not match requested ID ${itemId}`);
+          }
+        } else {
+          throw new Error("Invalid carousel item data structure in response");
+        }
+      } else {
+        throw new Error(result.message || "No carousel item data found in response");
       }
+
+      // Construct the full image URL if image exists
+      const imageUrl = carouselData.image 
+        ? `https://mahadevaaya.com/ngoproject/ngoproject_backend${carouselData.image}`
+        : null;
+
+      setCarouselFormData({
+        id: carouselData.id,
+        title: carouselData.title || "",
+        description: carouselData.description || "",
+        image: imageUrl,
+        imageFile: null, // Reset image file
+        module: carouselData.module || [
+          ["", ""],
+          ["", ""],
+          [""]
+        ]
+      });
+
+      setSelectedCarouselId(itemId);
+    } catch (error) {
+      console.error("Error fetching carousel item:", error);
+      
+      // Handle specific error cases
+      if (error.message.includes('403') || error.message.includes('permission')) {
+        setMessage("Permission denied. You may not have the required role to access this feature.");
+      } else if (error.message.includes('authenticated') || error.message.includes('Session expired')) {
+        setMessage("Authentication error. Please login again.");
+        // Redirect to login
+        setTimeout(() => {
+          navigate('/Login');
+        }, 2000);
+      } else {
+        setMessage(error.message || "An error occurred while fetching carousel item");
+      }
+      
+      setVariant("danger");
+      setShowAlert(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Handle module changes
-  const handleModuleChange = (index, field, value) => {
-    setFormData((prev) => {
-      const newModules = [...prev.modules];
-      // Ensure the module at index exists and is an object
-      if (!newModules[index] || typeof newModules[index] !== "object") {
-        newModules[index] = { content: "", description: "" };
-      }
-      // Update the specific field
-      newModules[index] = {
-        ...newModules[index],
-        [field]: value,
-      };
+  // Handle carousel card click
+  const handleCarouselClick = (itemId) => {
+    console.log("Carousel card clicked with ID:", itemId);
+    fetchCarouselItem(itemId);
+  };
 
-      return {
+  // Handle form input changes for carousel
+  const handleCarouselChange = (e) => {
+    const { name, value } = e.target;
+    setCarouselFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle image upload
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Create a preview URL for the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+      
+      // Store the actual file object for upload
+      setCarouselFormData(prev => ({
         ...prev,
-        modules: newModules,
-      };
-    });
+        imageFile: file,
+        image: previewUrl // Update the image display to show the new image
+      }));
+    }
   };
 
-  // Add a new module
-  const addModule = () => {
-    setFormData((prev) => ({
+  // Handle module change
+  const handleModuleChange = (index, field, value) => {
+    const newModule = [...carouselFormData.module];
+    newModule[index][field === 'title' ? 0 : 1] = value;
+    setCarouselFormData(prev => ({
       ...prev,
-      modules: [...prev.modules, { content: "", description: "" }],
+      module: newModule
     }));
   };
 
-  // Remove a module
-  const removeModule = (index) => {
-    setFormData((prev) => ({
+  // Add new module item
+  const addModuleItem = () => {
+    setCarouselFormData(prev => ({
       ...prev,
-      modules: prev.modules.filter((_, i) => i !== index),
+      module: [...prev.module, ["", ""]]
     }));
   };
 
-  // Reset form to original data
-  const resetForm = () => {
-    fetchAboutUsData();
-    setImagePreview(null);
+  // Remove module item
+  const removeModuleItem = (index) => {
+    if (carouselFormData.module.length > 1) {
+      const newModule = [...carouselFormData.module];
+      newModule.splice(index, 1);
+      setCarouselFormData(prev => ({
+        ...prev,
+        module: newModule
+      }));
+    }
+  };
+
+  // Reset carousel form to original data
+  const resetCarouselForm = () => {
+    if (selectedCarouselId) {
+      fetchCarouselItem(selectedCarouselId);
+    }
     setIsEditing(false);
-    setDescriptionError("");
+    setShowAlert(false);
+    setImagePreview(null);
+  };
+
+  // Go back to carousel list
+  const backToCarouselList = () => {
+    setSelectedCarouselId(null);
+    setIsEditing(false);
+    setShowAlert(false);
+    setImagePreview(null);
+  };
+
+  // Enable editing mode for carousel
+  const enableEditing = (e) => {
+    e.preventDefault();
+    setIsEditing(true);
     setShowAlert(false);
   };
 
-  // Enable editing mode
-  const enableEditing = (e) => {
-    e.preventDefault(); // Prevent form submission
-    setIsEditing(true);
-    setShowAlert(false); // Hide any existing alerts when entering edit mode
-  };
-
-  // Handle form submission (PUT request)
-  const handleSubmit = async (e) => {
+  // Handle form submission (PUT request) for carousel
+  const handleCarouselSubmit = async (e) => {
     e.preventDefault();
-
-    // Check for validation errors before submitting
-    if (descriptionError) {
-      setMessage("Please fix the validation errors before submitting.");
-      setVariant("danger");
-      setShowAlert(true);
-      return;
-    }
-
     setIsSubmitting(true);
     setShowAlert(false);
 
     try {
-      // Prepare the data for submission
-      const payload = {
-        id: formData.id,
-        title: formData.title,
-        sub_title: formData.sub_title, // Added sub_title
-        description: formData.description,
-        module: formData.modules,
-      };
+      // Check if we have a new image to upload
+      if (carouselFormData.imageFile) {
+        // Use FormData for file upload
+        const formData = new FormData();
+        formData.append("id", carouselFormData.id);
+        formData.append("title", carouselFormData.title);
+        formData.append("description", carouselFormData.description);
+        formData.append("image", carouselFormData.imageFile);
+        formData.append("module", JSON.stringify(carouselFormData.module));
 
-      console.log("Submitting data:", payload); // Log the data being submitted
+        console.log("Submitting FormData with image");
 
-      // If we have a new image, we need to handle it differently
-      if (formData.image) {
-        // For file uploads, we need FormData
-        const dataToSend = new FormData();
-        dataToSend.append("id", formData.id);
-        dataToSend.append("title", formData.title);
-        dataToSend.append("sub_title", formData.sub_title); // Added sub_title
-        dataToSend.append("description", formData.description);
-        dataToSend.append("image", formData.image, formData.image.name);
-        dataToSend.append("module", JSON.stringify(formData.modules));
-
-        console.log("FormData content:");
-        for (let pair of dataToSend.entries()) {
-          console.log(pair[0] + ": " + pair[1]);
-        }
-
-        // Use fetch directly for FormData so the browser sets Content-Type automatically.
-        // Also handle 401 by refreshing the access token and retrying once.
-        const url =
-          "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/carousel1-item/";
+        // Use fetch directly for FormData
+        const url = "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/aboutus-item/";
+        
         let response = await fetch(url, {
           method: "PUT",
-          body: dataToSend,
+          body: formData,
           headers: {
             Authorization: `Bearer ${auth?.access}`,
           },
@@ -302,16 +343,13 @@ const ManageAboutUs = () => {
           if (!newAccess) throw new Error("Session expired");
           response = await fetch(url, {
             method: "PUT",
-            body: dataToSend,
+            body: formData,
             headers: {
               Authorization: `Bearer ${newAccess}`,
             },
           });
         }
 
-        console.log("PUT Response status:", response.status);
-
-        // Handle bad API responses
         if (!response.ok) {
           const errorText = await response.text();
           let errorData = null;
@@ -320,50 +358,72 @@ const ManageAboutUs = () => {
           } catch (e) {
             /* not JSON */
           }
-          console.error("Server error response:", errorData || errorText);
           throw new Error(
-            (errorData && errorData.message) ||
-              "Failed to update about us content"
+            (errorData && errorData.message) || "Failed to update carousel item with image"
           );
         }
 
-        // SUCCESS PATH
         const result = await response.json();
-        console.log("PUT Success response:", result);
+        console.log("PUT Success response with image:", result);
 
         if (result.success) {
-          setMessage("About Us content updated successfully!");
+          setMessage("Carousel item updated successfully with new image!");
           setVariant("success");
           setShowAlert(true);
           setIsEditing(false);
-
-          // Update existing image if a new one was uploaded
-          if (formData.image) {
-            const updatedImage =
-              result && result.data
-                ? Array.isArray(result.data)
-                  ? result.data[0] && result.data[0].image
-                  : result.data.image
-                : null;
-            if (updatedImage) {
-              setExistingImage(updatedImage);
-            }
+          
+          // Update the image in the form data
+          if (result.data && result.data.image) {
+            const imageUrl = `https://mahadevaaya.com/ngoproject/ngoproject_backend${result.data.image}`;
+            setCarouselFormData(prev => ({
+              ...prev,
+              image: imageUrl,
+              imageFile: null // Reset the file after successful upload
+            }));
+          }
+          
+          // Clean up the preview URL
+          if (imagePreview) {
+            URL.revokeObjectURL(imagePreview);
             setImagePreview(null);
-            // Clear selected file so subsequent saves without a new file use JSON path
-            setFormData((prev) => ({ ...prev, image: null }));
           }
 
-          // Hide success alert after 3 seconds
+          // Update the carousel item in the list
+          if (result.data) {
+            let updatedCarouselItem;
+            if (Array.isArray(result.data)) {
+              updatedCarouselItem = result.data.find(item => item.id === carouselFormData.id);
+            } else {
+              updatedCarouselItem = result.data;
+            }
+            
+            if (updatedCarouselItem) {
+              setCarouselItems(prevItems => 
+                prevItems.map(item => 
+                  item.id === carouselFormData.id ? updatedCarouselItem : item
+                )
+              );
+            }
+          }
+
           setTimeout(() => setShowAlert(false), 3000);
         } else {
-          throw new Error(
-            result.message || "Failed to update about us content"
-          );
+          throw new Error(result.message || "Failed to update carousel item");
         }
       } else {
-        // For updates without a new image, use JSON
+        // No new image, use regular JSON submission
+        const payload = {
+          id: carouselFormData.id,
+          title: carouselFormData.title,
+          description: carouselFormData.description,
+          module: carouselFormData.module
+        };
+
+        console.log("Submitting data for carousel ID:", carouselFormData.id);
+        console.log("Payload:", payload);
+
         const response = await authFetch(
-          "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/carousel1-item/",
+          `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/aboutus-item/`,
           {
             method: "PUT",
             body: JSON.stringify(payload),
@@ -372,58 +432,116 @@ const ManageAboutUs = () => {
 
         console.log("PUT Response status:", response.status);
 
-        // Handle bad API responses
         if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Server error response:", errorData);
+          // Handle specific error messages from the backend
+          const errorData = await response.json().catch(() => ({}));
           throw new Error(
-            errorData.message || "Failed to update about us content"
+            errorData.message || errorData.detail || "Failed to update carousel item"
           );
         }
 
-        // SUCCESS PATH
         const result = await response.json();
         console.log("PUT Success response:", result);
 
-        if (result.success) {
-          setMessage("About Us content updated successfully!");
+        // Handle both array and object responses
+        if (Array.isArray(result) || result.success) {
+          setMessage("Carousel item updated successfully!");
           setVariant("success");
           setShowAlert(true);
           setIsEditing(false);
 
-          // Hide success alert after 3 seconds
+          // Update the carousel item in the list
+          if (result.data) {
+            let updatedCarouselItem;
+            if (Array.isArray(result.data)) {
+              updatedCarouselItem = result.data.find(item => item.id === carouselFormData.id);
+            } else {
+              updatedCarouselItem = result.data;
+            }
+            
+            if (updatedCarouselItem) {
+              setCarouselItems(prevItems => 
+                prevItems.map(item => 
+                  item.id === carouselFormData.id ? updatedCarouselItem : item
+                )
+              );
+            }
+          }
+
           setTimeout(() => setShowAlert(false), 3000);
         } else {
           throw new Error(
-            result.message || "Failed to update about us content"
+            result.message || "Failed to update carousel item"
           );
         }
       }
     } catch (error) {
-      // FAILURE PATH
-      console.error("Error updating about us content:", error);
-      let errorMessage = "An unexpected error occurred. Please try again.";
-
-      if (
-        error instanceof TypeError &&
-        error.message.includes("Failed to fetch")
-      ) {
-        errorMessage =
-          "Network error: Could not connect to the server. Please check the API endpoint.";
-      } else if (error.message) {
-        errorMessage = error.message;
+      console.error("Error updating carousel item:", error);
+      
+      // Handle specific error cases
+      if (error.message.includes('403') || error.message.includes('permission')) {
+        setMessage("Permission denied. You may not have the required role to access this feature.");
+      } else if (error.message.includes('authenticated') || error.message.includes('Session expired')) {
+        setMessage("Authentication error. Please login again.");
+        // Redirect to login
+        setTimeout(() => {
+          navigate('/Login');
+        }, 2000);
+      } else {
+        setMessage(error.message || "Failed to update carousel item");
       }
-
-      setMessage(errorMessage);
+      
       setVariant("danger");
       setShowAlert(true);
-
-      // Hide error alert after 5 seconds
       setTimeout(() => setShowAlert(false), 5000);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Open image modal
+  const openImageModal = (imageSrc) => {
+    setSelectedImage(imageSrc);
+    setShowImageModal(true);
+  };
+
+  // Close image modal
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setSelectedImage(null);
+  };
+
+  // Show loading spinner while auth is loading
+  if (authLoading) {
+    return (
+      <div className="dashboard-container">
+        <div className="main-content-dash d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, show message and redirect
+  if (!isAuthenticated) {
+    return (
+      <div className="dashboard-container">
+        <div className="main-content-dash d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+          <div className="text-center">
+            <Alert variant="warning">
+              <Alert.Heading>Authentication Required</Alert.Heading>
+              <p>You need to be logged in to view this page.</p>
+              <Button variant="primary" onClick={() => navigate("/Login")}>
+                Go to Login
+              </Button>
+            </Alert>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -437,7 +555,7 @@ const ManageAboutUs = () => {
         />
 
         {/* Main Content */}
-        <div className="main-content">
+        <div className="main-content-dash">
           <DashBoardHeader toggleSidebar={toggleSidebar} />
 
           <Container fluid className="dashboard-body dashboard-main-container">
@@ -460,218 +578,236 @@ const ManageAboutUs = () => {
                 <div className="spinner-border text-primary" role="status">
                   <span className="visually-hidden">Loading...</span>
                 </div>
-                <p className="mt-2">Loading About Us content...</p>
+                <p className="mt-2">Loading Content Items...</p>
               </div>
             ) : (
               <>
-                <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Title</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter title"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleChange}
-                      required
-                      disabled={!isEditing}
-                    />
-                  </Form.Group>
-
-                  {/* Added Sub Title Field */}
-                  <Form.Group className="mb-3">
-                    <Form.Label>Sub Title</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter sub title"
-                      name="sub_title"
-                      value={formData.sub_title}
-                      onChange={handleChange}
-                      disabled={!isEditing}
-                    />
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>
-                      Description (must be more than 10 words)
-                    </Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={4}
-                      placeholder="Enter description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      required
-                      isInvalid={!!descriptionError}
-                      disabled={!isEditing}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {descriptionError}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Image</Form.Label>
-                    {isEditing ? (
-                      <>
-                        <Form.Control
-                          type="file"
-                          name="image"
-                          onChange={handleChange}
-                          accept="image/*"
-                        />
-                        {imagePreview ? (
-                          <div className="mt-3">
-                            <p>New Image Preview:</p>
-                            <img
-                              src={imagePreview}
-                              alt="Image Preview"
-                              className="img-wrapper"
-                            />
-                          </div>
+                {!selectedCarouselId ? (
+                  // Content List View
+                  <>
+                    <Row className="mb-4">
+                      <Col>
+                        {carouselItems.length === 0 ? (
+                          <Alert variant="info">
+                            No content items found.
+                          </Alert>
                         ) : (
-                          existingImage && (
-                            <div className="mt-3">
-                              <p>Current Image:</p>
-                              <img
-                                src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
-                                alt="Current About Us"
-                                className="img-wrapper"
-                              />
-                            </div>
-                          )
+                          <Row>
+                            {carouselItems.map((item) => (
+                              <Col md={6} lg={4} className="mb-4" key={item.id}>
+                                <Card 
+                                  className="h-100 content-card profile-card" 
+                                  onClick={() => handleCarouselClick(item.id)}
+                                >
+                                  <Card.Body>
+                                    <div className="d-flex flex-column">
+                                      <Card.Title as="h5" className="mb-3">
+                                        {item.title}
+                                      </Card.Title>
+                                      <Card.Text className="text-muted mb-2">
+                                        <strong>Description:</strong> {item.description}
+                                      </Card.Text>
+                                      {item.module && (
+                                        <Card.Text className="text-muted mb-2">
+                                          <strong>Module Items:</strong> {item.module.length}
+                                        </Card.Text>
+                                      )}
+                                      {item.image && (
+                                        <div className="mt-2">
+                                          <img 
+                                            src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${item.image}`} 
+                                            alt={item.title} 
+                                            className="img-thumbnail content-thumbnail"
+                                            style={{ maxHeight: '100px', cursor: 'pointer' }}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              openImageModal(`https://mahadevaaya.com/ngoproject/ngoproject_backend${item.image}`);
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="d-flex justify-content-end mt-auto">
+                                      <Button variant="outline-primary" size="sm">
+                                        <FaEdit /> Edit
+                                      </Button>
+                                    </div>
+                                  </Card.Body>
+                                </Card>
+                              </Col>
+                            ))}
+                          </Row>
                         )}
-                      </>
-                    ) : (
-                      existingImage && (
-                        <div className="mt-3">
-                          <img
-                            src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
-                            alt="Current About Us"
-                            className="img-wrapper"
-                          />
-                        </div>
-                      )
-                    )}
-                  </Form.Group>
+                      </Col>
+                    </Row>
+                  </>
+                ) : (
+                  // Content Edit View
+                  <>
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                      <Button variant="outline-secondary" onClick={backToCarouselList}>
+                        <FaArrowLeft /> Back to Content List
+                      </Button>
+                    </div>
 
-                  {/* Modules Section */}
-                  <Form.Group className="mb-3">
-                    <Form.Label>Modules</Form.Label>
+                    <Form onSubmit={handleCarouselSubmit}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Enter title"
+                          name="title"
+                          value={carouselFormData.title}
+                          onChange={handleCarouselChange}
+                          required
+                          disabled={!isEditing}
+                        />
+                      </Form.Group>
 
-                    <div className="modules-container">
-                      {formData.modules.map((module, index) => (
-                        <div
-                          key={index}
-                          className="module-item mb-3 p-3 border rounded"
-                        >
-                          <div className="d-flex justify-content-between align-items-center mb-2">
-                            <h5>Module {index + 1}</h5>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          placeholder="Enter description"
+                          name="description"
+                          value={carouselFormData.description}
+                          onChange={handleCarouselChange}
+                          required
+                          disabled={!isEditing}
+                        />
+                      </Form.Group>
 
-                            {isEditing && formData.modules.length > 1 && (
-                              <Button
-                                variant="outline-danger"
-                                size="sm"
-                                onClick={() => removeModule(index)}
-                              >
-                                <FaTrash /> Remove
-                              </Button>
-                            )}
+                      <Form.Group className="mb-3">
+                        <Form.Label>Image</Form.Label>
+                        {/* Show current image or preview */}
+                        {(carouselFormData.image || imagePreview) && (
+                          <div className="mb-2">
+                            <img 
+                              src={imagePreview || carouselFormData.image} 
+                              alt="Current" 
+                              className="img-thumbnail"
+                              style={{ maxHeight: '150px', cursor: 'pointer' }}
+                              onClick={() => openImageModal(imagePreview || carouselFormData.image)}
+                            />
                           </div>
+                        )}
+                        {isEditing && (
+                          <Form.Control
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                          />
+                        )}
+                      </Form.Group>
 
-                          {/* Module Content */}
-                          <Form.Group className="mb-2">
-                            <Form.Label>Module Content</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder={`Enter module ${index + 1} title`}
-                              value={module.content || ""}
-                              onChange={(e) =>
-                                handleModuleChange(
-                                  index,
-                                  "content",
-                                  e.target.value
-                                )
-                              }
-                              required
-                              disabled={!isEditing}
-                            />
-                          </Form.Group>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Module Items</Form.Label>
+                        {carouselFormData.module.map((moduleItem, index) => (
+                          <div key={index} className="mb-3 p-3 border rounded">
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                              <h6>Module Item {index + 1}</h6>
+                              {isEditing && carouselFormData.module.length > 1 && (
+                                <Button 
+                                  variant="danger" 
+                                  size="sm" 
+                                  onClick={() => removeModuleItem(index)}
+                                >
+                                  <FaTrash />
+                                </Button>
+                              )}
+                            </div>
+                            <Row>
+                              <Col md={6} className="mb-2">
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Module title"
+                                  value={moduleItem[0]}
+                                  onChange={(e) => handleModuleChange(index, 'title', e.target.value)}
+                                  disabled={!isEditing}
+                                />
+                              </Col>
+                              <Col md={6} className="mb-2">
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Module description"
+                                  value={moduleItem[1]}
+                                  onChange={(e) => handleModuleChange(index, 'description', e.target.value)}
+                                  disabled={!isEditing}
+                                />
+                              </Col>
+                            </Row>
+                          </div>
+                        ))}
+                        {isEditing && (
+                          <Button 
+                            variant="outline-secondary" 
+                            className="mt-2" 
+                            onClick={addModuleItem}
+                          >
+                            <FaPlus /> Add Module Item
+                          </Button>
+                        )}
+                      </Form.Group>
+                    </Form>
 
-                          {/* Module Description */}
-                          <Form.Group className="mb-2">
-                            <Form.Label>Module Description</Form.Label>
-                            <Form.Control
-                              as="textarea"
-                              rows={3}
-                              placeholder={`Enter module ${
-                                index + 1
-                              } description`}
-                              value={module.description || ""}
-                              onChange={(e) =>
-                                handleModuleChange(
-                                  index,
-                                  "description",
-                                  e.target.value
-                                )
-                              }
-                              required
-                              disabled={!isEditing}
-                            />
-                          </Form.Group>
-                        </div>
-                      ))}
-
-                      {isEditing && (
+                    <div className="d-flex gap-2 mt-3">
+                      {isEditing ? (
+                        <>
+                          <Button
+                            variant="primary"
+                            type="submit"
+                            disabled={isSubmitting}
+                            onClick={handleCarouselSubmit}
+                          >
+                            {isSubmitting ? "Saving..." : "Save Changes"}
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={resetCarouselForm}
+                            type="button"
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
                         <Button
-                          variant="outline-primary"
-                          onClick={addModule}
-                          className="mt-2"
+                          variant="primary"
+                          onClick={enableEditing}
+                          type="button"
                         >
-                          <FaPlus /> Add Another Module
+                          Edit Content Item
                         </Button>
                       )}
                     </div>
-                  </Form.Group>
-
-                  {/* Buttons are now outside the form */}
-                </Form>
-
-                <div className="d-flex gap-2 mt-3">
-                  {isEditing ? (
-                    <>
-                      <Button
-                        variant="primary"
-                        type="submit"
-                        disabled={isSubmitting}
-                        onClick={handleSubmit}
-                      >
-                        {isSubmitting ? "Saving..." : "Save Changes"}
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={resetForm}
-                        type="button"
-                      >
-                        Cancel
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="primary"
-                      onClick={enableEditing}
-                      type="button"
-                    >
-                      Edit About Us
-                    </Button>
-                  )}
-                </div>
+                  </>
+                )}
               </>
             )}
           </Container>
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      <Modal show={showImageModal} onHide={closeImageModal} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Image Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          {selectedImage && (
+            <img 
+              src={selectedImage} 
+              alt="Preview" 
+              className="img-fluid"
+            />
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeImageModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

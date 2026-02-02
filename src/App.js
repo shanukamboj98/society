@@ -44,6 +44,7 @@ import AddDistrictActivity from "./componets/district_login/district_activity/Ad
 import ManageDistrictActivity from "./componets/district_login/district_activity/ManageDistrictActivity";
 import ManageAboutUs from "./componets/event_panel/dashboard_pages/ManageAboutUs";
 import UserProfile from "./componets/user_dashboard/Profile/UserProfile";
+import ManageCarousel from "./componets/event_panel/dashboard_pages/ManageCarousel";
 
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
     "/ManageDistrictActivity",
     "/ManageAboutUs",
     "/UserProfile",
+    "/ManageCarousel"
   ]);
 
   const shouldHideNavbar = hiddenPaths.has(location.pathname);
@@ -186,6 +188,12 @@ function App() {
               <UserProfile />
             </ProtectedRoute>
           } />
+           <Route path="/ManageCarousel" element={
+            <ProtectedRoute>
+              < ManageCarousel />
+            </ProtectedRoute>
+          } />
+         
         </Routes>
       </main>
       {/* {!shouldHideFooter1 && <Footer />} */}

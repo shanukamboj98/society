@@ -1,77 +1,109 @@
 // src/components/HeroCarousel.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
-import Showcase from "../../assets/images/education/showcase-6.webp";
-import Slide2Image from "../../assets/images/education/activities-1.webp"; 
-import Slide3Image from "../../assets/images/education/events-1.webp";
-
+import { Spinner, Alert } from 'react-bootstrap';
 import "../../assets/css/mainstyle.css";
 
-// --- Define the content for each of your 3 slides ---
-const carouselSlides = [
-  {
-    title: "Inspiring Excellence Through Education",
-    subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eget lacus id tortor facilisis tincidunt.",
-    image: Showcase,
-    stats: [
-      { value: "Michael Rodriguez", label: "Director of Innovation Strategy" },
-      { value: "Date & Time", label: "Day 1 - March 15 9:00 AM" },
-      { value: "Venue", label: "125 Innovation Boulevard, Chicago" }
-    ],
-    features: [
-      { icon: "bi-book-fill", title: "Innovative Curriculum", content: "Lorem ipsum dolor sit amet." },
-      { icon: "bi-laptop-fill", title: "Modern Facilities", content: "Donec gravida risus at sollicitudin.", active: true },
-      { icon: "bi-people-fill", title: "Expert Faculty", content: "Vestibulum ante ipsum primis." }
-    ],
-    event: { day: "15", month: "NOV", title: "Spring Semester Open House", description: "Join us to explore campus." }
-  },
-  {
-    title: "A New Era of Learning",
-    subtitle: "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.",
-    image: Slide2Image,
-    stats: [
-      { value: "Dr. Emily Carter", label: "Head of Research" },
-      { value: "Date & Time", label: "Day 2 - March 16 2:00 PM" },
-      { value: "Venue", label: "300 Tech Avenue, Austin, TX" }
-    ],
-    features: [
-      { icon: "bi-cpu-fill", title: "AI-Driven Programs", content: "Exploring the future of tech." },
-      { icon: "bi-globe-americas", title: "Global Partnerships", content: "Connecting with institutions worldwide.", active: true },
-      { icon: "bi-award-fill", title: "Scholarship Opportunities", content: "Making education accessible." }
-    ],
-    event: { day: "22", month: "NOV", title: "Tech Innovation Fair", description: "See student projects and startups." }
-  },
-  {
-    title: "Global Community, Local Impact",
-    subtitle: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
-    image: Slide3Image,
-    stats: [
-      { value: "Prof. David Lee", label: "Dean of Students" },
-      { value: "Date & Time", label: "Day 3 - March 17 10:00 AM" },
-      { value: "Venue", label: "500 Campus Drive, Boston, MA" }
-    ],
-    features: [
-      { icon: "bi-heart-fill", title: "Student Wellness", content: "Supporting mental and physical health." },
-      { icon: "bi-palette-fill", title: "Arts & Culture", content: "A vibrant campus arts scene.", active: true },
-      { icon: "bi-trophy-fill", title: "Championship Athletics", content: "Go team name! " }
-    ],
-    event: { day: "05", month: "DEC", title: "Annual Alumni Gala", description: "Celebrate our alumni achievements." }
-  }
+// Default values for fields not provided by the API
+const defaultStats = [
+  { value: "Expert Speaker", label: "Industry Professional" },
+  { value: "Date & Time", label: "Upcoming Event" },
+  { value: "Venue", label: "Event Location" }
 ];
+
+const defaultFeatures = [
+  { icon: "bi-book-fill", title: "Quality Content", content: "Learn from the best." },
+  { icon: "bi-laptop-fill", title: "Modern Resources", content: "Access to latest materials.", active: true },
+  { icon: "bi-people-fill", title: "Community", content: "Connect with others." }
+];
+
+const defaultEvent = { 
+  day: "15", 
+  month: "NOV", 
+  title: "Upcoming Event", 
+  description: "Join us for this exciting event." 
+};
 
 function EventCarousel() {
   const [index, setIndex] = useState(0);
-  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [carouselSlides, setCarouselSlides] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch carousel data from API
+  useEffect(() => {
+    const fetchCarouselData = async () => {
+      try {
+        const response = await fetch('https://mahadevaaya.com/ngoproject/ngoproject_backend/api/carousel1-item/');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          // Transform API data to match component structure
+          const transformedSlides = data.data.map(item => ({
+            id: item.id,
+            title: item.title,
+            subtitle: item.sub_title,
+            image: `https://mahadevaaya.com/ngoproject/ngoproject_backend${item.image}`,
+            stats: defaultStats,
+            features: defaultFeatures,
+            event: defaultEvent
+          }));
+          
+          setCarouselSlides(transformedSlides);
+        } else {
+          throw new Error('Invalid data format received from API');
+        }
+      } catch (err) {
+        console.error("Error fetching carousel data:", err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCarouselData();
+  }, []);
 
   const handleSelect = (selectedIndex) => {
     setIndex(selectedIndex);
   };
 
-  const openRegistrationModal = (e) => {
-    e.preventDefault();
-    setShowRegistrationModal(true);
-  };
+  // Show loading spinner while fetching data
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  // Show error message if API call fails
+  if (error) {
+    return (
+      <Alert variant="danger">
+        <Alert.Heading>Error Loading Content</Alert.Heading>
+        <p>{error}</p>
+      </Alert>
+    );
+  }
+
+  // Show message if no slides are available
+  if (carouselSlides.length === 0) {
+    return (
+      <Alert variant="info">
+        <Alert.Heading>No Content Available</Alert.Heading>
+        <p>No carousel slides are currently available.</p>
+      </Alert>
+    );
+  }
 
   return (
     <>
@@ -80,7 +112,7 @@ function EventCarousel() {
         
         {/* We map over our data array to create a slide for each item */}
         {carouselSlides.map((slide, slideIndex) => (
-          <Carousel.Item key={slideIndex}>
+          <Carousel.Item key={slide.id || slideIndex}>
             {/* Inside each Carousel.Item, we place your hero section structure */}
             <section id="hero" className="hero section hero-area-bg">
               <div className="overlay"></div>
@@ -158,8 +190,6 @@ function EventCarousel() {
           </Carousel.Item>
         ))}
       </Carousel>
-
-    
     </>
   );
 }

@@ -91,7 +91,12 @@ const menuItems = [
       path: "/ManageAboutUs",
       active: true,
     },
-
+{
+      icon: <FaTachometerAlt />,
+      label: "Manage Carousel ",
+      path: "/ManageCarousel",
+      active: true,
+    },
    {
   icon: <FaInfoCircle />,   // About Us main
   label: "Activity",
