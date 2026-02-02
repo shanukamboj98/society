@@ -56,9 +56,16 @@ const Organisation = () => {
       <section id="organisation" className="about section">
         <div className="container" data-aos="fade-up" data-aos-delay="100">
           <div className="row align-items-center g-5">
+            {/* Image Column (Left Side) */}
+            <div className="col-lg-6">
+              <div className="about-image" data-aos="zoom-in" data-aos-delay="300">
+                <img src={getImageUrl(organisationData?.image)} className="img-fluid" alt="Organisation Image" />
+              </div>
+            </div>
+
+            {/* Content Column (Right Side) */}
             <div className="col-lg-6">
               <div className="about-content" data-aos="fade-up" data-aos-delay="200">
-                <h3>Why Choose Us</h3>
                 <h2>{organisationData?.title || "Why Choose Us"}</h2>
                 <p>{organisationData?.description || "Description content..."}</p>
 
@@ -73,12 +80,6 @@ const Organisation = () => {
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-
-            <div className="col-lg-6">
-              <div className="about-image" data-aos="zoom-in" data-aos-delay="300">
-                <img src={getImageUrl(organisationData?.image)} className="img-fluid" alt="Organisation Image" />
               </div>
             </div>
           </div>

@@ -53,29 +53,20 @@ const Events = () => {
   return (
     <div>
       {/* Events Section (id=3) */}
-      <section id="events" className="events section">
+      <section id="events" className="about section">
         <div className="container" data-aos="fade-up" data-aos-delay="100">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="section-header text-center mb-5">
-                <h3>Events</h3>
-                <h2>{eventsData?.title || "Our Events"}</h2>
-              </div>
-            </div>
-          </div>
-          
           <div className="row align-items-center g-5">
             <div className="col-lg-6">
-              <div className="events-content" data-aos="fade-up" data-aos-delay="200">
+              <div className="about-content" data-aos="fade-up" data-aos-delay="200">
+            
+                <h2>{eventsData?.title || "Events"}</h2>
                 <p>{eventsData?.description || "Event description..."}</p>
 
-                <div className="event-list mt-4">
+                <div className="timeline">
                   {eventsData?.module && eventsData.module.map((item, index) => (
-                    <div className="event-item mb-4" key={index}>
-                      <div className="event-icon">
-                        <i className="bi bi-calendar-event"></i>
-                      </div>
-                      <div className="event-details">
+                    <div className="timeline-item" key={index}>
+                      <div className="timeline-dot"></div>
+                      <div className="timeline-content">
                         <h4>{item[0] || `Event ${index + 1}`}</h4>
                         <p>{item[1] || "Event description"}</p>
                       </div>
@@ -86,12 +77,13 @@ const Events = () => {
             </div>
 
             <div className="col-lg-6">
-              <div className="events-image" data-aos="zoom-in" data-aos-delay="300">
+              <div className="about-image" data-aos="zoom-in" data-aos-delay="300">
                 {eventsData?.image ? (
                   <img src={getImageUrl(eventsData.image)} className="img-fluid" alt="Events Image" />
                 ) : (
-                  <div className="no-image-placeholder">
+                  <div className="no-image-placeholder text-center p-5 bg-light rounded">
                     <i className="bi bi-calendar-event display-1 text-muted"></i>
+                    <p className="mt-3 text-muted">No Image Available</p>
                   </div>
                 )}
               </div>
