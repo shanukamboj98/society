@@ -102,9 +102,7 @@ const MembersList = () => {
                     onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
                     onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
-                    <Card.Header className="bg-secondary text-white text-center">
-                  
-                    </Card.Header>
+                   
                     <div className="text-center p-3">
                         <Image 
                             src={imageUrl} 
@@ -123,8 +121,8 @@ const MembersList = () => {
                           
                         </div>
                     </Card.Body>
-                    <Card.Footer className="text-muted">
-                        <small>Click to view details</small>
+                    <Card.Footer className="card-footer-view">
+                        <small className='click-view'>Click to view details</small>
                     </Card.Footer>
                 </Card>
             </Col>
@@ -149,10 +147,10 @@ const MembersList = () => {
                 </Button>
                 
                 <Card className="shadow">
-                    <Card.Header className="bg-secondary text-white d-flex justify-content-between align-items-center">
-                        <h4 className="mb-0">Member Details</h4>
+                    <div className="bg-secondary text-white d-flex justify-content-between align-items-center">
+                       
                       
-                    </Card.Header>
+                    </div>
                     
                     <Card.Body>
                         <Row>
@@ -204,7 +202,7 @@ const MembersList = () => {
     };
 
     return (
-          <div className="container border rounded-3 shadow-lg p-4 bg-white mt-2">
+          <div className="">
             <h1 className="text-center mb-4">Members List</h1>
             
             {error && (

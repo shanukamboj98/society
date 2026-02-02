@@ -225,9 +225,9 @@ const Login = () => {
                         type="text"
                         className="form-control"
                         id="adminId"
-                        value={adminId}
+                        value={adminId} 
                         onChange={(e) => setAdminId(e.target.value)}
-                        required
+                        required placeholder='admin@gmail.com' 
                         disabled={isLoading}
                       />
                     </div>
