@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form, Button, Alert, Card, Badge } from "react-bootstrap";
-import { FaEdit, FaSave, FaTimes, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBriefcase, FaBuilding, FaGraduationCap, FaInfoCircle } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import { Container, Row, Col, Form, Button, Alert, Card, Badge, Modal } from "react-bootstrap";
+import { FaEdit, FaSave, FaTimes, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBriefcase, FaBuilding, FaGraduationCap, FaInfoCircle, FaCamera } from "react-icons/fa";
 import UserHeader from '../UserHeader';
 import UserLeftNav from '../UserLeftNav';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +13,9 @@ const UserProfile = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
 
+  // View state - card view or form view
+  const [viewMode, setViewMode] = useState('card'); // 'card' or 'form'
+
   // Form state for user profile
   const [formData, setFormData] = useState({
     id: null,
@@ -20,7 +23,7 @@ const UserProfile = () => {
     full_name: "",
     email: "",
     phone: "",
-    image: null, // Changed from empty string to null
+    image: null,
     address: "",
     short_description: "",
     occupation: "",
@@ -53,6 +56,15 @@ const UserProfile = () => {
 
   // Store original data for reset
   const [originalFormData, setOriginalFormData] = useState(null);
+
+  // Photo editing modal state
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  // Ref for hidden file input
+  const fileInputRef = useRef(null);
 
   // Check device width
   useEffect(() => {
@@ -121,7 +133,7 @@ const UserProfile = () => {
         full_name: profileData.full_name || "",
         email: profileData.email || "",
         phone: profileData.phone || "",
-        image: null, // Reset to null for proper handling
+        image: null,
         address: profileData.address || "",
         short_description: profileData.short_description || "",
         occupation: profileData.occupation || "",
@@ -188,6 +200,97 @@ const UserProfile = () => {
     setIsEditing(false);
     setShowAlert(false);
     setImagePreview(null);
+    setViewMode('card'); // Return to card view
+  };
+
+  // Handle photo selection
+  const handlePhotoChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      setSelectedPhoto(file);
+      const previewUrl = URL.createObjectURL(file);
+      setPhotoPreview(previewUrl);
+    }
+  };
+
+  // Open photo modal
+  const openPhotoModal = () => {
+    setShowPhotoModal(true);
+    setSelectedPhoto(null);
+    setPhotoPreview(null);
+  };
+
+  // Close photo modal
+  const closePhotoModal = () => {
+    setShowPhotoModal(false);
+    setSelectedPhoto(null);
+    setPhotoPreview(null);
+  };
+
+  // Upload photo
+  const uploadPhoto = async () => {
+    if (!selectedPhoto) return;
+    
+    setIsUploadingPhoto(true);
+    try {
+      const dataToSend = new FormData();
+      if (formData.id) dataToSend.append('id', formData.id);
+      dataToSend.append('member_id', formData.member_id);
+      dataToSend.append('image', selectedPhoto, selectedPhoto.name);
+
+      const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?id=${formData.id}`;
+      console.log('PUT URL (Photo Update):', url);
+
+      let response = await fetch(url, {
+        method: 'PUT',
+        body: dataToSend,
+        headers: { Authorization: `Bearer ${auth?.access}` },
+      });
+
+      if (response.status === 401) {
+        const newAccess = await refreshAccessToken();
+        if (!newAccess) throw new Error('Session expired');
+        response = await fetch(url, {
+          method: 'PUT',
+          body: dataToSend,
+          headers: { Authorization: `Bearer ${newAccess}` },
+        });
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData = null;
+        try { 
+          errorData = JSON.parse(errorText); 
+        } catch (e) { 
+          /* not JSON */ 
+        }
+        throw new Error((errorData && (errorData.message || errorData.detail)) || 'Failed to update photo');
+      }
+
+      const result = await response.json();
+      console.log('Photo update response:', result);
+
+      // Update existing image
+      if (result.data && result.data.image) {
+        setExistingImage(result.data.image);
+        setPhotoPreview(null);
+        setMessage('Profile photo updated successfully!');
+        setVariant('success');
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 3000);
+      }
+
+      closePhotoModal();
+    } catch (error) {
+      console.error("Error updating photo:", error);
+      setMessage(error.message || "Failed to update photo");
+      setVariant("danger");
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 5000);
+    } finally {
+      setIsUploadingPhoto(false);
+    }
   };
 
   // Handle form submission (PUT to update profile)
@@ -202,8 +305,9 @@ const UserProfile = () => {
         throw new Error("Member ID and Full Name are required fields.");
       }
 
-      // Create payload excluding read-only fields (email, phone, status) for JSON submission
+      // Create payload including member_id for JSON submission
       const jsonPayload = {
+        member_id: formData.member_id, // Include member_id in JSON payload
         full_name: formData.full_name,
         address: formData.address,
         short_description: formData.short_description,
@@ -221,78 +325,29 @@ const UserProfile = () => {
       console.log("Submitting profile update for:", formData.member_id);
       console.log("JSON Payload:", jsonPayload);
 
-      const isFileImage = formData.image && typeof formData.image === 'object' && formData.image instanceof File;
+      const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?id=${formData.id}`;
+      console.log('PUT URL (JSON):', url);
+      
+      let response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth?.access}`,
+        },
+        body: JSON.stringify(jsonPayload),
+      });
 
-      let response;
-
-      if (isFileImage) {
-        // For FormData (when there's a new image), include member_id as it's required by the API
-        const dataToSend = new FormData();
-        if (formData.id) dataToSend.append('id', formData.id);
-        dataToSend.append('member_id', formData.member_id); // Include member_id for FormData
-        dataToSend.append('full_name', formData.full_name);
-        dataToSend.append('address', formData.address);
-        dataToSend.append('short_description', formData.short_description);
-        dataToSend.append('occupation', formData.occupation);
-        dataToSend.append('designation', formData.designation);
-        dataToSend.append('department_name', formData.department_name);
-        dataToSend.append('organization_name', formData.organization_name);
-        dataToSend.append('nature_of_work', formData.nature_of_work);
-        dataToSend.append('education_level', formData.education_level);
-        dataToSend.append('other_text', formData.other_text);
-        dataToSend.append('district', formData.district);
-        dataToSend.append('state', formData.state);
-        dataToSend.append('image', formData.image, formData.image.name);
-
-        console.log("FormData content:");
-        for (let pair of dataToSend.entries()) {
-          console.log(pair[0] + ": " + pair[1]);
-        }
-
-        const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?id=${formData.id}`;
-        console.log('PUT URL (FormData):', url);
-
-        response = await fetch(url, {
-          method: 'PUT',
-          body: dataToSend,
-          headers: { Authorization: `Bearer ${auth?.access}` },
-        });
-
-        if (response.status === 401) {
-          const newAccess = await refreshAccessToken();
-          if (!newAccess) throw new Error('Session expired');
-          response = await fetch(url, {
-            method: 'PUT',
-            body: dataToSend,
-            headers: { Authorization: `Bearer ${newAccess}` },
-          });
-        }
-      } else {
-        // For JSON submission (when there's no new image), exclude member_id
-        const url = `https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/?id=${formData.id}`;
-        console.log('PUT URL (JSON):', url);
-        
+      if (response.status === 401) {
+        const newAccess = await refreshAccessToken();
+        if (!newAccess) throw new Error('Session expired');
         response = await fetch(url, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${auth?.access}`,
+            Authorization: `Bearer ${newAccess}`,
           },
           body: JSON.stringify(jsonPayload),
         });
-
-        if (response.status === 401) {
-          const newAccess = await refreshAccessToken();
-          if (!newAccess) throw new Error('Session expired');
-          response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${newAccess}`,
-            },
-            body: JSON.stringify(jsonPayload),
-          });
-        }
       }
 
       console.log('Response status:', response.status);
@@ -335,13 +390,9 @@ const UserProfile = () => {
         image: null // Reset image to null
       });
 
-      // Update existing image if available
-      if (result.data && result.data.image) {
-        setExistingImage(result.data.image);
-        setImagePreview(null);
-        setFormData(prev => ({ ...prev, image: null }));
-      }
-
+      // Return to card view after successful update
+      setViewMode('card');
+      
       setTimeout(() => setShowAlert(false), 3000);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -366,27 +417,65 @@ const UserProfile = () => {
     }
   };
 
+  // Switch to form view
+  const switchToFormView = () => {
+    setViewMode('form');
+    setIsEditing(true);
+  };
+
   return (
     <>
       <style>
         {`
-          .profile-header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
+          .profile-card {
+            background: white;
             border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            height: 100%;
+          }
+          
+          .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
           }
           
           .profile-image-container {
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             overflow: hidden;
-            border: 4px solid white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 4px solid #f8f9fa;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+          
+          .profile-image-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+          }
+          
+          .profile-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+          }
+          
+          .profile-image-container:hover .profile-image-overlay {
+            opacity: 1;
           }
           
           .profile-image {
@@ -395,18 +484,13 @@ const UserProfile = () => {
             object-fit: cover;
           }
           
-          .profile-info h2 {
-            margin-bottom: 10px;
-            font-weight: 600;
-          }
-          
-          .profile-badge {
-            display: inline-block;
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
-            border-radius: 20px;
-            margin-right: 10px;
-            font-size: 0.9rem;
+          .profile-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           }
           
           .info-card {
@@ -443,6 +527,22 @@ const UserProfile = () => {
             font-weight: 600;
             color: #495057;
           }
+          
+          .profile-stat {
+            text-align: center;
+            padding: 15px;
+          }
+          
+          .profile-stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #495057;
+          }
+          
+          .profile-stat-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+          }
         `}
       </style>
       
@@ -460,18 +560,9 @@ const UserProfile = () => {
           <UserHeader toggleSidebar={toggleSidebar} />
 
           <Container fluid className="dashboard-body dashboard-main-container">
-            {/* Page Title with Edit Button - Same as Original */}
+            {/* Page Title */}
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h1 className="page-title mb-0">My Profile</h1>
-              {!isEditing && (
-                <Button 
-                  variant="primary" 
-                  onClick={enableEditing}
-                  disabled={isLoading}
-                >
-                  <FaEdit /> Edit Profile
-                </Button>
-              )}
             </div>
 
             {/* Alert for success/error messages */}
@@ -495,433 +586,563 @@ const UserProfile = () => {
               </div>
             ) : (
               <>
-                {/* Profile Header */}
-                <div className="profile-header">
-                  <Row className="align-items-center">
-                    <Col md={3} className="text-center text-md-start mb-3 mb-md-0">
-                      <div className="profile-image-container mx-auto mx-md-0">
-                        {imagePreview ? (
-                          <img
-                            src={imagePreview}
-                            alt="Profile Preview"
-                            className="profile-image"
-                          />
-                        ) : existingImage ? (
-                          <img
-                            src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
-                            alt="Profile"
-                            className="profile-image"
-                          />
-                        ) : (
-                          <div className="profile-image d-flex align-items-center justify-content-center bg-white text-primary">
-                            <FaUser size={60} />
+                {viewMode === 'card' ? (
+                  // Card View
+                  <Card className="profile-card" onClick={switchToFormView}>
+                    <Card.Body>
+                      <Row className="align-items-center">
+                        <Col md={3} className="text-center mb-4 mb-md-0">
+                          <div 
+                            className="profile-image-container mx-auto"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent card click
+                              openPhotoModal();
+                            }}
+                          >
+                            {existingImage ? (
+                              <img
+                                src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                                alt="Profile"
+                                className="profile-image"
+                              />
+                            ) : (
+                              <div className="profile-image d-flex align-items-center justify-content-center bg-light text-primary">
+                                <FaUser size={60} />
+                              </div>
+                            )}
+                            <div className="profile-image-overlay">
+                              <FaCamera size={24} color="white" />
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    </Col>
-                    <Col md={9}>
-                      <div className="profile-info">
-                        <h2>{formData.full_name || "Your Name"}</h2>
-                        <div className="mb-3">
-                          <span className="profile-badge">
-                            <FaEnvelope /> {formData.email}
-                          </span>
-                          <span className="profile-badge">
-                            <FaPhone /> {formData.phone || "Not provided"}
-                          </span>
-                        </div>
-                        <p className="mb-0">{formData.short_description || "No description provided"}</p>
-                        {formData.status && (
-                          <div className="mt-2">
-                            <Badge bg="light" text="dark">
-                              Status: {formData.status}
+                          <small className="text-muted d-block mt-2">Click to change photo</small>
+                        </Col>
+                        <Col md={9}>
+                          <h2 className="mb-3">{formData.full_name || "Your Name"}</h2>
+                          <div className="mb-3">
+                            <Badge bg="primary" className="me-2">
+                              <FaEnvelope /> {formData.email}
                             </Badge>
+                            <Badge bg="primary" className="me-2">
+                              <FaPhone /> {formData.phone || "Not provided"}
+                            </Badge>
+                            {formData.status && (
+                              <Badge bg="success">
+                                <FaInfoCircle /> {formData.status}
+                              </Badge>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-
-                <Form onSubmit={handleSubmit}>
-                  {/* Personal Information Section */}
-                  <Card className="info-card">
-                    <Card.Header>
-                      <FaUser className="info-icon" />
-                      Personal Information
-                    </Card.Header>
-                    <Card.Body>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Member ID</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="member_id"
-                              value={formData.member_id}
-                              onChange={handleChange}
-                              disabled={true}
-                              className="form-control-plaintext"
-                            />
-                            <Form.Text className="text-muted">
-                              Your unique member identifier (cannot be changed)
-                            </Form.Text>
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Full Name *</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="full_name"
-                              value={formData.full_name}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              required
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                              type="email"
-                              name="email"
-                              value={formData.email}
-                              onChange={handleChange}
-                              disabled={true}
-                            />
-                            <Form.Text className="text-muted">
-                              Your email address (cannot be changed)
-                            </Form.Text>
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Phone</Form.Label>
-                            <Form.Control
-                              type="tel"
-                              name="phone"
-                              value={formData.phone}
-                              onChange={handleChange}
-                              disabled={true}
-                            />
-                            <Form.Text className="text-muted">
-                              Your phone number (cannot be changed)
-                            </Form.Text>
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={12}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Address</Form.Label>
-                            <Form.Control
-                              as="textarea"
-                              rows={3}
-                              name="address"
-                              value={formData.address}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>District</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="district"
-                              value={formData.district}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="e.g., dehradun"
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>State</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="state"
-                              value={formData.state}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="e.g., Uttarakhand"
-                            />
-                          </Form.Group>
+                          <p className="mb-3">{formData.short_description || "No description provided"}</p>
+                          
+                          <Row className="profile-stats">
+                            <Col xs={4}>
+                              <div className="profile-stat">
+                                <div className="profile-stat-value">
+                                  {formData.occupation || "N/A"}
+                                </div>
+                                <div className="profile-stat-label">Occupation</div>
+                              </div>
+                            </Col>
+                            <Col xs={4}>
+                              <div className="profile-stat">
+                                <div className="profile-stat-value">
+                                  {formData.organization_name || "N/A"}
+                                </div>
+                                <div className="profile-stat-label">Organization</div>
+                              </div>
+                            </Col>
+                            <Col xs={4}>
+                              <div className="profile-stat">
+                                <div className="profile-stat-value">
+                                  {formData.education_level || "N/A"}
+                                </div>
+                                <div className="profile-stat-label">Education</div>
+                              </div>
+                            </Col>
+                          </Row>
+                          
+                          <div className="mt-3">
+                            <Button variant="outline-primary" size="sm">
+                              <FaEdit /> View Full Profile
+                            </Button>
+                          </div>
                         </Col>
                       </Row>
                     </Card.Body>
                   </Card>
-
-                  {/* Professional Information Section */}
-                  <Card className="info-card">
-                    <Card.Header>
-                      <FaBriefcase className="info-icon" />
-                      Professional Information
-                    </Card.Header>
-                    <Card.Body>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Occupation</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="occupation"
-                              value={formData.occupation}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="e.g., Software Developer, Student"
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Designation</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="designation"
-                              value={formData.designation}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="e.g., React Developer, Manager"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Department Name</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="department_name"
-                              value={formData.department_name}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="e.g., Engineering, HR"
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Organization Name</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="organization_name"
-                              value={formData.organization_name}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="e.g., Brainrocks Consulting Services"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={12}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Nature of Work</Form.Label>
-                            <Form.Control
-                              as="textarea"
-                              rows={2}
-                              name="nature_of_work"
-                              value={formData.nature_of_work}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="Describe your nature of work"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </Card>
-
-                  {/* Education & Additional Information Section */}
-                  <Card className="info-card">
-                    <Card.Header>
-                      <FaGraduationCap className="info-icon" />
-                      Education & Additional Information
-                    </Card.Header>
-                    <Card.Body>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Education Level</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="education_level"
-                              value={formData.education_level}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="e.g., MCA, B.Tech, Other"
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Short Description</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="short_description"
-                              value={formData.short_description}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="Brief description about yourself"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={12}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Additional Notes</Form.Label>
-                            <Form.Control
-                              as="textarea"
-                              rows={2}
-                              name="other_text"
-                              value={formData.other_text}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              placeholder="Any additional information"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </Card>
-
-                  {/* Profile Image Section (only in edit mode) */}
-                  {isEditing && (
-                    <Card className="info-card">
-                      <Card.Header>
-                        <FaUser className="info-icon" />
-                        Profile Image
-                      </Card.Header>
-                      <Card.Body>
-                        <Form.Group className="mb-3">
-                          <Form.Control
-                            type="file"
-                            name="image"
-                            onChange={handleChange}
-                            accept="image/*"
-                          />
-                          {imagePreview && (
-                            <div className="mt-3">
-                              <p>New Image Preview:</p>
+                ) : (
+                  // Form View
+                  <>
+                    {/* Profile Header */}
+                    <div className="profile-header">
+                      <Row className="align-items-center">
+                        <Col md={3} className="text-center text-md-start mb-3 mb-md-0">
+                          <div 
+                            className="profile-image-container mx-auto mx-md-0"
+                            onClick={openPhotoModal}
+                          >
+                            {imagePreview ? (
                               <img
                                 src={imagePreview}
-                                alt="Image Preview"
-                                style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                alt="Profile Preview"
+                                className="profile-image"
                               />
+                            ) : existingImage ? (
+                              <img
+                                src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                                alt="Profile"
+                                className="profile-image"
+                              />
+                            ) : (
+                              <div className="profile-image d-flex align-items-center justify-content-center bg-white text-primary">
+                                <FaUser size={60} />
+                              </div>
+                            )}
+                            <div className="profile-image-overlay">
+                              <FaCamera size={24} color="white" />
                             </div>
-                          )}
-                        </Form.Group>
-                      </Card.Body>
-                    </Card>
-                  )}
-
-                  {/* Account Information Section */}
-                  <Card className="info-card">
-                    <Card.Header>
-                      <FaInfoCircle className="info-icon" />
-                      Account Information
-                    </Card.Header>
-                    <Card.Body>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Status</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="status"
-                              value={formData.status}
-                              onChange={handleChange}
-                              disabled={true}
-                              className="form-control-plaintext"
-                            />
-                            <Form.Text className="text-muted">
-                              Your account status (cannot be changed)
-                            </Form.Text>
-                          </Form.Group>
+                          </div>
+                          <small className="text-white d-block mt-2">Click to change photo</small>
                         </Col>
-                        {formData.created_at && (
-                          <Col md={6}>
-                            <Form.Group className="mb-3">
-                              <Form.Label>Created At</Form.Label>
-                              <Form.Control
-                                type="text"
-                                value={formData.created_at}
-                                disabled={true}
-                                className="form-control-plaintext"
-                              />
-                            </Form.Group>
-                          </Col>
-                        )}
+                        <Col md={9}>
+                          <div className="profile-info">
+                            <h2>{formData.full_name || "Your Name"}</h2>
+                            <div className="mb-3">
+                              <span className="profile-badge">
+                                <FaEnvelope /> {formData.email}
+                              </span>
+                              <span className="profile-badge">
+                                <FaPhone /> {formData.phone || "Not provided"}
+                              </span>
+                            </div>
+                            <p className="mb-0">{formData.short_description || "No description provided"}</p>
+                            {formData.status && (
+                              <div className="mt-2">
+                                <Badge bg="light" text="dark">
+                                  Status: {formData.status}
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                        </Col>
                       </Row>
-                      {formData.updated_at && (
-                        <Row>
-                          <Col md={6}>
-                            <Form.Group className="mb-3">
-                              <Form.Label>Last Updated</Form.Label>
-                              <Form.Control
-                                type="text"
-                                value={formData.updated_at}
-                                disabled={true}
-                                className="form-control-plaintext"
-                              />
-                            </Form.Group>
-                          </Col>
-                        </Row>
-                      )}
-                    </Card.Body>
-                  </Card>
+                    </div>
 
-                  {/* Action Buttons */}
-                  {isEditing && (
-                    <Row className="mt-4">
-                      <Col className="d-flex gap-2 justify-content-end">
-                        <Button
-                          variant="secondary"
-                          onClick={cancelEditing}
-                          disabled={isSubmitting}
-                        >
-                          <FaTimes /> Cancel
-                        </Button>
-                        <Button
-                          variant="primary"
-                          type="submit"
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <span
-                                className="spinner-border spinner-border-sm me-2"
-                                role="status"
-                                aria-hidden="true"
-                              ></span>
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <FaSave /> Save Changes
-                            </>
+                    <Form onSubmit={handleSubmit}>
+                      {/* Personal Information Section */}
+                      <Card className="info-card">
+                        <Card.Header>
+                          <FaUser className="info-icon" />
+                          Personal Information
+                        </Card.Header>
+                        <Card.Body>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Member ID</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="member_id"
+                                  value={formData.member_id}
+                                  onChange={handleChange}
+                                  disabled={true}
+                                  className="form-control-plaintext"
+                                />
+                                <Form.Text className="text-muted">
+                                  Your unique member identifier (cannot be changed)
+                                </Form.Text>
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Full Name *</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="full_name"
+                                  value={formData.full_name}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  required
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                  type="email"
+                                  name="email"
+                                  value={formData.email}
+                                  onChange={handleChange}
+                                  disabled={true}
+                                />
+                                <Form.Text className="text-muted">
+                                  Your email address (cannot be changed)
+                                </Form.Text>
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Phone</Form.Label>
+                                <Form.Control
+                                  type="tel"
+                                  name="phone"
+                                  value={formData.phone}
+                                  onChange={handleChange}
+                                  disabled={true}
+                                />
+                                <Form.Text className="text-muted">
+                                  Your phone number (cannot be changed)
+                                </Form.Text>
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col md={12}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Address</Form.Label>
+                                <Form.Control
+                                  as="textarea"
+                                  rows={3}
+                                  name="address"
+                                  value={formData.address}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>District</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="district"
+                                  value={formData.district}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="e.g., dehradun"
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>State</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="state"
+                                  value={formData.state}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="e.g., Uttarakhand"
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </Card>
+
+                      {/* Professional Information Section */}
+                      <Card className="info-card">
+                        <Card.Header>
+                          <FaBriefcase className="info-icon" />
+                          Professional Information
+                        </Card.Header>
+                        <Card.Body>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Occupation</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="occupation"
+                                  value={formData.occupation}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="e.g., Software Developer, Student"
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Designation</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="designation"
+                                  value={formData.designation}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="e.g., React Developer, Manager"
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Department Name</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="department_name"
+                                  value={formData.department_name}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="e.g., Engineering, HR"
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Organization Name</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="organization_name"
+                                  value={formData.organization_name}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="e.g., Brainrocks Consulting Services"
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col md={12}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Nature of Work</Form.Label>
+                                <Form.Control
+                                  as="textarea"
+                                  rows={2}
+                                  name="nature_of_work"
+                                  value={formData.nature_of_work}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="Describe your nature of work"
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </Card>
+
+                      {/* Education & Additional Information Section */}
+                      <Card className="info-card">
+                        <Card.Header>
+                          <FaGraduationCap className="info-icon" />
+                          Education & Additional Information
+                        </Card.Header>
+                        <Card.Body>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Education Level</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="education_level"
+                                  value={formData.education_level}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="e.g., MCA, B.Tech, Other"
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Short Description</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="short_description"
+                                  value={formData.short_description}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="Brief description about yourself"
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col md={12}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Additional Notes</Form.Label>
+                                <Form.Control
+                                  as="textarea"
+                                  rows={2}
+                                  name="other_text"
+                                  value={formData.other_text}
+                                  onChange={handleChange}
+                                  disabled={!isEditing}
+                                  placeholder="Any additional information"
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </Card>
+
+                      {/* Account Information Section */}
+                      <Card className="info-card">
+                        <Card.Header>
+                          <FaInfoCircle className="info-icon" />
+                          Account Information
+                        </Card.Header>
+                        <Card.Body>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Status</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  name="status"
+                                  value={formData.status}
+                                  onChange={handleChange}
+                                  disabled={true}
+                                  className="form-control-plaintext"
+                                />
+                                <Form.Text className="text-muted">
+                                  Your account status (cannot be changed)
+                                </Form.Text>
+                              </Form.Group>
+                            </Col>
+                            {formData.created_at && (
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label>Created At</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    value={formData.created_at}
+                                    disabled={true}
+                                    className="form-control-plaintext"
+                                  />
+                                </Form.Group>
+                              </Col>
+                            )}
+                          </Row>
+                          {formData.updated_at && (
+                            <Row>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label>Last Updated</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    value={formData.updated_at}
+                                    disabled={true}
+                                    className="form-control-plaintext"
+                                  />
+                                </Form.Group>
+                              </Col>
+                            </Row>
                           )}
-                        </Button>
-                      </Col>
-                    </Row>
-                  )}
-                </Form>
+                        </Card.Body>
+                      </Card>
+
+                      {/* Action Buttons */}
+                      <Row className="mt-4">
+                        <Col className="d-flex gap-2 justify-content-end">
+                          <Button
+                            variant="secondary"
+                            onClick={cancelEditing}
+                            disabled={isSubmitting}
+                          >
+                            <FaTimes /> Cancel
+                          </Button>
+                          <Button
+                            variant="primary"
+                            type="submit"
+                            disabled={isSubmitting}
+                          >
+                            {isSubmitting ? (
+                              <>
+                                <span
+                                  className="spinner-border spinner-border-sm me-2"
+                                  role="status"
+                                  aria-hidden="true"
+                                ></span>
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <FaSave /> Save Changes
+                              </>
+                            )}
+                          </Button>
+                        </Col>
+                      </Row>
+                    </Form>
+                  </>
+                )}
               </>
             )}
           </Container>
         </div>
       </div>
+
+      {/* Photo Upload Modal */}
+      <Modal show={showPhotoModal} onHide={closePhotoModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Profile Photo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="text-center mb-3">
+            {photoPreview ? (
+              <img
+                src={photoPreview}
+                alt="Photo Preview"
+                style={{ maxWidth: "200px", maxHeight: "200px" }}
+                className="rounded-circle"
+              />
+            ) : existingImage ? (
+              <img
+                src={`https://mahadevaaya.com/ngoproject/ngoproject_backend${existingImage}`}
+                alt="Current Photo"
+                style={{ maxWidth: "200px", maxHeight: "200px" }}
+                className="rounded-circle"
+              />
+            ) : (
+              <div
+                className="d-flex align-items-center justify-content-center bg-light rounded-circle mx-auto"
+                style={{ width: "200px", height: "200px" }}
+              >
+                <FaUser size={60} className="text-muted" />
+              </div>
+            )}
+          </div>
+          <Form.Group>
+            <Form.Control
+              type="file"
+              onChange={handlePhotoChange}
+              accept="image/*"
+              ref={fileInputRef}
+            />
+            <Form.Text className="text-muted">
+              Select a new profile photo. Recommended size: 200x200 pixels.
+            </Form.Text>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closePhotoModal}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={uploadPhoto}
+            disabled={!selectedPhoto || isUploadingPhoto}
+          >
+            {isUploadingPhoto ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Uploading...
+              </>
+            ) : (
+              <>Upload Photo</>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
