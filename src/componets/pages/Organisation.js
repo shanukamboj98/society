@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import "../../assets/css/ImageTransition.css";
 
 const Organisation = () => {
   const [organisationData, setOrganisationData] = useState(null);
@@ -58,8 +59,8 @@ const Organisation = () => {
           <div className="row align-items-center g-5">
             {/* Image Column (Left Side) */}
             <div className="col-lg-6">
-              <div className="about-image" data-aos="zoom-in" data-aos-delay="300">
-                <img src={getImageUrl(organisationData?.image)} className="img-fluid" alt="Organisation Image" />
+              <div className="about-image image-transition-container" data-aos="zoom-in" data-aos-delay="300">
+                <img src={getImageUrl(organisationData?.image)} className="img-fluid image-transition" alt="Organisation Image" />
               </div>
             </div>
 

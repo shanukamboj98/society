@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import "../../assets/css/ImageTransition.css";
 
 const Events = () => {
   const [eventsData, setEventsData] = useState(null);
@@ -77,9 +78,9 @@ const Events = () => {
             </div>
 
             <div className="col-lg-6">
-              <div className="about-image" data-aos="zoom-in" data-aos-delay="300">
+              <div className="about-image image-transition-container" data-aos="zoom-in" data-aos-delay="300">
                 {eventsData?.image ? (
-                  <img src={getImageUrl(eventsData.image)} className="img-fluid" alt="Events Image" />
+                  <img src={getImageUrl(eventsData.image)} className="img-fluid image-transition" alt="Events Image" />
                 ) : (
                   <div className="no-image-placeholder text-center p-5 bg-light rounded">
                     <i className="bi bi-calendar-event display-1 text-muted"></i>

@@ -5,6 +5,8 @@ import Activity from "../pages/activity_event/Activity"
 import Organisation from './Organisation'
 import Events from './Events'
 
+import ShowFeedback from './homefeedback/ShowFeedback'
+
 
 
 function Home() {
@@ -16,6 +18,7 @@ function Home() {
 <Events/>
 
 <Activity />
+<ShowFeedback />
     </div>
   )
 }

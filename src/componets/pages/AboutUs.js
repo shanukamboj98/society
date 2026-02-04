@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import EducationImage from "../../assets/images/education/campus-5.webp";
+import "../../assets/css/ImageTransition.css";
 
 function AboutUs() {
   const [aboutData, setAboutData] = useState(null);
@@ -78,10 +79,8 @@ function AboutUs() {
             </div>
 
             <div className="col-lg-6">
-              <div className="about-image" data-aos="zoom-in" data-aos-delay="300">
-                <img src={getImageUrl(aboutData?.image)} className="img-fluid" alt="About Us Image" />
-
-              
+              <div className="about-image image-transition-container" data-aos="zoom-in" data-aos-delay="300">
+                <img src={getImageUrl(aboutData?.image)} className="img-fluid image-transition" alt="About Us Image" />
               </div>
             </div>
           </div>
