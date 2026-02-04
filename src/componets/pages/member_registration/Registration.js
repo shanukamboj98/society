@@ -278,17 +278,13 @@ const Registration = () => {
             newErrors.date_of_birth = 'Date of birth is required';
         }
 
-        // Registration Fee validation
-        if (!formData.registration_fee) {
-            newErrors.registration_fee = 'Registration fee is required';
-        } else if (isNaN(formData.registration_fee) || parseFloat(formData.registration_fee) < 0) {
+        // Registration Fee validation - only validate if value is provided (not required)
+        if (formData.registration_fee && (isNaN(formData.registration_fee) || parseFloat(formData.registration_fee) < 0)) {
             newErrors.registration_fee = 'Registration fee must be a valid number';
         }
 
-        // Primary Membership validation
-        if (!formData.primary_membership) {
-            newErrors.primary_membership = 'Membership type is required';
-        }
+        // Primary Membership validation - removed required validation
+        // No validation for primary_membership as it's not required anymore
 
         // Conditional field validations
         if (formData.occupation === 'Government' && !formData.department_name.trim()) {
@@ -342,8 +338,16 @@ const Registration = () => {
                 // Add new fields
                 data.append('gender', formData.gender);
                 data.append('date_of_birth', formData.date_of_birth);
-                data.append('registration_fee', formData.registration_fee);
-                data.append('primary_membership', formData.primary_membership);
+                
+                // Only add registration_fee if it has a value
+                if (formData.registration_fee) {
+                    data.append('registration_fee', formData.registration_fee);
+                }
+                
+                // Only add primary_membership if it has a value
+                if (formData.primary_membership) {
+                    data.append('primary_membership', formData.primary_membership);
+                }
 
                 // Add image if available
                 if (formData.image) {
@@ -911,7 +915,7 @@ const Registration = () => {
                         <Col sm={6}>
                             <Form.Group controlId="registration_fee">
                                 <Form.Label>
-                                    Registration Fee <span className="text-danger">*</span>
+                                    Registration Fee
                                 </Form.Label>
                                 <Form.Control
                                     type="text"
@@ -919,8 +923,6 @@ const Registration = () => {
                                     value={formData.registration_fee}
                                     onChange={handleChange}
                                     isInvalid={!!errors.registration_fee}
-                                    required
-                                    aria-required="true"
                                     aria-describedby="registration_fee-error"
                                     placeholder="Enter amount"
                                 />
@@ -928,7 +930,7 @@ const Registration = () => {
                                     {errors.registration_fee}
                                 </Form.Control.Feedback>
                                 <Form.Text id="registration_fee-help" muted>
-                                    Enter a valid amount
+                                    Enter a valid amount (optional)
                                 </Form.Text>
                             </Form.Group>
                         </Col>
@@ -938,7 +940,7 @@ const Registration = () => {
                         <Col sm={6}>
                             <Form.Group controlId="primary_membership">
                                 <Form.Label>
-                                    Membership Type <span className="text-danger">*</span>
+                                    Membership Type
                                 </Form.Label>
                                 {membershipLoading ? (
                                     <div className="d-flex align-items-center">
@@ -952,8 +954,6 @@ const Registration = () => {
                                             value={formData.primary_membership}
                                             onChange={handleChange}
                                             isInvalid={!!errors.primary_membership}
-                                            required
-                                            aria-required="true"
                                             aria-describedby="primary_membership-error"
                                         >
                                             <option value="">Select Membership Type</option>

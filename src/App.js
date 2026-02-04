@@ -48,6 +48,9 @@ import ManageCarousel from "./componets/event_panel/dashboard_pages/ManageCarous
 import Organisation from "./componets/pages/Organisation";
 import Events from "./componets/pages/Events";
 import ContactUs from "./componets/pages/ContactUs";
+import Feedback from "react-bootstrap/esm/Feedback";
+import FeedbackPage from "./componets/pages/FeedbackPage";
+
 
 
 function App() {
@@ -100,6 +103,7 @@ function App() {
            <Route path="/Organisation" element={<Organisation />} />
               <Route path="/Events" element={<Events />} />
               <Route path="/ContactUs" element={<ContactUs />} />
+              <Route path="/FeedbackPage" element={<FeedbackPage />} />
 
           {/* Protected Routes */}
           <Route path="/DashBoard" element={

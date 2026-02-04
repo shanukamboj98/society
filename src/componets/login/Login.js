@@ -84,7 +84,7 @@ const Login = () => {
         // --- ROLE-BASED REDIRECTION LOGIC ---
         let redirectTo;
         if (data.role === 'admin') {
-          redirectTo = "/ManageActivity"; // Admin dashboard
+          redirectTo = "/DashBoard"; // Admin dashboard
         } else if (data.role === 'district-admin') {
           redirectTo = "/DistrictRegistration"; // District admin dashboard
         } else if (data.role === 'member') {

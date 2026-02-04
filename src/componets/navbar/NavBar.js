@@ -106,6 +106,7 @@ function NavBar() {
 
                 <li><Link to="/AssociatedWings" onClick={() => setIsMenuOpen(false)}>Associated Wings</Link></li>
                 <li><Link to="/ContactUs" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>
+                <li><Link to="/FeedbackPage" onClick={() => setIsMenuOpen(false)}>FeedBack</Link></li>
               </ul>
               <i
                 className={`mobile-nav-toggle d-xl-none bi ${isMenuOpen ? 'bi-x' : 'bi-list'}`}

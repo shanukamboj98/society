@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Container } from "react-bootstrap";
-
+import { Container, Row, Col, Card, Table, Spinner, Alert } from "react-bootstrap";
+import axios from "axios";
 import "../../assets/css/dashboard.css";
 import DashBoardHeader from "./DashBoardHeader";
-import LeftNav  from "./LeftNav";
-// import { useAuth } from "../context/AuthContext";
+import LeftNav from "./LeftNav";
+import "../../assets/css/dashboardcards.css";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-//   const { logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showTable, setShowTable] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   // Check device width
   useEffect(() => {
@@ -27,30 +31,216 @@ const Dashboard = () => {
     return () => window.removeEventListener("resize", checkDevice);
   }, []);
 
+  // Fetch data from API
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          "https://mahadevaaya.com/ngoproject/ngoproject_backend/api/member-reg/"
+        );
+        setMembers(response.data.data || []);
+        setError(null);
+      } catch (err) {
+        setError("Failed to fetch member data. Please try again later.");
+        console.error("Error fetching member data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMembers();
+  }, []);
+
+  // Calculate counts
+  const totalCount = members.length;
+  const pendingCount = members.filter((member) => member.status === "pending").length;
+  const acceptedCount = members.filter((member) => member.status === "accepted").length;
+  const rejectedCount = members.filter((member) => member.status === "rejected").length;
+
+  // Handle card click
+  const handleCardClick = (filter) => {
+    setActiveFilter(filter);
+    setShowTable(true);
+  };
+
+  // Filter members based on active filter
+  const filteredMembers = activeFilter === "all" 
+    ? members 
+    : members.filter((member) => member.status === activeFilter);
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  // Function to get badge color based on status
+  const getStatusBadgeClass = (status) => {
+    switch(status) {
+      case "accepted":
+        return "bg-success";
+      case "pending":
+        return "bg-warning";
+      case "rejected":
+        return "bg-danger";
+      default:
+        return "bg-secondary";
+    }
+  };
 
   return (
     <>
-    <div className="dashboard-container">
-      {/* Left Sidebar */}
-      <LeftNav
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        isMobile={isMobile}
-        isTablet={isTablet}
-      />
+      <div className="dashboard-container">
+        {/* Left Sidebar */}
+        <LeftNav
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          isMobile={isMobile}
+          isTablet={isTablet}
+        />
 
-      {/* Main Content */}
-      <div className="main-content-dash">
-        <DashBoardHeader toggleSidebar={toggleSidebar} />
+        {/* Main Content */}
+        <div className="main-content-dash">
+          <DashBoardHeader toggleSidebar={toggleSidebar} />
 
-        <Container fluid className="dashboard-body dashboard-main-container">
-          <h1 className="page-title">Dashboard</h1>
-          <p>Welcome to the Admin Dashboard!</p>
-       
-        </Container>
+          <Container fluid className="dashboard-body dashboard-main-container">
+            <h1 className="page-title">Dashboard</h1>
+            
+            {loading ? (
+              <div className="loading-spinner text-center my-5">
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              </div>
+            ) : error ? (
+              <Alert variant="danger" className="dashboard-alert">{error}</Alert>
+            ) : (
+              <>
+                {!showTable ? (
+                  <Row className="dashboard-cards">
+                    <Col md={3} className="mb-3">
+                      <Card 
+                        className="dashboard-card card-all text-center h-100 cursor-pointer" 
+                        onClick={() => handleCardClick("all")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Card.Body>
+                          <Card.Title>All Members</Card.Title>
+                          <h2>{totalCount}</h2>
+                          <div className="card-icon">
+                            <i className="fas fa-users"></i>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                    <Col md={3} className="mb-3">
+                      <Card 
+                        className="dashboard-card card-pending text-center h-100 cursor-pointer" 
+                        onClick={() => handleCardClick("pending")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Card.Body>
+                          <Card.Title>Pending Members</Card.Title>
+                          <h2>{pendingCount}</h2>
+                          <div className="card-icon">
+                            <i className="fas fa-clock"></i>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                    <Col md={3} className="mb-3">
+                      <Card 
+                        className="dashboard-card card-accepted text-center h-100 cursor-pointer" 
+                        onClick={() => handleCardClick("accepted")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Card.Body>
+                          <Card.Title>Accepted Members</Card.Title>
+                          <h2>{acceptedCount}</h2>
+                          <div className="card-icon">
+                            <i className="fas fa-check-circle"></i>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                    <Col md={3} className="mb-3">
+                      <Card 
+                        className="dashboard-card card-rejected text-center h-100 cursor-pointer" 
+                        onClick={() => handleCardClick("rejected")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Card.Body>
+                          <Card.Title>Rejected Members</Card.Title>
+                          <h2>{rejectedCount}</h2>
+                          <div className="card-icon">
+                            <i className="fas fa-times-circle"></i>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  </Row>
+                ) : (
+                  <div className="btn-heading-title">
+                    <button 
+                      className="btn-back" 
+                      onClick={() => setShowTable(false)}
+                    >
+                      <i className="fas fa-arrow-left me-2"></i>
+                      Back to Dashboard
+                    </button>
+                    <h2 className="mb-3">
+                      {activeFilter === "all" 
+                        ? "All Members" 
+                        : `${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)} Members`}
+                      ({filteredMembers.length})
+                    </h2>
+                    <div className="dashboard-table">
+                      <Table striped bordered hover responsive>
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Member ID</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Occupation</th>
+                            <th>Education</th>
+                            <th>Status</th>
+                            <th>Registration Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredMembers.map((member) => (
+                            <tr key={member.id}>
+                              <td>{member.id}</td>
+                              <td>{member.member_id}</td>
+                              <td>{member.full_name}</td>
+                              <td>{member.email}</td>
+                              <td>{member.phone}</td>
+                              <td>{member.occupation || "N/A"}</td>
+                              <td>{member.education_level || "N/A"}</td>
+                              <td>
+                                <span className={`badge status-badge ${getStatusBadgeClass(member.status)}`}>
+                                  {member.status || "N/A"}
+                                </span>
+                              </td>
+                              <td>{formatDate(member.created_at)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </Container>
+        </div>
       </div>
-    </div>
     </>
   );
 };
