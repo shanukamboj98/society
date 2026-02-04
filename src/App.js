@@ -48,9 +48,9 @@ import ManageCarousel from "./componets/event_panel/dashboard_pages/ManageCarous
 import Organisation from "./componets/pages/Organisation";
 import Events from "./componets/pages/Events";
 import ContactUs from "./componets/pages/ContactUs";
-import Feedback from "react-bootstrap/esm/Feedback";
-import FeedbackPage from "./componets/pages/FeedbackPage";
-
+import AddUpdates from "./componets/event_panel/dashboard_pages/latestupdates/AddUpdates";
+import ManageUpdates from "./componets/event_panel/dashboard_pages/latestupdates/ManageUpdates";
+import ManageFeedback from "./componets/event_panel/dashboard_pages/feedback/ManageFeedback";
 
 
 function App() {
@@ -76,7 +76,10 @@ function App() {
     "/ManageDistrictActivity",
     "/ManageAboutUs",
     "/UserProfile",
-    "/ManageCarousel"
+    "/ManageCarousel",
+    "/AddUpdates",
+    "/ManageUpdates",
+    "/ManageFeedback"
   ]);
 
   const shouldHideNavbar = hiddenPaths.has(location.pathname);
@@ -103,7 +106,6 @@ function App() {
            <Route path="/Organisation" element={<Organisation />} />
               <Route path="/Events" element={<Events />} />
               <Route path="/ContactUs" element={<ContactUs />} />
-              <Route path="/FeedbackPage" element={<FeedbackPage />} />
 
           {/* Protected Routes */}
           <Route path="/DashBoard" element={
@@ -202,6 +204,21 @@ function App() {
            <Route path="/ManageCarousel" element={
             <ProtectedRoute>
               < ManageCarousel />
+            </ProtectedRoute>
+          } />
+          <Route path="/AddUpdates" element={
+            <ProtectedRoute>
+              <AddUpdates />
+            </ProtectedRoute>
+          } />
+          <Route path="/ManageUpdates" element={
+            <ProtectedRoute>
+              <ManageUpdates />
+            </ProtectedRoute>
+          } />
+          <Route path="/ManageFeedback" element={
+            <ProtectedRoute>
+              <ManageFeedback />
             </ProtectedRoute>
           } />
          

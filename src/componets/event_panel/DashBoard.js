@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Table, Spinner, Alert } from "react-bootstrap";
+import { Container, Row, Col, Card, Table, Spinner, Alert, Form, Dropdown } from "react-bootstrap";
 import axios from "axios";
 import "../../assets/css/dashboard.css";
 import DashBoardHeader from "./DashBoardHeader";
@@ -59,9 +59,13 @@ const Dashboard = () => {
   const rejectedCount = members.filter((member) => member.status === "rejected").length;
 
   // Handle card click
-  const handleCardClick = (filter) => {
-    setActiveFilter(filter);
+  const handleCardClick = () => {
     setShowTable(true);
+  };
+
+  // Handle filter change
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
   };
 
   // Filter members based on active filter
@@ -120,84 +124,69 @@ const Dashboard = () => {
               <Alert variant="danger" className="dashboard-alert">{error}</Alert>
             ) : (
               <>
-                {!showTable ? (
-                  <Row className="dashboard-cards">
-                    <Col md={3} className="mb-3">
-                      <Card 
-                        className="dashboard-card card-all text-center h-100 cursor-pointer" 
-                        onClick={() => handleCardClick("all")}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Card.Body>
-                          <Card.Title>All Members</Card.Title>
-                          <h2>{totalCount}</h2>
-                          <div className="card-icon">
-                            <i className="fas fa-users"></i>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                    <Col md={3} className="mb-3">
-                      <Card 
-                        className="dashboard-card card-pending text-center h-100 cursor-pointer" 
-                        onClick={() => handleCardClick("pending")}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Card.Body>
-                          <Card.Title>Pending Members</Card.Title>
-                          <h2>{pendingCount}</h2>
-                          <div className="card-icon">
-                            <i className="fas fa-clock"></i>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                    <Col md={3} className="mb-3">
-                      <Card 
-                        className="dashboard-card card-accepted text-center h-100 cursor-pointer" 
-                        onClick={() => handleCardClick("accepted")}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Card.Body>
-                          <Card.Title>Accepted Members</Card.Title>
-                          <h2>{acceptedCount}</h2>
-                          <div className="card-icon">
-                            <i className="fas fa-check-circle"></i>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                    <Col md={3} className="mb-3">
-                      <Card 
-                        className="dashboard-card card-rejected text-center h-100 cursor-pointer" 
-                        onClick={() => handleCardClick("rejected")}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Card.Body>
-                          <Card.Title>Rejected Members</Card.Title>
-                          <h2>{rejectedCount}</h2>
-                          <div className="card-icon">
-                            <i className="fas fa-times-circle"></i>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  </Row>
-                ) : (
-                  <div className="btn-heading-title">
-                    <button 
-                      className="btn-back" 
-                      onClick={() => setShowTable(false)}
+                {/* Show only one card for all members */}
+                <Row className="dashboard-cards mb-4">
+                  <Col md={3} className="mb-3">
+                    <Card 
+                      className="dashboard-card card-all text-center h-100 cursor-pointer"
+                      onClick={handleCardClick}
+                      style={{ cursor: "pointer" }}
                     >
-                      <i className="fas fa-arrow-left me-2"></i>
-                      Back to Dashboard
-                    </button>
-                    <h2 className="mb-3">
-                      {activeFilter === "all" 
-                        ? "All Members" 
-                        : `${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)} Members`}
-                      ({filteredMembers.length})
-                    </h2>
+                      <Card.Body>
+                        <Card.Title>All Members</Card.Title>
+                        <h2>{totalCount}</h2>
+                        <div className="card-icon">
+                          <i className="fas fa-users"></i>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+
+                {/* Show table with filter when card is clicked */}
+                {showTable && (
+                  <div className="btn-heading-title">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h2>
+                        {activeFilter === "all" 
+                          ? "All Members" 
+                          : `${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)} Members`}
+                        ({filteredMembers.length})
+                      </h2>
+                      <div>
+                        <Dropdown>
+                          <Dropdown.Toggle variant="outline-primary" id="filter-dropdown">
+                            Filter: {activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu>
+                            <Dropdown.Item 
+                              onClick={() => handleFilterChange("all")}
+                              active={activeFilter === "all"}
+                            >
+                              All
+                            </Dropdown.Item>
+                            <Dropdown.Item 
+                              onClick={() => handleFilterChange("pending")}
+                              active={activeFilter === "pending"}
+                            >
+                              Pending ({pendingCount})
+                            </Dropdown.Item>
+                            <Dropdown.Item 
+                              onClick={() => handleFilterChange("accepted")}
+                              active={activeFilter === "accepted"}
+                            >
+                              Accepted ({acceptedCount})
+                            </Dropdown.Item>
+                            <Dropdown.Item 
+                              onClick={() => handleFilterChange("rejected")}
+                              active={activeFilter === "rejected"}
+                            >
+                              Rejected ({rejectedCount})
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </div>
+                    </div>
                     <div className="dashboard-table">
                       <Table striped bordered hover responsive>
                         <thead>

@@ -131,6 +131,28 @@ const LeftNav = ({ sidebarOpen, setSidebarOpen, isMobile, isTablet }) => {
         },
       ],
     },
+    {
+      icon: <FaEdit />, // Changed
+      label: "Latest Updates",
+      submenu: [
+        {
+          label: "Add Updates",
+          path: "/AddUpdates",
+          icon: <FaPlusSquare />, // Changed
+        },
+        {
+          label: "Manage Updates",
+          path: "/ManageUpdates",
+          icon: <FaListUl />, // Changed
+        },
+      ],
+    },
+    {
+      icon: <FaComments />, // Changed
+      label: "Manage Feedback",
+      path: "/ManageFeedback",
+      active: true,
+    },
   ];
 
   return (

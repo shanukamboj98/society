@@ -1,15 +1,19 @@
 // src/components/HeroCarousel.js
 import React, { useState, useEffect } from 'react';
 import { Spinner, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import "../../assets/css/mainstyle.css";
 import "../../assets/css/AnimatedCarousel.css";
 
 function EventCarousel() {
+  const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const [carouselSlides, setCarouselSlides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [showNewsCard, setShowNewsCard] = useState(true);
+  const [latestNews, setLatestNews] = useState(null);
 
   // Fetch carousel data from API
   useEffect(() => {
@@ -44,7 +48,33 @@ function EventCarousel() {
       }
     };
 
+    // Fetch latest updates
+    const fetchLatestUpdates = async () => {
+      try {
+        const response = await fetch('https://mahadevaaya.com/ngoproject/ngoproject_backend/api/latest-update-items/');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.length > 0) {
+          setLatestNews(data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching latest updates:", err);
+      }
+    };
+
+    // Check localStorage for news card dismissal
+    const newsCardDismissed = localStorage.getItem('newsCardDismissed');
+    if (!newsCardDismissed) {
+      setShowNewsCard(true);
+    }
+
     fetchCarouselData();
+    fetchLatestUpdates();
   }, []);
 
   // Seamless transition logic
@@ -125,6 +155,71 @@ function EventCarousel() {
 
       {/* Semi-transparent overlay for text readability */}
       <div className="carousel-overlay"></div>
+
+      {/* News Card Overlay */}
+      {showNewsCard && (
+        <div className="news-card-overlay">
+          <div className="news-card">
+            <button 
+              className="news-card-close"
+              onClick={() => {
+                setShowNewsCard(false);
+                localStorage.setItem('newsCardDismissed', 'true');
+              }}
+              aria-label="Close news card"
+            >
+              ✕
+            </button>
+            <div className="news-card-icon">📢 <h3 className="news-card-title">Latest Updates</h3></div>
+            {latestNews && latestNews.length > 0 ? (
+              <div className={`news-card-content-wrapper ${latestNews.length > 1 ? 'scrollable' : ''}`}>
+                {latestNews.map((update, index) => (
+                  <div key={update.id} className="news-item">
+                    <div className="news-item-header">
+                      <span className="news-item-number">{index + 1}.</span>
+                      <p className="news-item-title">{update.title}</p>
+                    </div>
+                    <a 
+                      href={update.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="news-item-link"
+                    >
+                      View More →
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="news-card-content">
+                Stay tuned for our upcoming programs and initiatives. Join us in making a positive impact on our communities through education, health, and sustainable development.
+              </p>
+            )}
+{/*             
+            <div className="news-card-footer">
+              <span className="news-badge">New</span>
+            </div> */}
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="carousel-action-buttons">
+        <button 
+          className="carousel-btn carousel-btn-registration"
+          onClick={() => navigate('/registration')}
+        >
+          <span className="btn-icon">📝</span>
+          Registration
+        </button>
+        <button 
+          className="carousel-btn carousel-btn-donation"
+          onClick={() => navigate('/DonationSociety')}
+        >
+          <span className="btn-icon">❤️</span>
+          Donation
+        </button>
+      </div>
 
       {/* Content Wrapper */}
       <div className="hero-wrapper">
