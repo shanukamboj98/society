@@ -1,14 +1,15 @@
 // src/components/HeroCarousel.js
 import React, { useState, useEffect } from 'react';
-import Carousel from 'react-bootstrap/Carousel';
 import { Spinner, Alert } from 'react-bootstrap';
 import "../../assets/css/mainstyle.css";
+import "../../assets/css/AnimatedCarousel.css";
 
 function EventCarousel() {
   const [index, setIndex] = useState(0);
   const [carouselSlides, setCarouselSlides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   // Fetch carousel data from API
   useEffect(() => {
@@ -46,9 +47,24 @@ function EventCarousel() {
     fetchCarouselData();
   }, []);
 
-  const handleSelect = (selectedIndex) => {
-    setIndex(selectedIndex);
-  };
+  // Seamless transition logic
+  const [prevSlideIndex, setPrevSlideIndex] = useState(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    if (carouselSlides.length === 0) return;
+
+    const interval = setInterval(() => {
+      setPrevSlideIndex(activeSlideIndex);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setActiveSlideIndex(prevIndex => (prevIndex + 1) % carouselSlides.length);
+        setIsTransitioning(false);
+      }, 1200); // 1.2s overlap for fade
+    }, 20000); // 20s per image
+
+    return () => clearInterval(interval);
+  }, [carouselSlides.length, activeSlideIndex]);
 
   // Show loading spinner while fetching data
   if (isLoading) {
@@ -82,38 +98,52 @@ function EventCarousel() {
   }
 
   return (
-    <>
-      {/* The main carousel component from react-bootstrap */}
-      <Carousel activeIndex={index} onSelect={handleSelect} interval={5000} pause="hover">
-        
-        {/* We map over our data array to create a slide for each item */}
-        {carouselSlides.map((slide, slideIndex) => (
-          <Carousel.Item key={slide.id || slideIndex}>
-            {/* Inside each Carousel.Item, we place your hero section structure */}
-            <section id="hero" className="hero section hero-area-bg">
-              <div className="overlay"></div>
-              <div className="hero-wrapper">
-                <div className="container">
-                  <div className="row align-items-center">
-                    <div className="col-lg-6 hero-content" data-aos="fade-right">
-                      <h1>{slide.title}</h1>
-                      <p>{slide.subtitle}</p>
-                     
-                    </div>
-                    <div className="col-lg-6 hero-media" data-aos="zoom-in">
-                      <img src={slide.image} alt="Showcase" className="img-fluid" />
-                      <div className="image-overlay">
-                       
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </Carousel.Item>
-        ))}
-      </Carousel>
-    </>
+    <div className="hero-carousel-container hero">
+      {/* Animated Background Slides */}
+      <div className="carousel-background">
+        {/* Current slide */}
+        {carouselSlides[activeSlideIndex] && (
+          <div
+            key={carouselSlides[activeSlideIndex].id}
+            className={`carousel-background-slide active${isTransitioning ? ' fade-out' : ''}`}
+            style={{ backgroundImage: `url('${carouselSlides[activeSlideIndex].image}')` }}
+            role="img"
+            aria-label={carouselSlides[activeSlideIndex].title}
+          />
+        )}
+        {/* Next slide (fade in) */}
+        {isTransitioning && carouselSlides[(activeSlideIndex + 1) % carouselSlides.length] && (
+          <div
+            key={carouselSlides[(activeSlideIndex + 1) % carouselSlides.length].id + '-next'}
+            className="carousel-background-slide fade-in"
+            style={{ backgroundImage: `url('${carouselSlides[(activeSlideIndex + 1) % carouselSlides.length].image}')` }}
+            role="img"
+            aria-label={carouselSlides[(activeSlideIndex + 1) % carouselSlides.length].title}
+          />
+        )}
+      </div>
+
+      {/* Semi-transparent overlay for text readability */}
+      <div className="carousel-overlay"></div>
+
+      {/* Content Wrapper */}
+      <div className="hero-wrapper">
+        <div className="container">
+          <div className="row align-items-center">
+            {/* Text Content - Only show current slide content */}
+            <div className="col-lg-6 hero-content" data-aos="fade-right">
+              <h1>{carouselSlides[activeSlideIndex]?.title}</h1>
+              <p>{carouselSlides[activeSlideIndex]?.subtitle}</p>
+            </div>
+
+            {/* Empty space or additional content on larger screens */}
+            <div className="col-lg-6 hero-media" data-aos="zoom-in">
+              {/* Optional: Add decorative elements or statistics here */}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

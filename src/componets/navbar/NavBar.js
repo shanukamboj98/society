@@ -100,7 +100,7 @@ function NavBar() {
                   </Link>
                   <ul style={{ display: openDropdowns['registration'] ? 'block' : 'none' }}>
                     <li><Link to="/Registration" onClick={() => setIsMenuOpen(false)}>Member Registration</Link></li>
-                    <li><Link to="/MembersList" onClick={() => setIsMenuOpen(false)}>Members List</Link></li>
+                    {/* <li><Link to="/MembersList" onClick={() => setIsMenuOpen(false)}>Members List</Link></li> */}
                   </ul>
                 </li>
 
